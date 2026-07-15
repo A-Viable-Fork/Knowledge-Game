@@ -1,0 +1,137 @@
+{
+  "contribution_id": "7d04002cd5dc0b54494ccfc369d541ea2174e44775c954d5b66d66b79980dbd4",
+  "proposal": {
+    "entries": [
+      {
+        "record_type": "claim",
+        "identity": "3ae8820bc307076c87dd60e96a5ef10f9aac7f55798a119f430a56012fe85580",
+        "kind": "measurement",
+        "statement": "The ranking/objective perturbation overlay's consequence cascade is computed from the support graph and reproduces the authored cascade fixture, rather than being asserted; the overlay is non-destructive and deterministic across repeated runs.",
+        "source_id": "S-epistack-protocol-spec",
+        "contributor_id": "P-epistack-competition-contributor-1",
+        "declared_grade": "checked",
+        "checking_records": [
+          {
+            "checker_id": "upstream/epistack/build/check-perturb.mjs",
+            "method_class": "direct-measurement",
+            "method": "test-execution evidence: runs the pinned reference implementation's perturbation oracle over the LHC case, asserting the computed cascade reproduces the authored one and the overlay is non-destructive and deterministic",
+            "checked_at_state": "upstream-epistack@674e7b62",
+            "outcome": "confirms",
+            "independence": "distinct-party",
+            "canonical": {
+              "checker_id": "upstream/epistack/build/check-perturb.mjs",
+              "method_class": "direct-measurement",
+              "method": "test-execution evidence: runs the pinned reference implementation's perturbation oracle over the LHC case, asserting the computed cascade reproduces the authored one and the overlay is non-destructive and deterministic",
+              "checked_at_state": "upstream-epistack@674e7b62",
+              "outcome": "confirms",
+              "independence": "distinct-party"
+            },
+            "hash": "eb451545a4b492bc9bfb4158718d09d405235dbeee85e2f4f1393d50868b2709"
+          }
+        ],
+        "canonical": {
+          "identity": "3ae8820bc307076c87dd60e96a5ef10f9aac7f55798a119f430a56012fe85580",
+          "kind": "measurement",
+          "statement": "The ranking/objective perturbation overlay's consequence cascade is computed from the support graph and reproduces the authored cascade fixture, rather than being asserted; the overlay is non-destructive and deterministic across repeated runs.",
+          "source_id": "S-epistack-protocol-spec",
+          "contributor_id": "P-epistack-competition-contributor-1",
+          "declared_grade": "checked",
+          "checking_records": [
+            {
+              "checker_id": "upstream/epistack/build/check-perturb.mjs",
+              "method_class": "direct-measurement",
+              "method": "test-execution evidence: runs the pinned reference implementation's perturbation oracle over the LHC case, asserting the computed cascade reproduces the authored one and the overlay is non-destructive and deterministic",
+              "checked_at_state": "upstream-epistack@674e7b62",
+              "outcome": "confirms",
+              "independence": "distinct-party"
+            }
+          ]
+        },
+        "hash": "5b99f03354b31513523594f895b86e5fe3d7ae2e557524ca667d652c9167f29c"
+      }
+    ],
+    "links": [
+      {
+        "record_type": "link",
+        "identity": "e73128168849b274fa37ef6ae4e3dd5961510edd2dbaab38e8fd7485a2686326",
+        "link_kind": "supports",
+        "from_identity": "3ae8820bc307076c87dd60e96a5ef10f9aac7f55798a119f430a56012fe85580",
+        "to_identity": "5065c6dae12831b64eb707d836175ade83528ad5fb5882cb4c340e9d55b4aa55",
+        "support_group": "g:5065c6dae12831b64eb707d836175ade83528ad5fb5882cb4c340e9d55b4aa55/3ae8820bc307076c87dd60e96a5ef10f9aac7f55798a119f430a56012fe85580",
+        "source_id": "S-epistack-protocol-spec",
+        "contributor_id": "P-epistack-competition-contributor-1",
+        "declared_grade": "corroborated",
+        "checking_records": [],
+        "canonical": {
+          "identity": "e73128168849b274fa37ef6ae4e3dd5961510edd2dbaab38e8fd7485a2686326",
+          "link_kind": "supports",
+          "from_identity": "3ae8820bc307076c87dd60e96a5ef10f9aac7f55798a119f430a56012fe85580",
+          "to_identity": "5065c6dae12831b64eb707d836175ade83528ad5fb5882cb4c340e9d55b4aa55",
+          "source_id": "S-epistack-protocol-spec",
+          "contributor_id": "P-epistack-competition-contributor-1",
+          "declared_grade": "corroborated",
+          "support_group": "g:5065c6dae12831b64eb707d836175ade83528ad5fb5882cb4c340e9d55b4aa55/3ae8820bc307076c87dd60e96a5ef10f9aac7f55798a119f430a56012fe85580"
+        },
+        "hash": "668893cc8577564124f741f55750a484b6aa6e2c3dd23f9b1214accb90ece7f2"
+      }
+    ]
+  },
+  "receipt": {
+    "ruleset_version": "v3",
+    "schema_version": "v3",
+    "store_state": "dc14a9e1c76858c3791d83a1462bb77882875a566ccc2012fecd4ab2aa09dfa0",
+    "contribution_hash": "5b99f03354b31513523594f895b86e5fe3d7ae2e557524ca667d652c9167f29c",
+    "findings": [],
+    "binding_table": [
+      {
+        "finding_type": "binding",
+        "reference_locator": "e73128168849b274fa37ef6ae4e3dd5961510edd2dbaab38e8fd7485a2686326#from_identity",
+        "target_identity": "3ae8820bc307076c87dd60e96a5ef10f9aac7f55798a119f430a56012fe85580",
+        "resolution": "unresolved",
+        "asserted_grade": "absent"
+      },
+      {
+        "finding_type": "binding",
+        "reference_locator": "e73128168849b274fa37ef6ae4e3dd5961510edd2dbaab38e8fd7485a2686326#to_identity",
+        "target_identity": "5065c6dae12831b64eb707d836175ade83528ad5fb5882cb4c340e9d55b4aa55",
+        "resolution": "bound",
+        "asserted_grade": "absent",
+        "bound_state": "dc14a9e1c76858c3791d83a1462bb77882875a566ccc2012fecd4ab2aa09dfa0",
+        "stored_grade": "checked"
+      }
+    ],
+    "grade_table": [
+      {
+        "identity": "3ae8820bc307076c87dd60e96a5ef10f9aac7f55798a119f430a56012fe85580",
+        "ceiling": "checked",
+        "ceiling_mode": "empirical",
+        "declared_grade": "checked",
+        "earned_grade": "checked",
+        "earned_mode": "empirical",
+        "S": "asserted",
+        "B": "checked"
+      }
+    ],
+    "restatement_closures": [
+      [
+        "3ae8820bc307076c87dd60e96a5ef10f9aac7f55798a119f430a56012fe85580"
+      ]
+    ],
+    "withdrawn_matches": [],
+    "corroboration_findings": [],
+    "contradiction_records": [],
+    "decision": "accepted",
+    "decision_basis": [
+      "all-checks-clean"
+    ],
+    "certificate_hash": "4347c5445d2af19a7a5bcd65d492a2fb0b5a14720eea922bdea26f2f8cc0d03c",
+    "proposed_identity": "3ae8820bc307076c87dd60e96a5ef10f9aac7f55798a119f430a56012fe85580"
+  },
+  "origin": {
+    "kernel_id": "epistack-competition",
+    "state_id": "e5f125d55a68d641e0f0732f12579972e32312ef28beb345441ec0fd2639f17e"
+  },
+  "protocol": "v3",
+  "status": "gate-passed, not admitted",
+  "instructions": "This bundle is a proposal that passed the origin kernel's gate structurally; it is not admitted anywhere. To submit it, open a pull request carrying the bundle to a target kernel: the target's own suite re-runs the gate over the patch, admission is the target's act, and semantic judgement of whether the cited support holds of the world is its community's, never asserted here."
+}

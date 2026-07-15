@@ -1,0 +1,24 @@
+{
+  "kernel_id": "epistack-competition",
+  "snapshot_hash": "740baeeb9c340de51d0de31aa1ed6a5c75c49c8c8421910ffd6c10ea183a1f65",
+  "fetch_locations": [
+    "https://a-viable-fork.github.io/Knowledge-Game/communities/epistack-competition/snapshot/epistack-competition.snapshot.json"
+  ],
+  "pinned_type_hashes": {
+    "measurement": "2ed60a0154fef12d5d630f4a3f52d06686479c75aa57a44fd3b1488d581d3621",
+    "forum": "04c5a97678a1228065e6c36068b0b3dcc12ca52ad1285e6727f49754030007a1"
+  },
+  "contribution_target": "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/epistack-competition (in-repo for now; a pull request touching this path re-runs the gate via .github/workflows/ci.yml; a documented move-out obligation to a standalone sibling repository is ledgered)",
+  "protocol_identity": "epistack-v3",
+  "domain": "the EpiStack protocol and its competition submission",
+  "identity_thresholds": {
+    "propose": "any",
+    "contest-type": "supported",
+    "vouch": "corroborated"
+  },
+  "standing_economy": {
+    "time_lock_cost": null,
+    "decay_rate": null,
+    "sybil_resistant_weighting_curve": null
+  }
+}

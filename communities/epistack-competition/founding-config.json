@@ -1,0 +1,38 @@
+{
+  "kernel_id": "epistack-competition",
+  "home": "communities/epistack-competition",
+  "frame": {
+    "name": "EpiStack Competition Community",
+    "domain": "the EpiStack protocol and its competition submission",
+    "purpose": "a community kernel grounding the protocol's own mechanical guarantees against the pinned reference implementation's own check suite, and holding the submission's evaluative theses bare, at their honest floor, awaiting semantic acceptance by the judges and participants who alone can give it"
+  },
+  "adopted_type_hashes": ["measurement", "forum"],
+  "local_kinds": [],
+  "sources": [
+    {
+      "source_id": "S-epistack-protocol-spec",
+      "source_class": "institutional-report",
+      "description": "the pinned reference implementation's own protocol-spec.md, composition-spec.md, ecosystem-guide.md, and parameters-register.md, the asserting source for this kernel's mechanical claims about what the protocol guarantees"
+    },
+    {
+      "source_id": "S-epistack-submission-argument",
+      "source_class": "preprint",
+      "description": "the pinned reference implementation's own epistemic_uplift.md, compost-ledger.md, and trust-and-view.md, unreviewed argumentative essays awaiting the judges' own semantic acceptance, the asserting source for this kernel's evaluative claims"
+    }
+  ],
+  "time_lock": { "setting": "light" },
+  "identity_thresholds": {
+    "propose": "any",
+    "contest-type": "supported",
+    "vouch": "corroborated"
+  },
+  "standing_economy": {
+    "time_lock_cost": null,
+    "decay_rate": null,
+    "sybil_resistant_weighting_curve": null
+  },
+  "fetch_locations": [
+    "https://a-viable-fork.github.io/Knowledge-Game/communities/epistack-competition/snapshot/epistack-competition.snapshot.json"
+  ],
+  "contribution_target": "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/epistack-competition (in-repo for now; a pull request touching this path re-runs the gate via .github/workflows/ci.yml; a documented move-out obligation to a standalone sibling repository is ledgered)"
+}

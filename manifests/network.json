@@ -2,9 +2,14 @@
   "_purpose": "Declares every network destination this deployment may call. build/check-egress.mjs asserts no request succeeds to a destination outside allowed_egress_destinations.",
   "allowed_egress_destinations": [
     {
+      "path": "../communities/epistack-competition/snapshot/epistack-competition.snapshot.json",
+      "snapshot_hash": "740baeeb9c340de51d0de31aa1ed6a5c75c49c8c8421910ffd6c10ea183a1f65",
+      "description": "The founded EpiStack Competition Community, this deployment's default community: 19 claims, thirteen checked (mechanical protocol claims plus the first admitted contribution), six asserted (the submission's own evaluative theses, awaiting semantic acceptance)."
+    },
+    {
       "path": "fixtures/knowledge-game.snapshot.json",
-      "snapshot_hash": "88da402b29110da1579c643cb78429da770032aac560f41901906e9bdd49ecd6",
-      "description": "This deployment's own governance kernel: 19 claims, nine checked (claims 1, 2, 3, 5, 6, 7, 8, 15, 19), ten asserted."
+      "snapshot_hash": "6b58a7c85ea73a103ceeea58757b46ff7357ba8b83a905e0592c35cfaab9f94b",
+      "description": "This deployment's own governance kernel: 19 claims, all nineteen checked. Stage 3's grounding is complete as of Phase B/C."
     },
     {
       "path": "fixtures/math.snapshot.json",

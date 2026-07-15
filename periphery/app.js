@@ -17,17 +17,25 @@ import * as settings from "../api/settings.js";
 import { renderCard } from "./card.js";
 import { renderObjectivePanel } from "./objective-panel.js";
 import { renderVaultScreen, downloadJSON } from "./vault-screen.js";
+import { renderContributeScreen } from "./contribute-screen.js";
 
-// The community registry: the two fixtures shipped in this phase. Real discovery (community cards,
-// import/export) arrives with Phase B/C; this is deliberately the minimal, hardcoded list.
+// The community registry. The founded EpiStack Competition Community (Phase B/C, its community card
+// at communities/epistack-competition/community-card.json) is the default; the two development
+// fixtures are demoted to secondary. Real directory discovery (importing an arbitrary community card)
+// remains unbuilt; this is still a hardcoded list, now naming a real published community rather than
+// only fixtures.
 const COMMUNITIES = [
+  { id: "epistack-competition", label: "EpiStack Competition Community", path: "../communities/epistack-competition/snapshot/epistack-competition.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/epistack-competition" },
   { id: "knowledge-game", label: "Knowledge Game (this app's own governance kernel)", path: "fixtures/knowledge-game.snapshot.json" },
   { id: "math", label: "EpiStack Math Kernel (upstream content, for contrast)", path: "fixtures/math.snapshot.json" },
 ];
 
 function parseHash() {
   const params = new URLSearchParams(location.hash.replace(/^#/, ""));
-  return { community: params.get("community"), claim: params.get("claim"), view: params.get("view") || "feed" };
+  return {
+    community: params.get("community"), claim: params.get("claim"), view: params.get("view") || "feed",
+    action: params.get("action"), target: params.get("target"),
+  };
 }
 function setHash(next) {
   const current = parseHash();
@@ -36,6 +44,8 @@ function setHash(next) {
   if (merged.community) params.set("community", merged.community);
   if (merged.claim) params.set("claim", merged.claim);
   if (merged.view && merged.view !== "feed") params.set("view", merged.view);
+  if (merged.view === "contribute" && merged.action) params.set("action", merged.action);
+  if (merged.view === "contribute" && merged.target) params.set("target", merged.target);
   location.hash = params.toString();
 }
 
@@ -189,6 +199,7 @@ async function loadCommunity(id, deepLinkClaim) {
         linksByFrom: byFrom,
         gapsByIdentity,
         isDeepLinkTarget: (identity) => identity === deepLinkClaim,
+        onContribute: (action, targetRow) => setHash({ view: "contribute", action, target: targetRow.identity, community: meta.id }),
       });
       card.dataset.identity = row.identity;
       card.dataset.kind = row.kind;
@@ -246,6 +257,33 @@ async function loadCommunity(id, deepLinkClaim) {
   renderSwitcher(meta.id);
 }
 
+async function loadContributeScreen(id, action, targetIdentity) {
+  const feedEl = document.getElementById("feed");
+  const panelEl = document.getElementById("objective-panel-mount");
+  const syncEl = document.getElementById("sync-state");
+  if (syncEl) syncEl.innerHTML = "";
+  panelEl.innerHTML = "";
+  feedEl.innerHTML = "";
+  feedEl.setAttribute("aria-busy", "true");
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const targetRow = targetIdentity ? community.api.read({ identity: targetIdentity })[0] : null;
+  feedEl.setAttribute("aria-busy", "false");
+  renderContributeScreen(feedEl, {
+    community, action, targetRow, contributionTarget: meta.contributionTarget,
+    onBack: () => setHash({ view: "feed", action: null, target: null }),
+  });
+  renderSwitcher(null);
+}
+
 function loadVaultScreen() {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
@@ -271,9 +309,11 @@ function loadVaultScreen() {
 }
 
 function boot() {
-  const { community, claim, view } = parseHash();
+  const { community, claim, view, action, target } = parseHash();
   if (view === "vault") {
     loadVaultScreen();
+  } else if (view === "contribute") {
+    loadContributeScreen(community || COMMUNITIES[0].id, action, target);
   } else {
     loadCommunity(community || COMMUNITIES[0].id, claim);
   }
