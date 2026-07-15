@@ -1,0 +1,13 @@
+{
+  "_purpose": "Build provenance. source_commit and artifact_hash are populated by a future build step, not by hand; they are null until that step exists.",
+  "source_commit": null,
+  "upstream_pin": {
+    "repo": "A-Viable-Fork/epistack",
+    "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
+    "provisional": true
+  },
+  "build_command": null,
+  "artifact_hash": null,
+  "protocol_identity": "v3",
+  "provider_contract": "vendor/api/client-api.mjs"
+}
