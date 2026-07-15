@@ -302,11 +302,14 @@ async function loadCommunity(id, deepLinkClaim) {
 
   let currentCostSummary = null;
   function updatePanel() {
+    const activeRankerHash = settings.getActiveRanker();
+    const activeRankerEntry = activeRankerHash ? (settings.getExtensions() || []).find((e) => e.hash === activeRankerHash && e.shape === "ranker") : null;
     renderObjectivePanel(panelEl, {
       components: COMPONENTS,
       weights,
       observationOn,
       costSummary: currentCostSummary,
+      activeExtensionRanker: activeRankerEntry ? activeRankerEntry.label : null,
       onWeightsChange: (next) => {
         weights = next;
         settings.setObjective(next);

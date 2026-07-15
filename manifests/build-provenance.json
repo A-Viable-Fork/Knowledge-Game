@@ -1,13 +1,13 @@
 {
   "_purpose": "Build provenance. source_commit and artifact_hash are populated by a future build step, not by hand; they are null until that step exists.",
-  "source_commit": "cee74b68ac96faa3ecaf1566f2beef18ec117be3",
+  "source_commit": "aa0d07e7e6ea8c3fb4383209c31d5edd96e1df7e",
   "upstream_pin": {
     "repo": "A-Viable-Fork/epistack",
     "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
     "provisional": true
   },
   "build_command": ".github/workflows/ci.yml: no build tooling exists (no bundler, no transpiler); the deployed artifact is the checked-out working tree itself, served as vanilla ESM static files, after every build/check-*.mjs passes and app/fixtures/ is confirmed reproducible by regenerating and diffing against the committed content.",
-  "artifact_hash": "4d211f55bfff935f13fd0ee9ef9ce837deeda2d274438980770d75ef888e5ab3",
+  "artifact_hash": "e210a7887c18d3dc90782270c4dd694240b7f90d84b8e88f3854df3fc50d0219",
   "artifact_hash_note": "artifact_hash is a sha256 over the sorted JSON of file_hashes, itself a sha256 per file over every file `git ls-files --cached --others --exclude-standard` lists (the deployed tree, since no build step compiles source into output), excluding this manifest itself. Recomputed and compared by build/check-release.mjs.",
   "protocol_identity": "v3",
   "provider_contract": "vendor/api/client-api.mjs",
@@ -132,7 +132,7 @@
     "manifests/network.json": "3ac04cb2130822bccacf058ea964abd06c1594de531d468942a60064554ef165",
     "periphery/README.md": "e69a04f979dad1cf163dba5dbe4ecb685476fbb9754d50812eb1e643c1ac1d7f",
     "periphery/alerts-panel.js": "c63867b38e5572f495ba019654d44d5e0f88d57f24db0b646926c1713371c0b9",
-    "periphery/app.js": "059b85bed891eaae68c4cf06842f081eb2d57f3f5686bf14ceeb502c2b5f8f7a",
+    "periphery/app.js": "e23450e339b6cb8b2f0235e53ec2135ed154d59f924b1cbb9ddcd650bbf361c5",
     "periphery/card.js": "6718598c49c0651bea1f4c6d6e16cb4823e1e308aa27b5efa7a5f45ab7bc1dc3",
     "periphery/contribute-screen.js": "61339568a61bfffa6a292354048dc94ead80e7429642d2ccc6e608a3b2d25840",
     "periphery/demo-extensions.js": "9b17ee8f0c038b359bdfa04f22a18218b8cfd778ddd26879c1cccead386967d3",
@@ -140,7 +140,7 @@
     "periphery/filter-bar.js": "164d508d816a4dbbde50e8cb6063cfde5a42097828038a6c405754a9475b39a4",
     "periphery/gate-feedback.js": "021e8d14bc81e0a8f447db6ca55905dd89aa151d6d5ab5aff52902e70ca5e883",
     "periphery/ladder.js": "8445be4fff4883a5f1d37a3303f47e1cc149d515d7447ea44611a176090ca5e7",
-    "periphery/objective-panel.js": "f294abbfbac176ff0c2a3956e3d298d25e66bf9d0055644f000c42aa26526440",
+    "periphery/objective-panel.js": "91abfb94230490c9f79053e1abb2a4edfa3970caa15d353ab623bfecc5b712ca",
     "periphery/onboarding-screen.js": "2a1f890ae2e8e462f5bb0318491967246405255cc49cd34a99bdf8edac0bc962",
     "periphery/vault-screen.js": "c80e56882ee1835f93810b5e81909743b116d46dc127d77267015ad63a61e094",
     "sw.js": "39305bd17ff76581cb91e0ddeea15ce14fbc13e2d018d99a8f328b7e1a14dec5",
