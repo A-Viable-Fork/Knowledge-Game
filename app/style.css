@@ -228,6 +228,27 @@ a:focus-visible {
   font-size: 0.8rem;
 }
 
+/* Type filter bar: present on every claim-list surface, states its own exclusions. */
+.filter-bar {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1.1rem 0.6rem;
+}
+.filter-kinds { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.filter-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+}
+.filter-kind-name { text-transform: lowercase; }
+.filter-kind-count { color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.filter-exclusion-statement { font-size: 0.76rem; color: var(--ink-muted); margin: 0.4rem 0 0; }
+
 /* Vault screen */
 .vault-screen { max-width: 640px; margin: 0 auto; padding: 1rem; }
 .vault-screen h2 { font-size: 1rem; }
@@ -338,3 +359,21 @@ a:focus-visible {
 .ladder-step .ladder-caption { display: block; color: var(--ink-muted); font-size: 0.74rem; }
 .ladder-unreached { opacity: 0.5; }
 .ladder-current { border-color: var(--focus); }
+
+/* Discussion (Phase KG-4): a comment never carries a grade badge, and renders visually distinct. */
+.badge-discussion {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--ink-muted) 14%, transparent);
+  color: var(--ink-muted);
+  font-style: italic;
+  text-transform: none;
+}
+.card[data-comment="true"] { border-style: dashed; }
+.comment-thread { display: flex; flex-direction: column; gap: 0.5rem; }
+.comment-thread-item {
+  border-left: 2px solid var(--line);
+  padding: 0.3rem 0 0.3rem 0.6rem;
+}
+.comment-statement { font-size: 0.88rem; font-style: italic; margin: 0.25rem 0; }
+.comment-actions { display: flex; gap: 0.4rem; }
+.comment-actions .contribute-action { font-size: 0.72rem; padding: 0.25rem 0.6rem; }

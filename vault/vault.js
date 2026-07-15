@@ -4,7 +4,13 @@
 //   setObjective(weights); observationEnabled() -> boolean (absence is off); setObservationEnabled
 //   (enabled); observationLog() -> event array (absence is empty); recordObservation(event) (a no-op
 //   when observation is off, never buffered for later); exportAll() -> JSON string of everything held;
-//   deleteAll() (leaves nothing).
+//   deleteAll() (leaves nothing). Phase KG-4 additions, same off/empty-by-absence discipline:
+//   getFilter(communityId)/setFilter (excluded-kind list per community); followedTopics()/
+//   setFollowedTopics (onboarding's learn-efficiently seed); onboardingSeen()/setOnboardingSeen;
+//   getWatches(communityId)/setWatches (standing-motion alert subscriptions, each a snapshot of the
+//   watched identity's last-seen grade so a later diff can tell motion from a fresh read);
+//   getExtensions()/installExtension(entry)/uninstallExtension(hash) (the extension registry: hash,
+//   shape, label, and the conformance receipt recorded at install time).
 // Invariant: a fresh profile constructs its off state rather than reading a configured default: no
 //   call ever writes a store on read, so a profile that has never called setObjective or
 //   setObservationEnabled has no key in storage at all, and every reader treats absence as off/empty
@@ -58,6 +64,61 @@ export function recordObservation(event) {
   if (!store.observation || !store.observation.enabled) return; // off means off: refuse to record
   store.observation.log = store.observation.log || [];
   store.observation.log.push(event);
+  writeStore(store);
+}
+
+export function getFilter(communityId) {
+  const store = readStore();
+  return (store.filters && store.filters[communityId]) || [];
+}
+export function setFilter(communityId, excludedKinds) {
+  const store = readStore();
+  store.filters = store.filters || {};
+  store.filters[communityId] = (excludedKinds || []).slice();
+  writeStore(store);
+}
+
+export function followedTopics() {
+  return readStore().followedTopics || [];
+}
+export function setFollowedTopics(topics) {
+  const store = readStore();
+  store.followedTopics = (topics || []).slice();
+  writeStore(store);
+}
+
+export function onboardingSeen() {
+  return !!readStore().onboardingSeen;
+}
+export function setOnboardingSeen(seen) {
+  const store = readStore();
+  store.onboardingSeen = !!seen;
+  writeStore(store);
+}
+
+export function getWatches(communityId) {
+  const store = readStore();
+  return (store.watches && store.watches[communityId]) || [];
+}
+export function setWatches(communityId, watches) {
+  const store = readStore();
+  store.watches = store.watches || {};
+  store.watches[communityId] = (watches || []).slice();
+  writeStore(store);
+}
+
+export function getExtensions() {
+  return readStore().extensions || [];
+}
+export function installExtension(entry) {
+  const store = readStore();
+  store.extensions = store.extensions || [];
+  if (!store.extensions.some((e) => e.hash === entry.hash)) store.extensions.push(entry);
+  writeStore(store);
+}
+export function uninstallExtension(hash) {
+  const store = readStore();
+  store.extensions = (store.extensions || []).filter((e) => e.hash !== hash);
   writeStore(store);
 }
 

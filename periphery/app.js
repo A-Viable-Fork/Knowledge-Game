@@ -13,9 +13,11 @@ import { fetchCommunity } from "../api/community.js";
 import { whyThisCard } from "../api/feed.js";
 import { orderByObjective, explainPosition, COMPONENTS } from "../api/ranking.js";
 import { epistemicCost, epistemicCostSummary } from "../api/epistemic-cost.js";
+import { kindsPresent, applyFilter } from "../api/filter.js";
 import * as settings from "../api/settings.js";
 import { renderCard } from "./card.js";
 import { renderObjectivePanel } from "./objective-panel.js";
+import { renderFilterBar } from "./filter-bar.js";
 import { renderVaultScreen, downloadJSON } from "./vault-screen.js";
 import { renderContributeScreen } from "./contribute-screen.js";
 
@@ -159,6 +161,7 @@ function observeDwell(feedEl) {
 async function loadCommunity(id, deepLinkClaim) {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
   feedEl.setAttribute("aria-busy", "true");
   feedEl.innerHTML = "";
   const status = document.createElement("p");
@@ -182,13 +185,30 @@ async function loadCommunity(id, deepLinkClaim) {
   const { byTarget, byFrom } = linksMaps(community.raw);
   const sourcesById = sourcesMap(community.raw);
   const gapsByIdentity = new Map(community.api.gaps({}).map((g) => [g.identity, g]));
+  const rowsByIdentity = new Map(rows.map((r) => [r.identity, r]));
 
   let weights = settings.getObjective();
   const observationOn = settings.observationEnabled();
+  let excludedKinds = settings.getFilter(meta.id);
+
+  function updateFilterBar() {
+    const present = kindsPresent(rows, community.raw.kinds);
+    const { hidden } = applyFilter(rows, excludedKinds, community.raw.kinds);
+    renderFilterBar(filterBarEl, {
+      present, excluded: excludedKinds, hidden,
+      onChange: (next) => {
+        excludedKinds = next;
+        settings.setFilter(meta.id, next);
+        renderFeed();
+        updateFilterBar();
+      },
+    });
+  }
 
   function renderFeed() {
     const extra = { reconciliations, observation: { enabled: observationOn, log: settings.observationLog() } };
-    const ordered = orderByObjective(rows, weights, community.raw.state, extra);
+    const { visible } = applyFilter(rows, excludedKinds, community.raw.kinds);
+    const ordered = orderByObjective(visible, weights, community.raw.state, extra);
     feedEl.innerHTML = "";
     ordered.forEach((row, i) => {
       row.whyThisCard = explainPosition(row, i);
@@ -198,6 +218,8 @@ async function loadCommunity(id, deepLinkClaim) {
         linksByTarget: byTarget,
         linksByFrom: byFrom,
         gapsByIdentity,
+        rowsByIdentity,
+        excludedKinds,
         isDeepLinkTarget: (identity) => identity === deepLinkClaim,
         onContribute: (action, targetRow) => setHash({ view: "contribute", action, target: targetRow.identity, community: meta.id }),
       });
@@ -221,6 +243,7 @@ async function loadCommunity(id, deepLinkClaim) {
     }
   }
   renderFeed();
+  updateFilterBar();
 
   let currentCostSummary = null;
   function updatePanel() {
@@ -260,9 +283,11 @@ async function loadCommunity(id, deepLinkClaim) {
 async function loadContributeScreen(id, action, targetIdentity) {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
   const syncEl = document.getElementById("sync-state");
   if (syncEl) syncEl.innerHTML = "";
   panelEl.innerHTML = "";
+  filterBarEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "true");
 
@@ -287,9 +312,11 @@ async function loadContributeScreen(id, action, targetIdentity) {
 function loadVaultScreen() {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
   const syncEl = document.getElementById("sync-state");
   if (syncEl) syncEl.innerHTML = "";
   panelEl.innerHTML = "";
+  filterBarEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "false");
   renderVaultScreen(feedEl, {
