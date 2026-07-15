@@ -27,6 +27,7 @@ import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { classifyParameterSurface } from "./parameter-surface.mjs";
 import { hashTypeBundle } from "../vendor/kernel/schema/type-hash.mjs";
+import { governanceHash } from "./governance-hash.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -241,9 +242,11 @@ export async function publishCommunity(config) {
 }
 
 // the community card (ecosystem-guide.md "For a community founder"): kernel identity, snapshot hash,
-// fetch locations, pinned type hashes, contribution target, protocol identity. An app-side local
-// implementation of the upstream-specified format, not a vendored module (the format is prose-specified
-// in docs/ecosystem-guide.md, not shipped as code this deployment could import).
+// fetch locations, pinned type hashes, contribution target, protocol identity, and (Phase KG-4) the
+// governance-hash, the community's durable content-addressed identity, with kernel_id demoted to a
+// human label over it. An app-side local implementation of the upstream-specified format, not a
+// vendored module (the format is prose-specified in docs/ecosystem-guide.md, not shipped as code this
+// deployment could import).
 export function emitCommunityArtifacts(config, snapshot) {
   const home = resolve(ROOT, config.home);
   // pinned type hashes: recomputed from the emitted kind table via the same hashTypeBundle every
@@ -255,6 +258,9 @@ export function emitCommunityArtifacts(config, snapshot) {
   }
   const card = {
     kernel_id: snapshot.kernel_id,
+    governance_hash: governanceHash(config, pinned_type_hashes),
+    governance_hash_computed_by: "this deployment, app-side (docs/coordination-layer-spec.md's own computation is specified, not yet built upstream)",
+    member_set_commitment: null,
     snapshot_hash: snapshot.snapshot_hash,
     fetch_locations: config.fetch_locations,
     pinned_type_hashes,
