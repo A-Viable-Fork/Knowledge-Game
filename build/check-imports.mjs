@@ -1,9 +1,9 @@
-// Role: the import-graph oracle. Statically parses every import statement in periphery/, api/, and
-//   kernel/governance/, and enforces the membrane rules from the deployment spec and the governing
-//   trellis (G0-1 / A-1): periphery/ reaches the vendored kernel only through api/; api/ imports only
-//   vendor/ and itself; kernel/governance/ is pure data importing nothing outside itself. This is a
-//   static read of import statements, no bundler and no module graph library, matching the no-build-
-//   tooling discipline.
+// Role: the import-graph oracle. Statically parses every import statement in periphery/, api/,
+//   vault/, and kernel/governance/, and enforces the membrane rules from the deployment spec and the
+//   governing trellis (G0-1 / A-1): periphery/ reaches the vendored kernel and the vault only through
+//   api/; api/ imports only vendor/, vault/, and itself; vault/ imports nothing outside itself;
+//   kernel/governance/ is pure data importing nothing outside itself. This is a static read of import
+//   statements, no bundler and no module graph library, matching the no-build-tooling discipline.
 // Contract: `node build/check-imports.mjs` exits non-zero on any forbidden edge, naming the file and
 //   the edge (from directory -> to directory).
 // Invariant: this check reads source text; it does not execute any of it. A relative import is
@@ -23,8 +23,9 @@ console.log(H); console.log("CHECK-IMPORTS: the import-graph oracle"); console.l
 
 // the membrane rule: which top-level directory an importer may reach into.
 const RULES = {
-  periphery: new Set(["periphery"]), // periphery/ reaches the kernel only through api/... plus api itself
-  api: new Set(["vendor", "api"]),
+  periphery: new Set(["periphery"]), // periphery/ reaches the kernel and the vault only through api/... plus api itself
+  api: new Set(["vendor", "api", "vault"]),
+  vault: new Set([]), // the personal-data store; imports nothing outside itself
   "kernel/governance": new Set([]), // pure data; imports nothing outside itself
 };
 // periphery may also import api/, named separately since the rule set above is keyed by top segment
@@ -57,12 +58,12 @@ function zoneOf(repoRelPath) {
 }
 
 const files = [];
-for (const zoneDir of ["periphery", "api", join("kernel", "governance")]) {
+for (const zoneDir of ["periphery", "api", "vault", join("kernel", "governance")]) {
   const abs = join(ROOT, zoneDir);
   try { walk(abs, files); } catch (e) { void e; }
 }
 
-console.log(`\n[1] scanning ${files.length} file(s) under periphery/, api/, kernel/governance/`);
+console.log(`\n[1] scanning ${files.length} file(s) under periphery/, api/, vault/, kernel/governance/`);
 for (const file of files) {
   const fileZone = zoneOf(relative(ROOT, file));
   const source = readFileSync(file, "utf8");
@@ -78,7 +79,7 @@ for (const file of files) {
 if (files.length === 0) ok(false, "no files found to scan; the membrane rule holds vacuously only before any file exists");
 
 console.log("\n" + H);
-if (fails === 0) console.log("verified: every import in periphery/, api/, and kernel/governance/ stays within its membrane zone.");
+if (fails === 0) console.log("verified: every import in periphery/, api/, vault/, and kernel/governance/ stays within its membrane zone.");
 console.log(fails === 0 ? "check-imports: OK" : `check-imports: ${fails} FAILURE(S)`);
 console.log(H);
 process.exit(fails === 0 ? 0 : 1);
