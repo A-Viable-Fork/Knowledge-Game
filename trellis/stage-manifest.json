@@ -1,0 +1,17 @@
+{
+  "_purpose": "The authoritative stage record for the workflow track. Tags are optional convenience; this manifest is the record build/check-stages.mjs verifies against main's actual history.",
+  "stages": [
+    {
+      "stage": "stage-0",
+      "commit": "062c5a7",
+      "date": "2026-07-15",
+      "description": "Domain frame and axioms in waiting: what this repository's governance kernel governs and does not, twelve axioms framed, none entered."
+    },
+    {
+      "stage": "stage-1",
+      "commit": "fa6abaa",
+      "date": "2026-07-15",
+      "description": "The governance kernel generated through the real, unmodified vendored scaffolder; the shared measurement kind adopted by pinned hash; the five genuinely local software-evidence source classes documented."
+    }
+  ]
+}
