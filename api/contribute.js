@@ -31,6 +31,13 @@
 //   for free. draftComment never constructs a "supports" link at all: it has no action parameter and
 //   no code path that emits one, so the guard is defense in depth here, not the only thing standing
 //   between a comment and the support role.
+// Governs: claim-4: this module imports nothing from vault/ or api/settings.js, so there is no code
+//   path here through which a personal profile field could reach an exported bundle.
+// Governs: claim-12: citationSource always mints a testimony-class source with zero checking_records;
+//   no field this module writes can turn a pasted citation into an independent confirmation.
+// Governs: claim-17: contributionId (re-exported from vendor/api/contribution.js) hashes the canonical
+//   patch form, so bundle identity is content-derived and invariant under construction-order
+//   permutation, never dependent on a durable patch history this module does not keep.
 "use strict";
 import { claimRecord, linkRecord } from "../vendor/kernel/schema/records.mjs";
 import { makeSourceTable, makeKindTable } from "../vendor/kernel/schema/tables.mjs";

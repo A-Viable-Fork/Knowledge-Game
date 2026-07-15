@@ -11,6 +11,8 @@
 //   manifest does not checksum itself; this avoids the circularity of a file whose own content encodes
 //   its own hash). source_commit names the commit this hash was computed against, at generation time;
 //   it is honest about naming a point in history, not a live guarantee about uncommitted changes.
+// Governs: claim-14: computeFileHashes/artifact_hash are the declared hash; build/check-release.mjs
+//   calls the identical function fresh and fails if it diverges from what is declared.
 "use strict";
 import { readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";

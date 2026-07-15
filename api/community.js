@@ -7,6 +7,16 @@
 // Invariant: a snapshot whose recomputed hash does not match its declared snapshot_hash is refused,
 //   never rendered with a warning. No grounding is computed here; every grade the periphery ever
 //   shows comes from the real gate, through the vendored local provider, over this verified content.
+// Governs: claim-6: fetchCommunity's one fetch() call is the whole of this deployment's network
+//   surface for reading a community; manifests/network.json declares no telemetry destination, and
+//   none exists here to declare.
+// Governs: claim-7: build/check-egress.mjs runs this exact function under a stubbed fetch and fails on
+//   any URL outside manifests/network.json's declared destinations.
+// Governs: claim-8: this is the one place the periphery's read path crosses into vendor/; every other
+//   periphery module reaches the kernel only through the object this function returns.
+// Governs: claim-15: createClientApi is called over whatever provider this function constructs
+//   (createLocalProvider today); build/check-provider-contract.mjs proves the periphery's own logic
+//   depends only on this contract, not on which provider answers it.
 "use strict";
 import { hashOf } from "../vendor/kernel/schema/canonical.mjs";
 import { createLocalProvider } from "../vendor/api/providers/local-provider.mjs";

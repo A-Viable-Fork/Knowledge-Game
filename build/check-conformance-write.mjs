@@ -11,6 +11,10 @@
 //   never this repository's own api/ or periphery/. Both bundles are re-verified by the SAME admission
 //   code (importContribution, then decide() against the same storeView), so the comparison is genuinely
 //   over whether admission discriminates by producing client, not over two hand-matched narratives.
+// Governs: claim-9: the independent client's propose-and-export fixture below is the write half of the
+//   proof that this app holds no capability a vendor-api-only client lacks.
+// Governs: claim-11: both bundles are admitted through the identical importContribution + decide()
+//   path with no field naming the producing client, so admission judges the bundle, never the client.
 "use strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";

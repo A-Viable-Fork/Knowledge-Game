@@ -22,6 +22,11 @@
 //   fails on any undeclared destination, and no declared destination accepts a request body); this
 //   module itself makes no network call. build/check-vault.mjs statically scans every other file for
 //   a storage-API reference and fails naming any file that touches one outside this module.
+// Governs: claim-3: setObservationEnabled/observationEnabled default to off and recordObservation is a
+//   genuine no-op while off, never a deferred or anonymized write.
+// Governs: claim-5: this module is the only place any profile field is written, and it is local
+//   storage, never a network destination; profile data leaves this module only through exportAll(),
+//   which the caller (never this module) decides whether to transmit anywhere.
 "use strict";
 
 const STORAGE_KEY = "knowledge-game-vault-v1";

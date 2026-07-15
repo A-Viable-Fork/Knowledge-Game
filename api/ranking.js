@@ -17,6 +17,12 @@
 //   v3 record; validation-expertise match and followed topics: no expertise or follow data this
 //   phase) returns null, never an invented approximation, and null is rendered distinctly from a real
 //   zero so a reader is never told a component voted against a card when it never voted at all.
+// Governs: claim-1: this module computes only reordering, never a grade, receipt, robustness figure,
+//   or support structure; build/check-ranking-separation.mjs fuzzes arbitrary weight vectors and
+//   asserts every one of those fields byte-identical before and after.
+// Governs: claim-2: orderByObjective attaches `_objectiveContributions` and `_objectiveTotal` to every
+//   row, so the panel that renders the active objective (periphery/objective-panel.js) always has the
+//   real per-component data to show, never a description standing in for the actual computation.
 "use strict";
 import { POSITIONS } from "../vendor/kernel/schema/confidence.mjs";
 import { orderFeed } from "./feed.js";
