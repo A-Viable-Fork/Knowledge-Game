@@ -1,11 +1,13 @@
-// Role: renders one claim as a card, Levels 1 and 2 of the disclosure (spec Section 6). Level 1 is
+// Role: renders one claim as a card. Levels 1 and 2 are the disclosure (spec Section 6): Level 1 is
 //   always visible; Level 2 is behind one tap (a native <details> disclosure, keyboard-operable with
-//   no script). Contribution actions (Level 3) are not built in this phase; there is nothing to walk
-//   back, because nothing above claims to be more than a computed reading.
+//   no script). Level 3 is the contribution surface: propose support, propose undercut, propose
+//   qualification, contest this claim's type, and fork this type, each a link into the contribution
+//   draft screen (periphery/contribute-screen.js) rather than an action performed here; a card
+//   proposes nothing itself.
 // Contract: renderCard(row, ctx) -> HTMLElement. `row` is an api.read() row (identity, kind,
 //   statement, declared_grade, earned_grade) plus `whyThisCard` and `position` (its feed index).
-//   `ctx` carries `sourcesById`, `robustnessByIdentity`, `gapsByIdentity`, `kernelId`, and
-//   `isDeepLinkTarget(identity)`.
+//   `ctx` carries `sourcesById`, `robustnessByIdentity`, `gapsByIdentity`, `kernelId`,
+//   `isDeepLinkTarget(identity)`, and `onContribute(action, row)`.
 // Invariant: a grade is rendered as a computed reading, labeled as such, never as truth, validation,
 //   or acceptance. Grade is encoded by lattice position with a color plus a textual grade word,
 //   color never carrying the distinction alone. No likes, no counters, no engagement chrome.
@@ -82,6 +84,25 @@ function levelTwo(row, ctx) {
   );
 }
 
+const LEVEL_3_ACTIONS = [
+  { action: "support", label: "Propose support" },
+  { action: "undercut", label: "Propose undercut" },
+  { action: "qualification", label: "Propose qualification" },
+  { action: "contest", label: "Contest this claim's type" },
+  { action: "fork", label: "Fork this type" },
+];
+
+function levelThree(row, ctx) {
+  if (!ctx.onContribute) return null;
+  return el(
+    "div",
+    { class: "level-3-actions" },
+    ...LEVEL_3_ACTIONS.map((a) =>
+      el("button", { class: "contribute-action", type: "button", onclick: () => ctx.onContribute(a.action, row) }, a.label)
+    )
+  );
+}
+
 export function renderCard(row, ctx) {
   const isTarget = ctx.isDeepLinkTarget(row.identity);
   const card = el(
@@ -100,7 +121,8 @@ export function renderCard(row, ctx) {
       {},
       el("summary", {}, "Supports, challenges, provenance, and gaps"),
       levelTwo(row, ctx)
-    )
+    ),
+    levelThree(row, ctx)
   );
   return card;
 }

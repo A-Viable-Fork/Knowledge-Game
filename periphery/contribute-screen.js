@@ -1,0 +1,217 @@
+// Role: the contribution draft screen (Level 3, spec Section 7): draft -> schema validation -> local
+//   gate decision with the receipt shown -> bundle -> export. One screen handles all five card
+//   actions (support, undercut, qualification, contest-type, fork-type), routed by `ctx.action`.
+// Contract: renderContributeScreen(container, ctx) -> void. ctx = { community, action, targetRow,
+//   contributionTarget?, onBack }. community is what api/community.js's fetchCommunity() returns;
+//   targetRow is the card's row the action originated from; contributionTarget is the community's
+//   declared PR destination (absent for a community that has not declared one).
+// Invariant: an export button appears only once the gate has actually decided the proposal, and only
+//   when that decision passed structurally (gate-passed or gate-passed-with-disagreement); a declined
+//   draft shows why, never a bundle. The three-state ladder (periphery/ladder.js) never renders past
+//   gate-passed, because admission and semantic acceptance are never this app's to declare. A fork is
+//   shown as what it honestly is, snapshot-only and not persisted, never folded into the ladder.
+"use strict";
+import { draftProposal, draftContest, draftFork, bundleProposal } from "../api/contribute.js";
+import { renderLadder } from "./ladder.js";
+
+function el(tag, attrs, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "class") node.className = v;
+    else if (k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
+    else if (v !== undefined && v !== null && v !== false) node.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of children) {
+    if (c === undefined || c === null || c === false) continue;
+    node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  }
+  return node;
+}
+
+const ACTION_TITLES = {
+  support: "Propose support",
+  undercut: "Propose undercut",
+  qualification: "Propose qualification",
+  contest: "Contest this claim's type",
+  fork: "Fork this type",
+};
+
+function downloadJSONBlob(filename, jsonText) {
+  const blob = new Blob([jsonText], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderReceipt(receipt) {
+  const findings = receipt.findings || [];
+  return el(
+    "div",
+    { class: "gate-receipt" },
+    el("p", {}, `Gate decision: ${receipt.decision}${receipt.error ? " (" + receipt.error + ")" : ""}`),
+    (receipt.decision_basis || []).length ? el("p", { class: "decision-basis" }, `Basis: ${receipt.decision_basis.join(", ")}`) : null,
+    findings.length
+      ? el("ul", { class: "findings" }, ...findings.map((f) => el("li", {}, `${f.rule_id}: expected ${f.expected}, found ${JSON.stringify(f.found)} (${f.entry_locator})`)))
+      : el("p", { class: "empty" }, "no findings")
+  );
+}
+
+const PASSED = new Set(["accepted", "accepted-with-disagreement"]);
+
+function renderProposalDraft(container, ctx) {
+  const { community, action, targetRow, contributionTarget } = ctx;
+  const resultMount = el("div", { class: "contribute-result" });
+  let statement = "";
+  let kind = targetRow ? targetRow.kind : (community.raw.kinds[0] && community.raw.kinds[0].kind) || "";
+  let citation = "";
+  let contributorId = "contributor";
+  let linkGrade = "corroborated";
+  let last = null; // { proposal, receipt }
+
+  function renderResult() {
+    resultMount.innerHTML = "";
+    if (!last) return;
+    const { proposal, receipt } = last;
+    resultMount.appendChild(renderReceipt(receipt));
+    if (!PASSED.has(receipt.decision)) return;
+    resultMount.appendChild(renderLadder("gate-passed"));
+    const exportBtn = el("button", { type: "button", class: "export-button" }, "Export contribution");
+    exportBtn.addEventListener("click", () => {
+      const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
+      const json = JSON.stringify(bundle, null, 2);
+      downloadJSONBlob(`contribution-${bundle.contribution_id.slice(0, 12)}.json`, json);
+      const instructions = el(
+        "div",
+        { class: "export-instructions" },
+        el("p", {}, `Contribution id: ${bundle.contribution_id}`),
+        el("p", {}, bundle.instructions),
+        contributionTarget
+          ? el("p", {}, `Open a pull request against ${contributionTarget} carrying the downloaded bundle file.`)
+          : el("p", { class: "empty" }, "This community has not declared a contribution target yet.")
+      );
+      resultMount.appendChild(instructions);
+    });
+    resultMount.appendChild(exportBtn);
+  }
+
+  function runDraft() {
+    if (!statement.trim()) { last = { proposal: null, receipt: { decision: "declined", error: "a statement is required", findings: [] } }; renderResult(); return; }
+    last = draftProposal(community, {
+      statement, kind, contributorId, citation: citation || undefined,
+      action, targetIdentity: targetRow ? targetRow.identity : undefined,
+      linkGrade,
+    });
+    renderResult();
+  }
+
+  const kindOptions = (community.raw.kinds || []).map((k) => k.kind);
+  const form = el(
+    "form",
+    { class: "contribute-form", onsubmit: (e) => { e.preventDefault(); runDraft(); } },
+    targetRow ? el("p", { class: "contribute-target" }, `Target claim: ${targetRow.statement}`) : null,
+    el("label", {}, "Statement", el("textarea", { required: true, oninput: (e) => (statement = e.target.value) })),
+    el(
+      "label", {}, "Kind",
+      el("select", { onchange: (e) => (kind = e.target.value) }, ...kindOptions.map((k) => el("option", { value: k, selected: k === kind ? "" : undefined }, k)))
+    ),
+    el("label", {}, "Citation (optional; becomes a testimony-class source, never an independent check)", el("input", { type: "text", oninput: (e) => (citation = e.target.value) })),
+    el("label", {}, "Contributor id", el("input", { type: "text", value: contributorId, oninput: (e) => (contributorId = e.target.value) })),
+    action === "support" ? el("label", {}, "Declared support grade", el("select", { onchange: (e) => (linkGrade = e.target.value) }, ...["asserted", "supported", "corroborated"].map((g) => el("option", { value: g, selected: g === linkGrade ? "" : undefined }, g)))) : null,
+    el("button", { type: "submit" }, "Check with the gate")
+  );
+
+  container.appendChild(form);
+  container.appendChild(resultMount);
+}
+
+function renderContestDraft(container, ctx) {
+  const { community, targetRow } = ctx;
+  const resultMount = el("div", { class: "contribute-result" });
+  let statement = "";
+  let contestant = "contributor";
+  let claimedDeparture = "";
+
+  function runDraft() {
+    if (!statement.trim()) { resultMount.innerHTML = ""; resultMount.appendChild(renderReceipt({ decision: "declined", error: "a contest statement is required", findings: [] })); return; }
+    const departure = claimedDeparture.trim() ? { ceiling: claimedDeparture.trim() } : undefined;
+    const { proposal, contestReceipt, receipt } = draftContest(community, targetRow.kind, { statement, contestant, claimedDeparture: departure });
+    resultMount.innerHTML = "";
+    resultMount.appendChild(renderReceipt(receipt));
+    resultMount.appendChild(el("p", {}, contestReceipt.note));
+    resultMount.appendChild(el("p", {}, `Convertible to a fork: ${contestReceipt.convertible}`));
+    if (!PASSED.has(receipt.decision)) return;
+    resultMount.appendChild(renderLadder("gate-passed"));
+    const exportBtn = el("button", { type: "button", class: "export-button" }, "Export contest");
+    exportBtn.addEventListener("click", () => {
+      const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
+      downloadJSONBlob(`contest-${bundle.contribution_id.slice(0, 12)}.json`, JSON.stringify(bundle, null, 2));
+      resultMount.appendChild(el("p", {}, `Contribution id: ${bundle.contribution_id}`));
+    });
+    resultMount.appendChild(exportBtn);
+  }
+
+  const form = el(
+    "form",
+    { class: "contribute-form", onsubmit: (e) => { e.preventDefault(); runDraft(); } },
+    el("p", { class: "contribute-target" }, `Target claim's kind: ${targetRow.kind}`),
+    el("label", {}, "What about this type is contested", el("textarea", { required: true, oninput: (e) => (statement = e.target.value) })),
+    el("label", {}, "Contestant id", el("input", { type: "text", value: contestant, oninput: (e) => (contestant = e.target.value) })),
+    el("label", {}, "Claimed departure ceiling (optional)", el("input", { type: "text", oninput: (e) => (claimedDeparture = e.target.value) })),
+    el("button", { type: "submit" }, "Check with the gate")
+  );
+  container.appendChild(form);
+  container.appendChild(resultMount);
+}
+
+function renderForkDraft(container, ctx) {
+  const { community, targetRow } = ctx;
+  const resultMount = el("div", { class: "contribute-result" });
+  let newCeiling = "";
+
+  function runDraft() {
+    resultMount.innerHTML = "";
+    if (!newCeiling.trim()) { resultMount.appendChild(el("p", {}, "a departure (a new ceiling) is required")); return; }
+    let fork;
+    try {
+      fork = draftFork(community, targetRow.kind, { ceiling: newCeiling.trim() });
+    } catch (e) {
+      resultMount.appendChild(el("p", {}, `fork refused: ${e.message}`));
+      return;
+    }
+    resultMount.appendChild(
+      el(
+        "div",
+        { class: "fork-receipt" },
+        el("p", {}, `Parent type-hash: ${fork.parent_hash}`),
+        el("p", {}, `Child type-hash: ${fork.new_hash}`),
+        el("ul", {}, ...fork.departure.map((d) => el("li", {}, `${d.field}: ${d.from} -> ${d.to}`))),
+        el("p", { class: "empty" }, fork.note)
+      )
+    );
+  }
+
+  const form = el(
+    "form",
+    { class: "contribute-form", onsubmit: (e) => { e.preventDefault(); runDraft(); } },
+    el("p", { class: "contribute-target" }, `Target claim's kind: ${targetRow.kind}`),
+    el("label", {}, "New ceiling (the departure)", el("input", { type: "text", required: true, oninput: (e) => (newCeiling = e.target.value) })),
+    el("button", { type: "submit" }, "Fork")
+  );
+  container.appendChild(form);
+  container.appendChild(resultMount);
+}
+
+export function renderContributeScreen(container, ctx) {
+  container.innerHTML = "";
+  const backBtn = el("button", { type: "button", class: "contribute-back" }, "Back to the feed");
+  backBtn.addEventListener("click", () => ctx.onBack && ctx.onBack());
+  container.appendChild(el("h2", {}, ACTION_TITLES[ctx.action] || "Contribute"));
+  container.appendChild(backBtn);
+
+  if (ctx.action === "contest") renderContestDraft(container, ctx);
+  else if (ctx.action === "fork") renderForkDraft(container, ctx);
+  else renderProposalDraft(container, ctx);
+}

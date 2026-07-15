@@ -269,3 +269,72 @@ a:focus-visible {
   color: var(--ink);
   cursor: pointer;
 }
+
+/* Level 3: the contribution surface */
+.level-3-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.7rem; }
+.contribute-action {
+  font: inherit;
+  font-size: 0.72rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+.contribute-back {
+  font: inherit;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  color: var(--ink);
+  cursor: pointer;
+  margin: 0.5rem 0 1rem;
+}
+.contribute-form { display: flex; flex-direction: column; gap: 0.7rem; max-width: 640px; margin: 0 auto 1.2rem; }
+.contribute-form label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; }
+.contribute-form textarea { min-height: 4.5rem; font: inherit; }
+.contribute-form input, .contribute-form select, .contribute-form textarea {
+  font: inherit;
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+}
+.contribute-form button[type="submit"] {
+  align-self: flex-start;
+  font: inherit;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--focus);
+  background: var(--focus);
+  color: #fff;
+  cursor: pointer;
+}
+.contribute-target { font-style: italic; color: var(--ink-muted); }
+.contribute-result { max-width: 640px; margin: 0 auto; }
+.gate-receipt { font-size: 0.85rem; }
+.gate-receipt .findings { color: var(--ink-muted); font-size: 0.78rem; }
+.export-button {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--grade-checked);
+  background: var(--card-bg);
+  color: var(--grade-checked);
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+.export-instructions { font-size: 0.8rem; color: var(--ink-muted); margin-top: 0.5rem; }
+.fork-receipt { font-size: 0.85rem; }
+
+/* The three-state contribution ladder (periphery/ladder.js) */
+.ladder { list-style: none; padding: 0; margin: 0.8rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.ladder-step { padding: 0.4rem 0.7rem; border-radius: 6px; border: 1px solid var(--line); font-size: 0.8rem; }
+.ladder-step .ladder-label { display: block; font-weight: 600; }
+.ladder-step .ladder-caption { display: block; color: var(--ink-muted); font-size: 0.74rem; }
+.ladder-unreached { opacity: 0.5; }
+.ladder-current { border-color: var(--focus); }
