@@ -70,6 +70,7 @@ function reportParameters(config) {
     console.log("  standing-economy parameters (reserved, spec Section 5; absent entirely until the coordination layer lands as working code):");
     for (const [field, value] of Object.entries(config.standing_economy)) console.log(`    ${field}: ${JSON.stringify(value)} (stored, read by zero call sites)`);
   }
+  console.log(`  corpus content license (market-layer document, upstream, branch-local; enforced legally and normatively, never mechanically): ${JSON.stringify(config.corpus_content_license || "unspecified")}`);
 }
 
 // ---- generate: run the real unmodified scaffolder in a scratch workspace, then relocate ----
@@ -276,6 +277,7 @@ export function emitCommunityArtifacts(config, snapshot) {
     domain: config.frame.domain,
     identity_thresholds: config.identity_thresholds || {},
     standing_economy: config.standing_economy || {},
+    corpus_content_license: config.corpus_content_license || "unspecified",
   };
   writeFileSync(join(home, "community-card.json"), JSON.stringify(card, null, 2));
 

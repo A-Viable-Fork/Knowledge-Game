@@ -1,7 +1,8 @@
-// Role: verifies the community card's governance-hash (Phase KG-4, spec Section 7). Deterministic
-//   over the canonical parameter record; permutation-invariant (field order never moves it); a label
-//   change (kernel_id) never moves it; a real parameter change (pins, identity thresholds,
-//   standing-economy fields) always does.
+// Role: verifies the community card's governance-hash (Phase KG-4, spec Section 7; Phase KG-6 adds
+//   the corpus content license into the record). Deterministic over the canonical parameter record;
+//   permutation-invariant (field order never moves it); a label change (kernel_id) never moves it; a
+//   real parameter change (pins, identity thresholds, standing-economy fields, the corpus content
+//   license) always does.
 // Contract: `node build/check-card-hashes.mjs` exits non-zero on any divergence, naming it.
 "use strict";
 import { readFileSync } from "node:fs";
@@ -58,6 +59,10 @@ console.log("\n[4] a real parameter change always moves the hash");
 
   const addedKind = { ...BASE_PINNED, comment: "2a9e3db197c0eb335140a53e384059547817fe1b5f8918d64adb533581432bef" };
   ok(governanceHash(BASE_CONFIG, addedKind) !== h1, "adding an adopted kind's pinned hash moves the hash");
+
+  const changedLicense = { ...BASE_CONFIG, corpus_content_license: "attribution-required" };
+  ok(governanceHash(changedLicense, BASE_PINNED) !== h1, "declaring a corpus content license moves the hash (Phase KG-6, the market-layer mechanism demonstrating itself)");
+  ok(governanceHash(BASE_CONFIG, BASE_PINNED) === governanceHash({ ...BASE_CONFIG }, BASE_PINNED), "an absent license hashes as the honest null 'unspecified', not omitted from the record");
 }
 
 console.log("\n[5] the founded competition community's own emitted card carries a governance-hash reproducing from its own config");

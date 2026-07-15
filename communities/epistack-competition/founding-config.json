@@ -31,6 +31,7 @@
     "decay_rate": null,
     "sybil_resistant_weighting_curve": null
   },
+  "corpus_content_license": "attribution-required",
   "fetch_locations": [
     "https://a-viable-fork.github.io/Knowledge-Game/communities/epistack-competition/snapshot/epistack-competition.snapshot.json"
   ],
