@@ -9,15 +9,18 @@
 //   a community that has not declared one).
 // Invariant: an export button appears only once the gate has actually decided the proposal, and only
 //   when that decision passed structurally (gate-passed or gate-passed-with-disagreement); a declined
-//   draft shows why, never a bundle. The three-state ladder (periphery/ladder.js) never renders past
-//   gate-passed, because admission and semantic acceptance are never this app's to declare. A fork is
-//   shown as what it honestly is, snapshot-only and not persisted, never folded into the ladder. The
-//   comment form offers no grade selector (a comment is always ungraded) and no action selector (it
-//   can build only comments-on or replies-to, never supports); a comment refused for occupying a
-//   support role renders the rule and the honest alternative alongside the ordinary receipt.
+//   draft shows why, never a bundle. Every receipt renders through periphery/gate-feedback.js's
+//   describeReceipt (structure present, structure missing, what would ground it), so a refusal is
+//   never the bare word "declined" alone, comment refusals for occupying a support role included. The
+//   three-state ladder (periphery/ladder.js) never renders past gate-passed, because admission and
+//   semantic acceptance are never this app's to declare. A fork is shown as what it honestly is,
+//   snapshot-only and not persisted, never folded into the ladder. The comment form offers no grade
+//   selector (a comment is always ungraded) and no action selector (it can build only comments-on or
+//   replies-to, never supports).
 "use strict";
 import { draftProposal, draftContest, draftFork, draftComment, draftPromoteToClaim, bundleProposal } from "../api/contribute.js";
 import { renderLadder } from "./ladder.js";
+import { describeReceipt } from "./gate-feedback.js";
 
 function el(tag, attrs, ...children) {
   const node = document.createElement(tag);
@@ -54,16 +57,25 @@ function downloadJSONBlob(filename, jsonText) {
   URL.revokeObjectURL(url);
 }
 
+// collaborative gate feedback (spec Section 7, Phase KG-4): a refusal renders the path, never the
+// wall. The decision label always appears (so the reader knows the outcome), but a decline is always
+// accompanied by structure present, structure missing, and what would ground it, drawn from the
+// receipt's own content; the bare word "declined" never renders alone.
 function renderReceipt(receipt) {
   const findings = receipt.findings || [];
+  const { present, missing, wouldGround } = describeReceipt(receipt);
+  const list = (items) => (items.length ? el("ul", {}, ...items.map((i) => el("li", {}, i))) : null);
   return el(
     "div",
     { class: "gate-receipt" },
-    el("p", {}, `Gate decision: ${receipt.decision}${receipt.error ? " (" + receipt.error + ")" : ""}`),
+    el("p", { class: "gate-decision" }, `Gate decision: ${receipt.decision}`),
     (receipt.decision_basis || []).length ? el("p", { class: "decision-basis" }, `Basis: ${receipt.decision_basis.join(", ")}`) : null,
+    present.length ? el("div", { class: "feedback-present" }, el("h4", {}, "Structure present"), list(present)) : null,
+    missing.length ? el("div", { class: "feedback-missing" }, el("h4", {}, "Structure missing"), list(missing)) : null,
+    wouldGround.length ? el("div", { class: "feedback-would-ground" }, el("h4", {}, "What would ground it"), list(wouldGround)) : null,
     findings.length
-      ? el("ul", { class: "findings" }, ...findings.map((f) => el("li", {}, `${f.rule_id}: expected ${f.expected}, found ${JSON.stringify(f.found)} (${f.entry_locator})`)))
-      : el("p", { class: "empty" }, "no findings")
+      ? el("details", { class: "feedback-raw-findings" }, el("summary", {}, "Raw findings"), el("ul", { class: "findings" }, ...findings.map((f) => el("li", {}, `${f.rule_id}: expected ${f.expected}, found ${JSON.stringify(f.found)} (${f.entry_locator})`))))
+      : null
   );
 }
 
@@ -150,12 +162,6 @@ function renderCommentDraft(container, ctx) {
     if (!last) return;
     const { proposal, receipt } = last;
     resultMount.appendChild(renderReceipt(receipt));
-    if (receipt.error && /comment-support-barred/.test(receipt.error)) {
-      resultMount.appendChild(el(
-        "p", { class: "comment-guard-note" },
-        "Comments cannot occupy a support role. Post this as a comment on its own, or draft it as a claim instead."
-      ));
-    }
     if (!PASSED.has(receipt.decision)) return;
     resultMount.appendChild(renderLadder("gate-passed"));
     const exportBtn = el("button", { type: "button", class: "export-button" }, "Export contribution");

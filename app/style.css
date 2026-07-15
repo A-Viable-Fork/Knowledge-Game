@@ -339,6 +339,11 @@ a:focus-visible {
 .contribute-result { max-width: 640px; margin: 0 auto; }
 .gate-receipt { font-size: 0.85rem; }
 .gate-receipt .findings { color: var(--ink-muted); font-size: 0.78rem; }
+.gate-receipt h4 { font-size: 0.78rem; margin: 0.6rem 0 0.2rem; text-transform: uppercase; letter-spacing: 0.02em; color: var(--ink-muted); }
+.feedback-present ul, .feedback-missing ul, .feedback-would-ground ul { margin: 0; padding-left: 1.1rem; font-size: 0.82rem; }
+.feedback-missing { color: var(--grade-asserted); }
+.feedback-would-ground { color: var(--ink); }
+.feedback-raw-findings { margin-top: 0.5rem; }
 .export-button {
   font: inherit;
   padding: 0.5rem 1rem;
