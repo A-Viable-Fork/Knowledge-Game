@@ -74,6 +74,10 @@ jobs:
         run: node build/check-gate-feedback.mjs
       - name: check-card-hashes
         run: node build/check-card-hashes.mjs
+      - name: check-references
+        run: node build/check-references.mjs
+      - name: check-parameter-surface
+        run: node build/check-parameter-surface.mjs
       - name: check-release
         run: node build/check-release.mjs
       - name: the founded community's own self-check (self-contained, no reference back into this repository)

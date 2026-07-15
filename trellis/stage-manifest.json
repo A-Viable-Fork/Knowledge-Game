@@ -24,6 +24,18 @@
       "commit": "b5e07d3",
       "date": "2026-07-15",
       "description": "Grounding complete: all nineteen governance claims now carry real checking records and compute checked, the last ten (4, 9, 10, 11, 12, 13, 14, 16, 17, 18) grounded across Phase A1, A2, and B/C's checks. Stage 4 (code-to-claim embedding) and Stage 5 (the invitation) remain."
+    },
+    {
+      "stage": "stage-4",
+      "commit": "c28eb6c",
+      "date": "2026-07-15",
+      "description": "Code-to-claim embedding: a load-bearing Governs comment naming the claim id and one binding sentence lands in every file the claim's own behavior lives in, across all 20 claims. build/check-references.mjs verifies every reference resolves and every claim is covered; docs/blast-radius.md is generated from the same parse. build/check-parameter-surface.mjs closes the spec's remaining parameter-surface deliverable."
+    },
+    {
+      "stage": "stage-5",
+      "commit": "2079bc8",
+      "date": "2026-07-15",
+      "description": "The invitation: docs/invitation.md states what exists, what is open and whose it is, and how to arrive at each role, claiming no community into existence and counting engagement only as the graph shows it."
     }
   ]
 }
