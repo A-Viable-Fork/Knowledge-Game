@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://epistack/scaffolder/kernel-config.schema.json",
+  "title": "Kernel config (local-tier slice)",
+  "description": "The fields a kernel author declares for the first scaffolder step: a config in, a working empty kernel out. Encodes only the local-tier slice from docs kernel-config-schema.md that this slice needs (adopt existing shared common kinds, declare local kinds and sources). The publish/adopt lifecycle, custom floors, custom source classes, and crossing-exposure fields are later slices and are intentionally absent. Each field carries an x-tier annotation naming which tier it belongs to, so the config file carries the fixed-shared-free line as data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kernel_id", "adopted_type_hashes", "sources"],
+  "properties": {
+    "kernel_id": {
+      "x-tier": "local",
+      "description": "The kernel's own id; names its corpora/<kernel_id>/ home and its build files.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "adopted_type_hashes": {
+      "x-tier": "shared-adopted",
+      "description": "The common-kind names this kernel adopts from the shared subtree (corpora/_shared/common-types.js). Adoption pins the hash and freezes the meaning; a name not in the shared subtree is caught by the real check, not the generator.",
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "local_kinds": {
+      "x-tier": "local",
+      "description": "Kinds unique to this kernel, declared locally. Each names a ceiling it can reach. A local kind is untyped abroad by the one law until it is published and adopted; publishing is a later slice.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "ceiling"],
+        "properties": {
+          "kind": { "type": "string" },
+          "ceiling": { "type": "string" }
+        }
+      }
+    },
+    "sources": {
+      "x-tier": "local",
+      "description": "The kernel's source table. source_class must name a class in the substrate menu; the menu itself is substrate-inherited and the real check (makeSourceTable) enforces it, not the generator.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "source_class"],
+        "properties": {
+          "source_id": { "type": "string" },
+          "source_class": {
+            "x-tier": "substrate-inherited",
+            "description": "One of the substrate source-class menu; documented here, enforced by the real kernel.",
+            "type": "string",
+            "x-substrate-menu": ["primary-measurement", "peer-reviewed", "preprint", "dataset", "institutional-report", "testimony"]
+          },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "time_lock": {
+      "x-tier": "local",
+      "description": "Time-lock and standing settings; the one clean free parameter (F5), no downstream grounding consequence. Defaults to the register's light setting.",
+      "type": "object",
+      "default": { "setting": "light" },
+      "additionalProperties": true,
+      "properties": {
+        "setting": { "type": "string", "default": "light" }
+      }
+    }
+  }
+}

@@ -1,0 +1,3 @@
+[submodule "upstream/epistack"]
+	path = upstream/epistack
+	url = https://github.com/A-Viable-Fork/epistack.git
