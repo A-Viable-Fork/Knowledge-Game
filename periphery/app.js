@@ -13,11 +13,19 @@ import { fetchCommunity } from "../api/community.js";
 import { whyThisCard } from "../api/feed.js";
 import { orderByObjective, explainPosition, COMPONENTS } from "../api/ranking.js";
 import { epistemicCost, epistemicCostSummary } from "../api/epistemic-cost.js";
+import { kindsPresent, applyFilter } from "../api/filter.js";
+import { checkConformance, runRanker, runRenderer, contentHash } from "../api/extension.js";
+import { computeAlerts, refreshWatches } from "../api/alerts.js";
 import * as settings from "../api/settings.js";
 import { renderCard } from "./card.js";
 import { renderObjectivePanel } from "./objective-panel.js";
+import { renderFilterBar } from "./filter-bar.js";
+import { renderAlertsPanel } from "./alerts-panel.js";
 import { renderVaultScreen, downloadJSON } from "./vault-screen.js";
 import { renderContributeScreen } from "./contribute-screen.js";
+import { renderExtensionScreen, renderDashboardScreen } from "./extension-screen.js";
+import { renderOnboardingScreen } from "./onboarding-screen.js";
+import { LEARN_EFFICIENTLY_SOURCE } from "./demo-extensions.js";
 
 // The community registry. The founded EpiStack Competition Community (Phase B/C, its community card
 // at communities/epistack-competition/community-card.json) is the default; the two development
@@ -64,6 +72,18 @@ function renderSwitcher(activeId) {
   vaultBtn.className = "vault-nav-button";
   vaultBtn.addEventListener("click", () => setHash({ view: "vault" }));
   nav.appendChild(vaultBtn);
+
+  const extensionsBtn = document.createElement("button");
+  extensionsBtn.textContent = "Extensions";
+  extensionsBtn.className = "extensions-nav-button";
+  extensionsBtn.addEventListener("click", () => setHash({ view: "extensions" }));
+  nav.appendChild(extensionsBtn);
+
+  const dashboardBtn = document.createElement("button");
+  dashboardBtn.textContent = "Dashboard";
+  dashboardBtn.className = "dashboard-nav-button";
+  dashboardBtn.addEventListener("click", () => setHash({ view: "dashboard" }));
+  nav.appendChild(dashboardBtn);
 }
 
 function linksMaps(raw) {
@@ -159,6 +179,8 @@ function observeDwell(feedEl) {
 async function loadCommunity(id, deepLinkClaim) {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
   feedEl.setAttribute("aria-busy", "true");
   feedEl.innerHTML = "";
   const status = document.createElement("p");
@@ -182,24 +204,79 @@ async function loadCommunity(id, deepLinkClaim) {
   const { byTarget, byFrom } = linksMaps(community.raw);
   const sourcesById = sourcesMap(community.raw);
   const gapsByIdentity = new Map(community.api.gaps({}).map((g) => [g.identity, g]));
+  const rowsByIdentity = new Map(rows.map((r) => [r.identity, r]));
+
+  // standing-motion alerts: diff this load against the last-seen grade of every watched claim, then
+  // refresh the stored snapshot so the NEXT load diffs against this one, not a stale reading.
+  const priorWatches = settings.getWatches(meta.id);
+  const alerts = computeAlerts(priorWatches, rows);
+  renderAlertsPanel(alertsPanelEl, { alerts });
+  settings.setWatches(meta.id, refreshWatches(priorWatches, rows));
+  let watchedIdentities = new Set(priorWatches.map((w) => w.identity));
+  function toggleWatch(row) {
+    if (watchedIdentities.has(row.identity)) {
+      watchedIdentities.delete(row.identity);
+    } else {
+      watchedIdentities.add(row.identity);
+    }
+    const nextWatches = [...watchedIdentities].map((identity) => {
+      const r = rowsByIdentity.get(identity);
+      return { identity, kind: r.kind, grade: r.earned_grade };
+    });
+    settings.setWatches(meta.id, nextWatches);
+    renderFeed();
+  }
 
   let weights = settings.getObjective();
   const observationOn = settings.observationEnabled();
+  let excludedKinds = settings.getFilter(meta.id);
 
-  function renderFeed() {
+  function updateFilterBar() {
+    const present = kindsPresent(rows, community.raw.kinds);
+    const { hidden } = applyFilter(rows, excludedKinds, community.raw.kinds);
+    renderFilterBar(filterBarEl, {
+      present, excluded: excludedKinds, hidden,
+      onChange: (next) => {
+        excludedKinds = next;
+        settings.setFilter(meta.id, next);
+        renderFeed();
+        updateFilterBar();
+      },
+    });
+  }
+
+  async function renderFeed() {
     const extra = { reconciliations, observation: { enabled: observationOn, log: settings.observationLog() } };
-    const ordered = orderByObjective(rows, weights, community.raw.state, extra);
+    const { visible } = applyFilter(rows, excludedKinds, community.raw.kinds);
+    const activeRankerHash = settings.getActiveRanker();
+    const activeRankerEntry = activeRankerHash ? (settings.getExtensions() || []).find((e) => e.hash === activeRankerHash && e.shape === "ranker") : null;
+    let ordered;
+    let usedExtension = false;
+    if (activeRankerEntry) {
+      try {
+        ordered = await runRanker(activeRankerEntry.source, visible, weights, community.raw.state.links || []);
+        usedExtension = true;
+      } catch (e) {
+        ordered = orderByObjective(visible, weights, community.raw.state, extra);
+      }
+    } else {
+      ordered = orderByObjective(visible, weights, community.raw.state, extra);
+    }
     feedEl.innerHTML = "";
     ordered.forEach((row, i) => {
-      row.whyThisCard = explainPosition(row, i);
+      row.whyThisCard = usedExtension ? `active ranker extension: ${activeRankerEntry.label}, position ${i}` : explainPosition(row, i);
       const card = renderCard(row, {
         kernelId: community.kernelId,
         sourcesById,
         linksByTarget: byTarget,
         linksByFrom: byFrom,
         gapsByIdentity,
+        rowsByIdentity,
+        excludedKinds,
+        isWatched: (identity) => watchedIdentities.has(identity),
         isDeepLinkTarget: (identity) => identity === deepLinkClaim,
         onContribute: (action, targetRow) => setHash({ view: "contribute", action, target: targetRow.identity, community: meta.id }),
+        onToggleWatch: (targetRow) => toggleWatch(targetRow),
       });
       card.dataset.identity = row.identity;
       card.dataset.kind = row.kind;
@@ -221,14 +298,18 @@ async function loadCommunity(id, deepLinkClaim) {
     }
   }
   renderFeed();
+  updateFilterBar();
 
   let currentCostSummary = null;
   function updatePanel() {
+    const activeRankerHash = settings.getActiveRanker();
+    const activeRankerEntry = activeRankerHash ? (settings.getExtensions() || []).find((e) => e.hash === activeRankerHash && e.shape === "ranker") : null;
     renderObjectivePanel(panelEl, {
       components: COMPONENTS,
       weights,
       observationOn,
       costSummary: currentCostSummary,
+      activeExtensionRanker: activeRankerEntry ? activeRankerEntry.label : null,
       onWeightsChange: (next) => {
         weights = next;
         settings.setObjective(next);
@@ -260,9 +341,13 @@ async function loadCommunity(id, deepLinkClaim) {
 async function loadContributeScreen(id, action, targetIdentity) {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
   const syncEl = document.getElementById("sync-state");
   if (syncEl) syncEl.innerHTML = "";
   panelEl.innerHTML = "";
+  filterBarEl.innerHTML = "";
+  alertsPanelEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "true");
 
@@ -287,9 +372,13 @@ async function loadContributeScreen(id, action, targetIdentity) {
 function loadVaultScreen() {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
   const syncEl = document.getElementById("sync-state");
   if (syncEl) syncEl.innerHTML = "";
   panelEl.innerHTML = "";
+  filterBarEl.innerHTML = "";
+  alertsPanelEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "false");
   renderVaultScreen(feedEl, {
@@ -308,15 +397,156 @@ function loadVaultScreen() {
   renderSwitcher(null);
 }
 
-function boot() {
-  const { community, claim, view, action, target } = parseHash();
+async function loadExtensionScreen(id) {
+  const feedEl = document.getElementById("feed");
+  const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
+  const syncEl = document.getElementById("sync-state");
+  if (syncEl) syncEl.innerHTML = "";
+  panelEl.innerHTML = "";
+  filterBarEl.innerHTML = "";
+  alertsPanelEl.innerHTML = "";
+  feedEl.innerHTML = "";
+  feedEl.setAttribute("aria-busy", "true");
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const fixtureRows = community.api.read({});
+  const fixtureLinks = community.raw.state.links || [];
+  feedEl.setAttribute("aria-busy", "false");
+
+  function draw() {
+    renderExtensionScreen(feedEl, {
+      extensions: settings.getExtensions(),
+      activeRanker: settings.getActiveRanker(),
+      activeRenderer: settings.getActiveRenderer(),
+      onInstall: async (source, shape, label) => {
+        const conformance = await checkConformance(source, shape, fixtureRows, fixtureLinks);
+        if (conformance.pass) {
+          settings.installExtension({ hash: contentHash(source), shape, label, source, conformance, installedAt: Date.now() });
+        }
+        draw();
+        return conformance;
+      },
+      onUninstall: (hash) => { settings.uninstallExtension(hash); draw(); },
+      onSetActiveRanker: (hash) => { settings.setActiveRanker(hash); draw(); },
+      onSetActiveRenderer: (hash) => { settings.setActiveRenderer(hash); draw(); },
+    });
+  }
+  draw();
+  renderSwitcher(null);
+}
+
+async function loadDashboardScreen(id) {
+  const feedEl = document.getElementById("feed");
+  const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
+  const syncEl = document.getElementById("sync-state");
+  if (syncEl) syncEl.innerHTML = "";
+  panelEl.innerHTML = "";
+  filterBarEl.innerHTML = "";
+  alertsPanelEl.innerHTML = "";
+  feedEl.innerHTML = "";
+  feedEl.setAttribute("aria-busy", "true");
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const activeHash = settings.getActiveRenderer();
+  const entry = activeHash ? (settings.getExtensions() || []).find((e) => e.hash === activeHash && e.shape === "renderer") : null;
+  feedEl.setAttribute("aria-busy", "false");
+
+  let descriptor = null;
+  let error = null;
+  if (entry) {
+    try {
+      descriptor = await runRenderer(entry.source, community.api.read({}));
+    } catch (e) {
+      error = e.message;
+    }
+  }
+  renderDashboardScreen(feedEl, {
+    descriptor, error,
+    onContribute: (action, targetRow) => setHash({ view: "contribute", action, target: targetRow.identity, community: meta.id }),
+  });
+  renderSwitcher(null);
+}
+
+function route({ community, claim, view, action, target }) {
   if (view === "vault") {
     loadVaultScreen();
+  } else if (view === "extensions") {
+    loadExtensionScreen(community || COMMUNITIES[0].id);
+  } else if (view === "dashboard") {
+    loadDashboardScreen(community || COMMUNITIES[0].id);
   } else if (view === "contribute") {
     loadContributeScreen(community || COMMUNITIES[0].id, action, target);
   } else {
     loadCommunity(community || COMMUNITIES[0].id, claim);
   }
+}
+
+// first-run onboarding (spec Section 6): shown once, before whatever route was actually requested
+// (a deep link is preserved and reached the moment onboarding finishes or is skipped). Activating the
+// learn-efficiently default installs the same demo extension the Extensions screen offers, through the
+// identical conformance path; if the sandbox is unavailable for any reason, onboarding still completes
+// with the null order intact rather than blocking the reader from the feed.
+async function activateLearnEfficientlyDefault() {
+  try {
+    const conformance = await checkConformance(LEARN_EFFICIENTLY_SOURCE, "ranker", [], []);
+    if (!conformance.pass) return;
+    const hash = contentHash(LEARN_EFFICIENTLY_SOURCE);
+    settings.installExtension({ hash, shape: "ranker", label: "Learn-efficiently ranker (demo)", source: LEARN_EFFICIENTLY_SOURCE, conformance, installedAt: Date.now() });
+    settings.setActiveRanker(hash);
+  } catch (e) {
+    void e;
+  }
+}
+
+function boot() {
+  const parsed = parseHash();
+  if (!settings.onboardingSeen()) {
+    const feedEl = document.getElementById("feed");
+    const panelEl = document.getElementById("objective-panel-mount");
+    const filterBarEl = document.getElementById("filter-bar-mount");
+    const alertsPanelEl = document.getElementById("alerts-panel-mount");
+    const syncEl = document.getElementById("sync-state");
+    if (syncEl) syncEl.innerHTML = "";
+    panelEl.innerHTML = "";
+    filterBarEl.innerHTML = "";
+    alertsPanelEl.innerHTML = "";
+    feedEl.innerHTML = "";
+    renderSwitcher(null);
+    renderOnboardingScreen(feedEl, {
+      onFinish: async (topics, { activateDefault }) => {
+        settings.setFollowedTopics(topics);
+        settings.setOnboardingSeen(true);
+        if (activateDefault) await activateLearnEfficientlyDefault();
+        route(parsed);
+      },
+      onSkip: () => {
+        settings.setOnboardingSeen(true);
+        route(parsed);
+      },
+    });
+    return;
+  }
+  route(parsed);
 }
 
 window.addEventListener("hashchange", boot);

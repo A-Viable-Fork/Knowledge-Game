@@ -114,6 +114,17 @@ module.exports = [
     "group": "gate"
   },
   {
+    "path": "kernel/gate/comment-guard.mjs",
+    "type": "kernel",
+    "group": "gate",
+    "flows": [
+      {
+        "type": "checked-by",
+        "to": "build/check-comment.mjs"
+      }
+    ]
+  },
+  {
     "path": "kernel/gate/immune.js",
     "type": "kernel",
     "group": "gate"

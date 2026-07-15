@@ -3,13 +3,13 @@
   "allowed_egress_destinations": [
     {
       "path": "../communities/epistack-competition/snapshot/epistack-competition.snapshot.json",
-      "snapshot_hash": "740baeeb9c340de51d0de31aa1ed6a5c75c49c8c8421910ffd6c10ea183a1f65",
-      "description": "The founded EpiStack Competition Community, this deployment's default community: 19 claims, thirteen checked (mechanical protocol claims plus the first admitted contribution), six asserted (the submission's own evaluative theses, awaiting semantic acceptance)."
+      "snapshot_hash": "88a8ceeb2f60aae52d89df3728062536225dd3f7023c3c0f7eef777ffef8020f",
+      "description": "The founded EpiStack Competition Community, this deployment's default community: 19 claims (thirteen checked, the mechanical protocol claims plus the first admitted contribution; six asserted, the submission's own evaluative theses, awaiting semantic acceptance), now adopting three shared kinds (measurement, forum, comment as of the Phase KG-4 re-pin)."
     },
     {
       "path": "fixtures/knowledge-game.snapshot.json",
-      "snapshot_hash": "6b58a7c85ea73a103ceeea58757b46ff7357ba8b83a905e0592c35cfaab9f94b",
-      "description": "This deployment's own governance kernel: 19 claims, all nineteen checked. Stage 3's grounding is complete as of Phase B/C."
+      "snapshot_hash": "a6a8766191b78d637b0d1b18537e830727904c0af74242f1821f1ea013c350bd",
+      "description": "This deployment's own governance kernel: 20 claims, all twenty checked. Grounding is complete as of Phase KG-4 (claim-20, the extension seam guarantee, entered through the app's own contribution path)."
     },
     {
       "path": "fixtures/math.snapshot.json",

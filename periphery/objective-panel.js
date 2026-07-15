@@ -1,13 +1,19 @@
 // Role: renders the objective vector panel, always visible above the feed. One weight control per
 //   component (0 to 3, 0 is off), a reset to the null order, and the epistemic-cost report for the
 //   active feed viewed under the other available community's parameters.
-// Contract: renderObjectivePanel(container, { components, weights, onWeightsChange, costSummary }).
-//   `components` is api/ranking.js's COMPONENTS; `weights` the current stored vector;
-//   `onWeightsChange(nextWeights)` called on every control change; `costSummary` the epistemic-cost
-//   report's rendered line, or null while it is still computing.
+// Contract: renderObjectivePanel(container, { components, weights, onWeightsChange, costSummary,
+//   activeExtensionRanker }). `components` is api/ranking.js's COMPONENTS; `weights` the current
+//   stored vector; `onWeightsChange(nextWeights)` called on every control change; `costSummary` the
+//   epistemic-cost report's rendered line, or null while it is still computing; `activeExtensionRanker`
+//   the installed extension's label if one is ordering the feed instead of these native weights
+//   (Phase KG-4), or null.
 // Invariant: every component renders, including the ones permanently inert this phase (recent
 //   changes, validation-expertise match, followed topics) and engagement (inert while observation is
 //   off); each states why in place, never omitted and never silently scored as zero without saying so.
+//   The active ranking objective is always visible (claim 2): when an extension ranker is active, the
+//   summary line names it explicitly rather than reporting "null order" while something else is
+//   actually ordering the feed; the native weight controls stay visible and honest about their own
+//   (unconsulted) state underneath it.
 "use strict";
 
 function el(tag, attrs, ...children) {
@@ -24,7 +30,7 @@ function el(tag, attrs, ...children) {
   return node;
 }
 
-export function renderObjectivePanel(container, { components, weights, onWeightsChange, costSummary, observationOn }) {
+export function renderObjectivePanel(container, { components, weights, onWeightsChange, costSummary, observationOn, activeExtensionRanker }) {
   container.innerHTML = "";
   const isZero = components.every((c) => !(weights[c.id] || 0));
 
@@ -53,7 +59,11 @@ export function renderObjectivePanel(container, { components, weights, onWeights
   const summary = el(
     "p",
     { class: "objective-summary" },
-    isZero ? "Null order active: grounding, then recency, then the identity-hash tiebreak. No objective component is being consulted." : "Weighted order active. Tap a card for the components that placed it."
+    activeExtensionRanker
+      ? `Extension ranker active: ${activeExtensionRanker}. The native weights below are not being consulted; deactivate it from the Extensions screen to return to them.`
+      : isZero
+        ? "Null order active: grounding, then recency, then the identity-hash tiebreak. No objective component is being consulted."
+        : "Weighted order active. Tap a card for the components that placed it."
   );
 
   const resetBtn = el("button", { class: "objective-reset", onclick: () => onWeightsChange({}) }, "Reset to null order");

@@ -4,11 +4,19 @@
 //   via decide() against the community's own current state, exactly the primitive
 //   vendor/api/providers/local-provider.mjs itself calls. Also surfaces contestType and forkType
 //   (vendor/api/contest.js, vendor/api/fork.js) for a claim's type, and exportContribution
-//   (vendor/api/contribution.js) once the gate has decided.
+//   (vendor/api/contribution.js) once the gate has decided. Phase KG-4 adds draftComment (the only
+//   path this module offers to build a comments-on/replies-to link; it exposes no way to build a
+//   comment-to-support link at all) and draftPromoteToClaim (lifts a comment's text into a new
+//   claim, linked back from the comment via comments-on, a non-support role).
 // Contract: draftProposal(community, draft) -> { proposal: {entries, links}, receipt }. community is
 //   what api/community.js's fetchCommunity() returns (needs .raw = {state, sources, kinds}). draft =
 //   { statement, kind, contributorId?, declaredGrade?, citation?, action: "new"|"support"|"undercut"|
-//   "qualification", targetIdentity? }. draftContest(community, targetKind, contest) and
+//   "qualification", targetIdentity? }. draftComment(community, { statement, contributorId?,
+//   citation?, targetIdentity?, replyToIdentity? }) -> { proposal, receipt }: exactly one of
+//   targetIdentity (comments-on) or replyToIdentity (replies-to) is used, always kind "comment",
+//   always declared_grade "ungraded". draftPromoteToClaim(community, { commentIdentity, statement,
+//   kind, contributorId?, declaredGrade?, citation? }) -> { proposal, receipt }: a new claim, linked
+//   from the existing comment via comments-on. draftContest(community, targetKind, contest) and
 //   draftFork(community, targetKind, overrides) surface contest.js/fork.js over a row's kind. bundle()
 //   wraps a decided proposal via vendor/api/contribution.js.
 // Invariant: schema validation is the real claimRecord/linkRecord throwing on a bad shape; the gate
@@ -16,12 +24,20 @@
 //   implementation. A pasted citation always becomes a testimony-class source and NEVER carries a
 //   checking_records entry: there is no path in this module from citation input to an independence
 //   attribute, structurally, so a citation cannot become an independent confirmation by being pasted.
+//   Every path here that can build a "supports" link (draftProposal's support/undercut/qualification
+//   actions) runs the real vendored comment-support guard (kernel/gate/comment-guard.mjs) before
+//   decide(), the same call local-provider.mjs makes; this app's own write path does not route
+//   through local-provider.mjs's propose(), so the guard is called here directly rather than inherited
+//   for free. draftComment never constructs a "supports" link at all: it has no action parameter and
+//   no code path that emits one, so the guard is defense in depth here, not the only thing standing
+//   between a comment and the support role.
 "use strict";
 import { claimRecord, linkRecord } from "../vendor/kernel/schema/records.mjs";
 import { makeSourceTable, makeKindTable } from "../vendor/kernel/schema/tables.mjs";
 import { storeViewOf } from "../vendor/kernel/store/decay.mjs";
 import { decide } from "../vendor/kernel/gate/gate.mjs";
 import { hashTypeBundle } from "../vendor/kernel/schema/type-hash.mjs";
+import { rejectCommentSupport } from "../vendor/kernel/gate/comment-guard.mjs";
 import { contestType } from "../vendor/api/contest.js";
 import { forkType } from "../vendor/api/fork.js";
 import { exportContribution, contributionId } from "../vendor/api/contribution.js";
@@ -80,9 +96,104 @@ export function draftProposal(community, draft) {
   const sourcesForDecision = citeSource ? [...raw.sources, citeSource] : raw.sources;
   const tables = { kindTable: makeKindTable(raw.kinds), sourceTable: makeSourceTable(sourcesForDecision) };
   const contribution = { hash: claim.hash, entries: [claim], links };
-  const receipt = decide(contribution, storeViewOf(raw.state, tables), {});
+  const view = storeViewOf(raw.state, tables);
+  try {
+    rejectCommentSupport(contribution, view);
+  } catch (e) {
+    return { proposal: null, receipt: { decision: "declined", error: e.message, findings: [], grade_table: [] } };
+  }
+  const receipt = decide(contribution, view, {});
   receipt.proposed_identity = claim.identity;
   return { proposal: { entries: [claim], links }, receipt };
+}
+
+// draftComment: the only path this module offers to build a comments-on/replies-to link. Always
+// kind "comment", always declared_grade "ungraded" (a comment is never offered a grade selector: its
+// ceiling is the lattice floor, so nothing here would move by declaring higher). Exactly one of
+// targetIdentity (comments-on: this comment attaches to any existing record) or replyToIdentity
+// (replies-to: this comment replies to another comment) is honored; there is no "action" parameter
+// and no code path in this function that could emit a "supports" link.
+export function draftComment(community, draft) {
+  const raw = community.raw;
+  const d = draft || {};
+  if (!d.statement) throw new Error("draftComment: statement required");
+  if (!d.targetIdentity && !d.replyToIdentity) throw new Error("draftComment: targetIdentity or replyToIdentity required");
+  const contributor_id = d.contributorId || "contributor";
+
+  const citeSource = citationSource(d.citation);
+  const source_id = citeSource ? citeSource.source_id : "contributor:unsourced";
+
+  let comment;
+  try {
+    comment = claimRecord({ kind: "comment", statement: d.statement, source_id, contributor_id, declared_grade: "ungraded" });
+  } catch (e) {
+    return { proposal: null, receipt: { decision: "declined", error: "malformed comment: " + e.message, findings: [], grade_table: [] } };
+  }
+
+  const link_kind = d.replyToIdentity ? "replies-to" : "comments-on";
+  const to_identity = d.replyToIdentity || d.targetIdentity;
+  let link;
+  try {
+    link = linkRecord({ link_kind, from_identity: comment.identity, to_identity, source_id, contributor_id, declared_grade: "ungraded" });
+  } catch (e) {
+    return { proposal: null, receipt: { decision: "declined", error: "malformed link: " + e.message, findings: [], grade_table: [] } };
+  }
+
+  const sourcesForDecision = citeSource ? [...raw.sources, citeSource] : raw.sources;
+  const tables = { kindTable: makeKindTable(raw.kinds), sourceTable: makeSourceTable(sourcesForDecision) };
+  const contribution = { hash: comment.hash, entries: [comment], links: [link] };
+  const view = storeViewOf(raw.state, tables);
+  try {
+    rejectCommentSupport(contribution, view);
+  } catch (e) {
+    return { proposal: null, receipt: { decision: "declined", error: e.message, findings: [], grade_table: [] } };
+  }
+  const receipt = decide(contribution, view, {});
+  receipt.proposed_identity = comment.identity;
+  return { proposal: { entries: [comment], links: [link] }, receipt };
+}
+
+// draftPromoteToClaim: lifts an existing comment's text into a new, ordinarily-graded claim, linked
+// back from the comment via comments-on (comment to any record; the new claim qualifies), the honest
+// non-support link. The comment itself is untouched, still in the graph, still ungraded; this adds a
+// new claim and one new link, never edits or removes the comment.
+export function draftPromoteToClaim(community, draft) {
+  const raw = community.raw;
+  const d = draft || {};
+  if (!d.commentIdentity) throw new Error("draftPromoteToClaim: commentIdentity required");
+  if (!d.statement) throw new Error("draftPromoteToClaim: statement required");
+  if (!d.kind) throw new Error("draftPromoteToClaim: kind required");
+  const contributor_id = d.contributorId || "contributor";
+
+  const citeSource = citationSource(d.citation);
+  const source_id = citeSource ? citeSource.source_id : "contributor:unsourced";
+  const declared_grade = d.declaredGrade || "asserted";
+
+  let claim;
+  try {
+    claim = claimRecord({ kind: d.kind, statement: d.statement, source_id, contributor_id, declared_grade });
+  } catch (e) {
+    return { proposal: null, receipt: { decision: "declined", error: "malformed claim: " + e.message, findings: [], grade_table: [] } };
+  }
+  let link;
+  try {
+    link = linkRecord({ link_kind: "comments-on", from_identity: d.commentIdentity, to_identity: claim.identity, source_id, contributor_id, declared_grade: "ungraded" });
+  } catch (e) {
+    return { proposal: null, receipt: { decision: "declined", error: "malformed link: " + e.message, findings: [], grade_table: [] } };
+  }
+
+  const sourcesForDecision = citeSource ? [...raw.sources, citeSource] : raw.sources;
+  const tables = { kindTable: makeKindTable(raw.kinds), sourceTable: makeSourceTable(sourcesForDecision) };
+  const contribution = { hash: claim.hash, entries: [claim], links: [link] };
+  const view = storeViewOf(raw.state, tables);
+  try {
+    rejectCommentSupport(contribution, view);
+  } catch (e) {
+    return { proposal: null, receipt: { decision: "declined", error: e.message, findings: [], grade_table: [] } };
+  }
+  const receipt = decide(contribution, view, {});
+  receipt.proposed_identity = claim.identity;
+  return { proposal: { entries: [claim], links: [link] }, receipt };
 }
 
 // the type-hash of an existing row's kind, looked up from the community's own kind table (never

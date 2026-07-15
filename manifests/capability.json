@@ -3,6 +3,7 @@
   "permissions": [],
   "profile_upload_policy": "never",
   "ranking_execution_location": "device",
+  "extension_execution_location": "sandboxed worker, no network, no DOM (api/extension-sandbox.js); install-time conformance is the only gate, never a runtime capability grant",
   "contribution_export_behavior": "gate-passed, not admitted (per vendor/api/contribution.js status field; this deployment asserts no stronger status)",
   "declared_community_destinations": [
     "https://a-viable-fork.github.io/Knowledge-Game/communities/epistack-competition/snapshot/epistack-competition.snapshot.json"

@@ -6,7 +6,7 @@
     "domain": "the EpiStack protocol and its competition submission",
     "purpose": "a community kernel grounding the protocol's own mechanical guarantees against the pinned reference implementation's own check suite, and holding the submission's evaluative theses bare, at their honest floor, awaiting semantic acceptance by the judges and participants who alone can give it"
   },
-  "adopted_type_hashes": ["measurement", "forum"],
+  "adopted_type_hashes": ["measurement", "forum", "comment"],
   "local_kinds": [],
   "sources": [
     {

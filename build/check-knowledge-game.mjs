@@ -3,9 +3,10 @@
 //   upstream's own math kernel set ("check-math was evolved to assert this stage-two floor state",
 //   kernel-workflow-guide.md). Verifies every adopted kind's pinned hash still matches the shared
 //   subtree, the source and kind tables build, the gate accepts the contribution, and that every one
-//   of the 19 governance claims now computes to "checked" from a real checking record: Stage 3's
-//   grounding is complete as of Phase B/C. No grade is asserted by this script; every one is read from
-//   the real gate's own computed state.
+//   of the 20 governance claims now computes to "checked" from a real checking record: grounding is
+//   complete as of Phase KG-4 (claim-20, the first entered through the app's own contribution path,
+//   grounded by build/check-extension-seam.mjs). No grade is asserted by this script; every one is
+//   read from the real gate's own computed state.
 // Contract: `node build/check-knowledge-game.mjs` exits non-zero on any failure, naming the claim.
 "use strict";
 import { createRequire } from "node:module";
@@ -41,11 +42,11 @@ try {
   ok(false, `the kernel fails to build: ${e.message}`);
 }
 if (built) {
-  ok(built.state.entries.length === 19, `the kernel carries 19 governance claims (got ${built.state.entries.length})`);
+  ok(built.state.entries.length === 20, `the kernel carries 20 governance claims (got ${built.state.entries.length})`);
   ok(built.receipt.decision === "accepted", `the contribution is accepted by the real gate (got ${built.receipt.decision})`);
 }
 
-console.log("\n[3] every claim computes to 'checked', read from the real gate's state (Stage 3's grounding, complete as of Phase B/C)");
+console.log("\n[3] every claim computes to 'checked', read from the real gate's state (grounding complete as of Phase KG-4)");
 if (built) {
   for (const { rec, spec } of built.claims) {
     const derived = built.view.earnedByIdentity.get(rec.identity);
@@ -56,7 +57,7 @@ if (built) {
 }
 
 console.log("\n" + H);
-if (fails === 0) console.log("verified: the kernel is coherent, the gate accepts all 19 claims, and every one of them computes checked from a real checking record.");
+if (fails === 0) console.log("verified: the kernel is coherent, the gate accepts all 20 claims, and every one of them computes checked from a real checking record.");
 console.log(fails === 0 ? "check-knowledge-game: OK" : `check-knowledge-game: ${fails} FAILURE(S)`);
 console.log(H);
 process.exit(fails === 0 ? 0 : 1);

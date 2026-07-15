@@ -115,6 +115,43 @@ and compute `checked`; SK-4, SK-9, SK-10 through SK-14, and SK-16 through SK-18 
 compute `checked`.** The app's default community switched from the fixtures to the founded
 competition community; the fixtures are demoted to secondary, still available from the switcher.
 
+**Phase KG-4, completed: the re-pin, the view market, and claim 20.** Re-pinned upstream to `ce7ca28`
+(the comment kind and identity presentation): the comment type bundle, two additive link kinds
+(`comments-on`, `replies-to`), and `kernel/gate/comment-guard.mjs` (the never-citable-as-support rule)
+are now vendored. `api/filter.js` and `periphery/filter-bar.js` implement the type filter, a
+set-selector over the kinds present in the active graph plus `untyped`, stating its own exclusions,
+composing with ranking by running first. `api/contribute.js` gains `draftComment` (the only path that
+ever builds `comments-on`/`replies-to`, never `supports`) and `draftPromoteToClaim` (lifts a comment
+into a new claim, linked back via `comments-on`); `draftProposal` now calls the vendored comment-guard
+before `decide()`, since this app's write path does not route through `local-provider.mjs`'s own
+guarded `propose()`. `periphery/card.js` renders comments gradeless and threaded at Level 2, filterable
+like any kind. `api/extension.js`, `api/extension-sandbox.js`, and `periphery/extension-screen.js`
+implement the extension seam: content-addressed modules in three shapes (ranker, renderer, workflow),
+install-time conformance (a sandbox-fetch-denial probe plus, for a ranker, the ranking-separation
+fuzz), and sandboxed execution (an isolated worker denying network; DOM access is structurally absent,
+a worker has no `document`). Two demonstration extensions ship: the learn-efficiently ranker
+(extracted from `api/ranking.js`'s built-in component) and the contestable dashboard (a renderer lens
+over measurement-kind claims). `periphery/gate-feedback.js`'s `describeReceipt` renders every gate
+decision as structure present, structure missing, and what would ground it, so a refusal never renders
+the bare word "declined" alone. `periphery/onboarding-screen.js` implements first-run onboarding
+(followed topics, then the three-state ladder and the grade-is-not-agreement point), activating the
+learn-efficiently ranker as the default when at least one topic is entered. `api/alerts.js` and
+`periphery/alerts-panel.js` implement standing-motion alerts: a watch action on any card persists its
+last-seen grade, and each load diffs every watch against the fresh reading, reporting grade motion
+only. `build/governance-hash.mjs` computes the community card's governance-hash (the one named hash
+over the canonical parameter record: pinned type hashes, identity thresholds, standing-economy fields,
+the null-objective order), `kernel_id` demoted to a label over it; the founded competition community's
+card carries both `governance_hash` and `member_set_commitment` (null, no member set published yet),
+its snapshot otherwise unchanged, now also adopting the `comment` kind. Five checks are built and
+green: `build/check-filter.mjs`, `build/check-discussion.mjs`, `build/check-extension-seam.mjs`,
+`build/check-gate-feedback.mjs`, and `build/check-card-hashes.mjs`. **Claim 20** ("an installed
+extension cannot modify canonical standing, and cannot execute outside its sandbox") is the first
+governance claim entered through this app's own contribution path (`api/contribute.js`'s
+`draftProposal`) rather than hand-authored directly into the data file: drafted, decided, bundled, and
+exported (`kernel/governance/contributions/0001-the-extension-seam.json`), then admitted at its honest
+floor and grounded, once `build/check-extension-seam.mjs` existed, with a real checking record. All
+twenty of this deployment's own governance claims now compute `checked`.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

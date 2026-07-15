@@ -64,6 +64,16 @@ jobs:
         run: node build/check-ladder.mjs
       - name: check-seams
         run: node build/check-seams.mjs
+      - name: check-filter
+        run: node build/check-filter.mjs
+      - name: check-discussion
+        run: node build/check-discussion.mjs
+      - name: check-extension-seam
+        run: node build/check-extension-seam.mjs
+      - name: check-gate-feedback
+        run: node build/check-gate-feedback.mjs
+      - name: check-card-hashes
+        run: node build/check-card-hashes.mjs
       - name: check-release
         run: node build/check-release.mjs
       - name: the founded community's own self-check (self-contained, no reference back into this repository)

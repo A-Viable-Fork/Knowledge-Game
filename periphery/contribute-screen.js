@@ -1,18 +1,26 @@
 // Role: the contribution draft screen (Level 3, spec Section 7): draft -> schema validation -> local
 //   gate decision with the receipt shown -> bundle -> export. One screen handles all five card
-//   actions (support, undercut, qualification, contest-type, fork-type), routed by `ctx.action`.
+//   actions (support, undercut, qualification, contest-type, fork-type) plus (Phase KG-4) comment,
+//   reply, and promote, routed by `ctx.action`.
 // Contract: renderContributeScreen(container, ctx) -> void. ctx = { community, action, targetRow,
 //   contributionTarget?, onBack }. community is what api/community.js's fetchCommunity() returns;
-//   targetRow is the card's row the action originated from; contributionTarget is the community's
-//   declared PR destination (absent for a community that has not declared one).
+//   targetRow is the card's row the action originated from (the comment being replied to or promoted,
+//   for "reply"/"promote"); contributionTarget is the community's declared PR destination (absent for
+//   a community that has not declared one).
 // Invariant: an export button appears only once the gate has actually decided the proposal, and only
 //   when that decision passed structurally (gate-passed or gate-passed-with-disagreement); a declined
-//   draft shows why, never a bundle. The three-state ladder (periphery/ladder.js) never renders past
-//   gate-passed, because admission and semantic acceptance are never this app's to declare. A fork is
-//   shown as what it honestly is, snapshot-only and not persisted, never folded into the ladder.
+//   draft shows why, never a bundle. Every receipt renders through periphery/gate-feedback.js's
+//   describeReceipt (structure present, structure missing, what would ground it), so a refusal is
+//   never the bare word "declined" alone, comment refusals for occupying a support role included. The
+//   three-state ladder (periphery/ladder.js) never renders past gate-passed, because admission and
+//   semantic acceptance are never this app's to declare. A fork is shown as what it honestly is,
+//   snapshot-only and not persisted, never folded into the ladder. The comment form offers no grade
+//   selector (a comment is always ungraded) and no action selector (it can build only comments-on or
+//   replies-to, never supports).
 "use strict";
-import { draftProposal, draftContest, draftFork, bundleProposal } from "../api/contribute.js";
+import { draftProposal, draftContest, draftFork, draftComment, draftPromoteToClaim, bundleProposal } from "../api/contribute.js";
 import { renderLadder } from "./ladder.js";
+import { describeReceipt } from "./gate-feedback.js";
 
 function el(tag, attrs, ...children) {
   const node = document.createElement(tag);
@@ -34,6 +42,9 @@ const ACTION_TITLES = {
   qualification: "Propose qualification",
   contest: "Contest this claim's type",
   fork: "Fork this type",
+  comment: "Comment",
+  reply: "Reply",
+  promote: "Promote to claim",
 };
 
 function downloadJSONBlob(filename, jsonText) {
@@ -46,16 +57,25 @@ function downloadJSONBlob(filename, jsonText) {
   URL.revokeObjectURL(url);
 }
 
+// collaborative gate feedback (spec Section 7, Phase KG-4): a refusal renders the path, never the
+// wall. The decision label always appears (so the reader knows the outcome), but a decline is always
+// accompanied by structure present, structure missing, and what would ground it, drawn from the
+// receipt's own content; the bare word "declined" never renders alone.
 function renderReceipt(receipt) {
   const findings = receipt.findings || [];
+  const { present, missing, wouldGround } = describeReceipt(receipt);
+  const list = (items) => (items.length ? el("ul", {}, ...items.map((i) => el("li", {}, i))) : null);
   return el(
     "div",
     { class: "gate-receipt" },
-    el("p", {}, `Gate decision: ${receipt.decision}${receipt.error ? " (" + receipt.error + ")" : ""}`),
+    el("p", { class: "gate-decision" }, `Gate decision: ${receipt.decision}`),
     (receipt.decision_basis || []).length ? el("p", { class: "decision-basis" }, `Basis: ${receipt.decision_basis.join(", ")}`) : null,
+    present.length ? el("div", { class: "feedback-present" }, el("h4", {}, "Structure present"), list(present)) : null,
+    missing.length ? el("div", { class: "feedback-missing" }, el("h4", {}, "Structure missing"), list(missing)) : null,
+    wouldGround.length ? el("div", { class: "feedback-would-ground" }, el("h4", {}, "What would ground it"), list(wouldGround)) : null,
     findings.length
-      ? el("ul", { class: "findings" }, ...findings.map((f) => el("li", {}, `${f.rule_id}: expected ${f.expected}, found ${JSON.stringify(f.found)} (${f.entry_locator})`)))
-      : el("p", { class: "empty" }, "no findings")
+      ? el("details", { class: "feedback-raw-findings" }, el("summary", {}, "Raw findings"), el("ul", { class: "findings" }, ...findings.map((f) => el("li", {}, `${f.rule_id}: expected ${f.expected}, found ${JSON.stringify(f.found)} (${f.entry_locator})`))))
+      : null
   );
 }
 
@@ -123,6 +143,111 @@ function renderProposalDraft(container, ctx) {
     el("button", { type: "submit" }, "Check with the gate")
   );
 
+  container.appendChild(form);
+  container.appendChild(resultMount);
+}
+
+// comment / reply: no action selector, no kind selector, no grade selector. action === "reply" means
+// targetRow is the comment being replied to (replies-to); action === "comment" means targetRow is
+// whatever the comment attaches to (comments-on, any record).
+function renderCommentDraft(container, ctx) {
+  const { community, action, targetRow } = ctx;
+  const resultMount = el("div", { class: "contribute-result" });
+  let statement = "";
+  let citation = "";
+  let contributorId = "contributor";
+
+  function renderResult() {
+    resultMount.innerHTML = "";
+    if (!last) return;
+    const { proposal, receipt } = last;
+    resultMount.appendChild(renderReceipt(receipt));
+    if (!PASSED.has(receipt.decision)) return;
+    resultMount.appendChild(renderLadder("gate-passed"));
+    const exportBtn = el("button", { type: "button", class: "export-button" }, "Export contribution");
+    exportBtn.addEventListener("click", () => {
+      const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
+      downloadJSONBlob(`contribution-${bundle.contribution_id.slice(0, 12)}.json`, JSON.stringify(bundle, null, 2));
+      resultMount.appendChild(el("p", {}, `Contribution id: ${bundle.contribution_id}`));
+    });
+    resultMount.appendChild(exportBtn);
+  }
+
+  let last = null;
+  function runDraft() {
+    if (!statement.trim()) { last = { proposal: null, receipt: { decision: "declined", error: "a statement is required", findings: [] } }; renderResult(); return; }
+    last = draftComment(community, {
+      statement, contributorId, citation: citation || undefined,
+      targetIdentity: action === "reply" ? undefined : targetRow.identity,
+      replyToIdentity: action === "reply" ? targetRow.identity : undefined,
+    });
+    renderResult();
+  }
+
+  const form = el(
+    "form",
+    { class: "contribute-form", onsubmit: (e) => { e.preventDefault(); runDraft(); } },
+    el("p", { class: "contribute-target" }, action === "reply" ? `Replying to: ${targetRow.statement}` : `Commenting on: ${targetRow.statement}`),
+    el("label", {}, "Comment", el("textarea", { required: true, oninput: (e) => (statement = e.target.value) })),
+    el("label", {}, "Citation (optional)", el("input", { type: "text", oninput: (e) => (citation = e.target.value) })),
+    el("label", {}, "Contributor id", el("input", { type: "text", value: contributorId, oninput: (e) => (contributorId = e.target.value) })),
+    el("button", { type: "submit" }, "Check with the gate")
+  );
+  container.appendChild(form);
+  container.appendChild(resultMount);
+}
+
+// promote: lift an existing comment's text into a new, ordinarily-graded claim, linked back from the
+// comment via comments-on. The comment itself is never edited or removed.
+function renderPromoteDraft(container, ctx) {
+  const { community, targetRow } = ctx;
+  const resultMount = el("div", { class: "contribute-result" });
+  let statement = targetRow.statement;
+  let kind = (community.raw.kinds.find((k) => k.kind !== "comment") || community.raw.kinds[0] || {}).kind || "";
+  let citation = "";
+  let contributorId = "contributor";
+  let declaredGrade = "asserted";
+  let last = null;
+
+  function renderResult() {
+    resultMount.innerHTML = "";
+    if (!last) return;
+    const { proposal, receipt } = last;
+    resultMount.appendChild(renderReceipt(receipt));
+    if (!PASSED.has(receipt.decision)) return;
+    resultMount.appendChild(renderLadder("gate-passed"));
+    const exportBtn = el("button", { type: "button", class: "export-button" }, "Export contribution");
+    exportBtn.addEventListener("click", () => {
+      const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
+      downloadJSONBlob(`contribution-${bundle.contribution_id.slice(0, 12)}.json`, JSON.stringify(bundle, null, 2));
+      resultMount.appendChild(el("p", {}, `Contribution id: ${bundle.contribution_id}`));
+    });
+    resultMount.appendChild(exportBtn);
+  }
+
+  function runDraft() {
+    if (!statement.trim()) { last = { proposal: null, receipt: { decision: "declined", error: "a statement is required", findings: [] } }; renderResult(); return; }
+    last = draftPromoteToClaim(community, {
+      commentIdentity: targetRow.identity, statement, kind, contributorId, declaredGrade, citation: citation || undefined,
+    });
+    renderResult();
+  }
+
+  const kindOptions = (community.raw.kinds || []).map((k) => k.kind).filter((k) => k !== "comment");
+  const form = el(
+    "form",
+    { class: "contribute-form", onsubmit: (e) => { e.preventDefault(); runDraft(); } },
+    el("p", { class: "contribute-target" }, `Promoting comment: ${targetRow.statement}`),
+    el("label", {}, "Claim statement", el("textarea", { required: true, value: statement, oninput: (e) => (statement = e.target.value) })),
+    el(
+      "label", {}, "Kind",
+      el("select", { onchange: (e) => (kind = e.target.value) }, ...kindOptions.map((k) => el("option", { value: k, selected: k === kind ? "" : undefined }, k)))
+    ),
+    el("label", {}, "Citation (optional; becomes a testimony-class source, never an independent check)", el("input", { type: "text", oninput: (e) => (citation = e.target.value) })),
+    el("label", {}, "Contributor id", el("input", { type: "text", value: contributorId, oninput: (e) => (contributorId = e.target.value) })),
+    el("label", {}, "Declared grade", el("select", { onchange: (e) => (declaredGrade = e.target.value) }, ...["asserted", "supported", "corroborated"].map((g) => el("option", { value: g, selected: g === declaredGrade ? "" : undefined }, g)))),
+    el("button", { type: "submit" }, "Check with the gate")
+  );
   container.appendChild(form);
   container.appendChild(resultMount);
 }
@@ -213,5 +338,7 @@ export function renderContributeScreen(container, ctx) {
 
   if (ctx.action === "contest") renderContestDraft(container, ctx);
   else if (ctx.action === "fork") renderForkDraft(container, ctx);
+  else if (ctx.action === "comment" || ctx.action === "reply") renderCommentDraft(container, ctx);
+  else if (ctx.action === "promote") renderPromoteDraft(container, ctx);
   else renderProposalDraft(container, ctx);
 }

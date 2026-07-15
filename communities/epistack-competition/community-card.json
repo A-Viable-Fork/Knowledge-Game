@@ -1,12 +1,16 @@
 {
   "kernel_id": "epistack-competition",
-  "snapshot_hash": "740baeeb9c340de51d0de31aa1ed6a5c75c49c8c8421910ffd6c10ea183a1f65",
+  "governance_hash": "c1408ea4ba3560e58226a66014588f133cd3ec1d38fc7d05969809fd0ce230f2",
+  "governance_hash_computed_by": "this deployment, app-side (docs/coordination-layer-spec.md's own computation is specified, not yet built upstream)",
+  "member_set_commitment": null,
+  "snapshot_hash": "88a8ceeb2f60aae52d89df3728062536225dd3f7023c3c0f7eef777ffef8020f",
   "fetch_locations": [
     "https://a-viable-fork.github.io/Knowledge-Game/communities/epistack-competition/snapshot/epistack-competition.snapshot.json"
   ],
   "pinned_type_hashes": {
     "measurement": "2ed60a0154fef12d5d630f4a3f52d06686479c75aa57a44fd3b1488d581d3621",
-    "forum": "04c5a97678a1228065e6c36068b0b3dcc12ca52ad1285e6727f49754030007a1"
+    "forum": "04c5a97678a1228065e6c36068b0b3dcc12ca52ad1285e6727f49754030007a1",
+    "comment": "2a9e3db197c0eb335140a53e384059547817fe1b5f8918d64adb533581432bef"
   },
   "contribution_target": "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/epistack-competition (in-repo for now; a pull request touching this path re-runs the gate via .github/workflows/ci.yml; a documented move-out obligation to a standalone sibling repository is ledgered)",
   "protocol_identity": "epistack-v3",

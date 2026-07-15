@@ -16,6 +16,11 @@ const SOURCES = [
     "source_id": "S-kg-spec-v2",
     "source_class": "institutional-report",
     "description": "knowledge-game-spec-v2.md (this deployment's own specification, Sections 2, 5, and 9) and kernel/governance/stage-0.md, the asserting source for every governance claim this kernel carries about the app's own behavior"
+  },
+  {
+    "source_id": "contributor:cite:knowledgegamespecv2-md-section-6-the-extension-s",
+    "source_class": "testimony",
+    "description": "knowledgegamespecv2.md Section 6, the extension seam guarantee. This source was minted by api/contribute.js's own citationSource() when claim-20 was drafted through the app's real contribution path (Phase KG-4); it is testimony-class, the honest floor the app's citation mechanism ever produces, distinct from S-kg-spec-v2's institutional-report class the hand-authored claims cite directly."
   }
 ];
 

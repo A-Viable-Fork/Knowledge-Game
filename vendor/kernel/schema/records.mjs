@@ -16,7 +16,13 @@ import { isPosition } from "./confidence.mjs";
 // undercut (edge taxonomy [1.5]): attacks a support edge's grounding rather than adding support. It
 // enters no grade fold in the gate (inert here, like contradicts routes to the register); a dedicated
 // undercut reading over the graph lowers the confidence the attacked leg transmits.
-const LINK_KINDS = ["supports", "depends-on", "contradicts", "refines", "restatement", "undercut"];
+// comments-on / replies-to (the comment kind): discussion links, never a support role by construction.
+// A comment attaches to any record via comments-on, and to another comment via replies-to; neither
+// enters the gate's support fold (only link_kind "supports" ever does), so a thread travels with the
+// graph and moves no grade. The dedicated check is kernel/gate/comment-guard.mjs, gate-adjacent
+// because the schema here has no rules field to carry a per-kind link-role restriction (see its
+// own header note and docs/sorry-ledger.md, the rules-vocabulary seam).
+const LINK_KINDS = ["supports", "depends-on", "contradicts", "refines", "restatement", "undercut", "comments-on", "replies-to"];
 const METHOD_CLASSES = ["replication", "derivation-audit", "data-audit", "direct-measurement"];
 const INDEPENDENCE = ["distinct-party", "self"];
 const BINDING_RESOLUTIONS = ["bound", "bound-superseded", "unresolved"];

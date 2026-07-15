@@ -17,6 +17,7 @@ import { analyzeRobustness, analyzePresupposition } from "../../kernel/analysis/
 import { characterizedGaps as kernelCharacterizedGaps } from "../../kernel/analysis/characterized-gaps.mjs";
 import { disagreements as kernelDisagreements } from "../../kernel/analysis/reconciliation.mjs";
 import { leqWithinMode } from "../../kernel/schema/confidence.mjs";
+import { rejectCommentSupport } from "../../kernel/gate/comment-guard.mjs";
 
 function slug(s) {
   return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48);
@@ -94,7 +95,13 @@ export function createLocalProvider(snapshot) {
     // sources are unchanged (adding a row leaves every existing claim's derivation identical).
     const tables = { kindTable, sourceTable: makeSourceTable([...snapshot.sources, { source_id, source_class, rests_on: [] }]) };
     const contribution = { hash: claim.hash, entries: [claim], links };
-    const receipt = decide(contribution, storeViewOf(state, tables), {});
+    const view = storeViewOf(state, tables);
+    try {
+      rejectCommentSupport(contribution, view);
+    } catch (e) {
+      return { decision: "declined", error: e.message, findings: [], grade_table: [] };
+    }
+    const receipt = decide(contribution, view, {});
     receipt.proposed_identity = claim.identity; // so the client can find its row in the grade table
     return receipt;
   }
