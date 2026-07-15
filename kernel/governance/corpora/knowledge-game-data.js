@@ -1,7 +1,13 @@
-// Role: the knowledge-game kernel store: the governance claims from spec Sections 2, 5, and 9,
+// Role: the knowledge-game kernel store: the governance claims from spec Sections 2, 5, 6, and 9,
 //   entered as an author fills the scaffolder's generated empty skeleton, then grounded phase by phase
-//   as their own checks landed (Stage 2 through Phase B/C). Every claim now carries a real checking
-//   record citing the check that grounds it; none is asserted by hand above its honest floor.
+//   as their own checks landed (Stage 2 through Phase KG-4). Every claim now carries a real checking
+//   record citing the check that grounds it; none is asserted by hand above its honest floor. Claim-20
+//   is the first entered through the app's own contribution path (api/contribute.js's draftProposal),
+//   not hand-authored directly here: it drafted at "asserted" against the fixture snapshot, was
+//   bundled and exported (kernel/governance/contributions/0001-the-extension-seam.json), and is
+//   admitted here, grounded, exactly as that draft computed it (same identity, same statement, same
+//   source), the checking record and declared_grade added once build/check-extension-seam.mjs existed
+//   to ground it.
 // Contract: exports STORE = { store_id, claims, links }. Pure data; imports nothing.
 // Invariant: no grade is asserted by hand; every claim's declared_grade is at or below what its
 //   checking record actually earns, verified by the real gate in build/check-knowledge-game.mjs, not
@@ -355,6 +361,24 @@ const STORE = {
           checker_id: "build/check-substrate.mjs",
           method_class: "data-audit",
           method: "recomputes the sha256 of every vendored file and compares it to upstream/lock.json; recomputes the upstream/epistack submodule's checked-out commit and compares it to lock.commit_hash",
+          checked_at_state: "ST0",
+          outcome: "confirms",
+          independence: "distinct-party"
+        }
+      ]
+    },
+    {
+      ref: "claim-20",
+      kind: "measurement",
+      statement: "An installed extension cannot modify canonical standing, and cannot execute outside its sandbox.",
+      source_id: "contributor:cite:knowledgegamespecv2-md-section-6-the-extension-s",
+      contributor_id: "P-knowledge-game",
+      declared_grade: "checked",
+      checking_records: [
+        {
+          checker_id: "build/check-extension-seam.mjs",
+          method_class: "direct-measurement",
+          method: "test-execution evidence (Phase KG-4): a candidate that mutates a grade-bearing field, drops a row, or introduces an unknown identity fails install-time conformance naming the violation; a candidate attempting fetch or referencing document is blocked by the sandbox itself (denied network, and a worker's global scope has no document at all), never merely trusted not to try; both shipped demonstration extensions pass under their declared shape, and the first-party ranker installs through the identical public conformance path a third-party candidate uses",
           checked_at_state: "ST0",
           outcome: "confirms",
           independence: "distinct-party"

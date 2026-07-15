@@ -1,0 +1,68 @@
+{
+  "contribution_id": "eff0c21090bd943a3041b5b39f3b969c4ae4de3efe18b52eca7be4f6337ada85",
+  "proposal": {
+    "entries": [
+      {
+        "record_type": "claim",
+        "identity": "922187260c6849ad33a9b12003771601c0d46c15adaf73c5685ded660d2a42d7",
+        "kind": "measurement",
+        "statement": "An installed extension cannot modify canonical standing, and cannot execute outside its sandbox.",
+        "source_id": "contributor:cite:knowledgegamespecv2-md-section-6-the-extension-s",
+        "contributor_id": "P-knowledge-game",
+        "declared_grade": "asserted",
+        "checking_records": [],
+        "canonical": {
+          "identity": "922187260c6849ad33a9b12003771601c0d46c15adaf73c5685ded660d2a42d7",
+          "kind": "measurement",
+          "statement": "An installed extension cannot modify canonical standing, and cannot execute outside its sandbox.",
+          "source_id": "contributor:cite:knowledgegamespecv2-md-section-6-the-extension-s",
+          "contributor_id": "P-knowledge-game",
+          "declared_grade": "asserted"
+        },
+        "hash": "3de4b4d38fbaf06d6734b890e606bbf1fc28c20315a24207338e036367512b9b"
+      }
+    ],
+    "links": []
+  },
+  "receipt": {
+    "ruleset_version": "v3",
+    "schema_version": "v3",
+    "store_state": "594cb5dcd9785e7b4cd03e5da338e7118621788d7c4604024f08d77e14694565",
+    "contribution_hash": "3de4b4d38fbaf06d6734b890e606bbf1fc28c20315a24207338e036367512b9b",
+    "findings": [],
+    "binding_table": [],
+    "grade_table": [
+      {
+        "identity": "922187260c6849ad33a9b12003771601c0d46c15adaf73c5685ded660d2a42d7",
+        "ceiling": "checked",
+        "ceiling_mode": "empirical",
+        "declared_grade": "asserted",
+        "earned_grade": "asserted",
+        "earned_mode": null,
+        "S": "asserted",
+        "B": "none"
+      }
+    ],
+    "restatement_closures": [
+      [
+        "922187260c6849ad33a9b12003771601c0d46c15adaf73c5685ded660d2a42d7"
+      ]
+    ],
+    "withdrawn_matches": [],
+    "corroboration_findings": [],
+    "contradiction_records": [],
+    "decision": "accepted",
+    "decision_basis": [
+      "all-checks-clean"
+    ],
+    "certificate_hash": "dd1eb8db29beb60b9f49170d6b2f2058c9e6518ec2772141c9a6a4b842b0b441",
+    "proposed_identity": "922187260c6849ad33a9b12003771601c0d46c15adaf73c5685ded660d2a42d7"
+  },
+  "origin": {
+    "kernel_id": "knowledge-game",
+    "state_id": "6b58a7c85ea73a103ceeea58757b46ff7357ba8b83a905e0592c35cfaab9f94b"
+  },
+  "protocol": "v3",
+  "status": "gate-passed, not admitted",
+  "instructions": "This bundle is a proposal that passed the origin kernel's gate structurally; it is not admitted anywhere. To submit it, open a pull request carrying the bundle to a target kernel: the target's own suite re-runs the gate over the patch, admission is the target's act, and semantic judgement of whether the cited support holds of the world is its community's, never asserted here."
+}

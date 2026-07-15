@@ -25,10 +25,30 @@ open in.
 
 **Disclosure defaults.** The three-level card disclosure (spec Section 6): Level 1 carries
 statement, type, standing, origin, and why-selected; Level 2 carries supports, challenges,
-provenance, and open gaps; Level 3 carries actions (propose support, propose undercut, propose
-qualification, contest, fork the type, export contribution). The elaborate Level 3 of the prior
-version (crossing history, alternative frames, crux candidates) is specified and deferred, per spec
-Section 6.
+provenance, open gaps, and (Phase KG-4) discussion; Level 3 carries actions (propose support, propose
+undercut, propose qualification, contest, fork the type, comment, watch, export contribution). The
+elaborate Level 3 of the prior version (crossing history, alternative frames, crux candidates) is
+specified and deferred, per spec Section 6.
+
+**The type filter default (Phase KG-4).** A fresh profile excludes nothing: every kind present in the
+active graph, including `untyped` and `comment`, is shown until a reader explicitly hides one. The
+exclusion is per-community, persisted in the vault, and always stated on the filter bar.
+
+**Extension conformance is the only gate (Phase KG-4).** No extension, first-party or not, is trusted
+by declared shape alone: every install runs the same conformance path (the sandbox-fetch-denial
+probe, plus the ranking-separation fuzz for a ranker), and a passed candidate carries its conformance
+receipt in the vault's extension registry. There is no default-installed extension; the
+learn-efficiently ranker activates only as onboarding's own act, never silently.
+
+**Onboarding defaults (Phase KG-4).** A fresh profile has not seen onboarding; the first load shows it
+before any requested route. Skipping at any point records nothing (no followed topics, no active
+ranker) and reaches the originally requested view. Entering at least one topic activates the
+learn-efficiently ranker as the default objective.
+
+**Standing-motion alerts default (Phase KG-4).** A fresh profile watches nothing; the alerts panel is
+always present (never omitted) but empty until a reader watches a claim. A watch persists the claim's
+last-seen grade, per community, refreshed on every load so the next diff is against this load, not a
+stale one.
 
 ## Reserved-inactive fields (the hot-swap seams, spec Section 5)
 
