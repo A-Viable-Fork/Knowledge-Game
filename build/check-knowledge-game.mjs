@@ -3,10 +3,9 @@
 //   upstream's own math kernel set ("check-math was evolved to assert this stage-two floor state",
 //   kernel-workflow-guide.md). Verifies every adopted kind's pinned hash still matches the shared
 //   subtree, the source and kind tables build, the gate accepts the contribution, and that every one
-//   of the 19 governance claims computes to its honestly expected grade: claims 1, 2, 3, 5, 6, 7, 8,
-//   15, and 19 to "checked" from their real checking records, and the rest to "asserted", their
-//   unsupported floor. No grade below is asserted by this script; every one is read from the real
-//   gate's own computed state.
+//   of the 19 governance claims now computes to "checked" from a real checking record: Stage 3's
+//   grounding is complete as of Phase B/C. No grade is asserted by this script; every one is read from
+//   the real gate's own computed state.
 // Contract: `node build/check-knowledge-game.mjs` exits non-zero on any failure, naming the claim.
 "use strict";
 import { createRequire } from "node:module";
@@ -46,26 +45,18 @@ if (built) {
   ok(built.receipt.decision === "accepted", `the contribution is accepted by the real gate (got ${built.receipt.decision})`);
 }
 
-console.log("\n[3] every claim computes to its honestly expected grade, read from the real gate's state");
-// Phase A1 grounded claims 7 and 8 with real checking records (build/check-egress.mjs,
-// build/check-imports.mjs), alongside claim 19's build/check-substrate.mjs from Stage 2. Phase A2
-// grounds claims 1, 2, 3, 5, 15 with their own new checks (build/check-ranking-separation.mjs,
-// build/check-objective.mjs, build/check-vault.mjs twice over, build/check-provider-contract.mjs) and
-// attaches the pre-existing build/check-egress.mjs as a second checking record for claim 6, which it
-// already proved but was never wired to. Every other claim remains bare and floors at "asserted".
-const GROUNDED = new Set(["claim-1", "claim-2", "claim-3", "claim-5", "claim-6", "claim-7", "claim-8", "claim-15", "claim-19"]);
+console.log("\n[3] every claim computes to 'checked', read from the real gate's state (Stage 3's grounding, complete as of Phase B/C)");
 if (built) {
   for (const { rec, spec } of built.claims) {
     const derived = built.view.earnedByIdentity.get(rec.identity);
     const earned = derived ? derived.earned : "ungraded";
-    const expected = GROUNDED.has(spec.ref) ? "checked" : "asserted";
-    ok(earned === expected, `${spec.ref} (${rec.identity.slice(0, 12)}...) earns '${earned}', expected '${expected}': ${spec.statement.slice(0, 60)}...`);
-    ok(spec.declared_grade === earned, `${spec.ref} declared_grade ('${spec.declared_grade}') equals its earned grade ('${earned}'), asserting nothing above its honest floor`);
+    ok(earned === "checked", `${spec.ref} (${rec.identity.slice(0, 12)}...) earns 'checked': ${spec.statement.slice(0, 60)}...`);
+    ok(spec.declared_grade === earned, `${spec.ref} declared_grade ('${spec.declared_grade}') equals its earned grade ('${earned}'), asserting nothing above what the checking record earns`);
   }
 }
 
 console.log("\n" + H);
-if (fails === 0) console.log("verified: the kernel is coherent, the gate accepts all 19 claims, claims 1, 2, 3, 5, 6, 7, 8, 15, and 19 compute checked from their real checking records, and every other claim computes asserted, its honest unsupported floor.");
+if (fails === 0) console.log("verified: the kernel is coherent, the gate accepts all 19 claims, and every one of them computes checked from a real checking record.");
 console.log(fails === 0 ? "check-knowledge-game: OK" : `check-knowledge-game: ${fails} FAILURE(S)`);
 console.log(H);
 process.exit(fails === 0 ? 0 : 1);

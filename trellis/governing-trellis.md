@@ -37,12 +37,12 @@ check: a grep-style assertion that no local module defines a claim or link shape
 vendored schema, to land alongside the first local module that touches a claim shape (Phase A).
 
 **G0-3. Public and private data are structurally separate.** Personal data held in `vault/` never
-enters a public patch. **Prose-specified, half grounded.** `build/check-vault.mjs` (Phase A2)
-statically scans `periphery/`, `api/`, `vault/`, and `app/` and asserts only `vault/vault.js` touches
-a storage API, then asserts a fresh profile writes nothing until exported and that export/delete-all
-round-trip exactly what the vault holds; this grounds claim-5 (now `checked`, SK-5 discharged) but not
-claim-4 (still `asserted`, SK-4 open: no contribution-export path exists yet to assert field
-provenance over). The constraint as a whole stays prose-specified until claim-4 also grounds.
+enters a public patch. **Checked.** `build/check-vault.mjs` (Phase A2) grounds claim-5 (`checked`,
+SK-5 discharged): only `vault/vault.js` touches a storage API, and a fresh profile writes nothing
+until exported. `build/check-profile-leak.mjs` (Phase B/C) grounds claim-4 (now also `checked`, SK-4
+discharged): the bundle-building modules (`api/contribute.js`, `vendor/api/contribution.js`) import
+nothing from `vault/` or `api/settings.js`, and a vault filled with canary values leaks none of them
+into any bundle produced across a fuzz of draft inputs.
 
 **G0-4. No hidden ranking objective.** Ranking never changes standing, grades, receipts, robustness,
 or support structure. **Checked** by `build/check-ranking-separation.mjs` (Phase A2), fuzzing 25
@@ -60,14 +60,17 @@ beyond `manifests/network.json`'s declarations, which declare none; it had simpl
 that claim until now.
 
 **G0-6. Gate passage, admission, and semantic acceptance render as three distinct states.** No state
-ever implies the next. **Prose-specified.** Intended check: a copy-and-label audit over every
-contribution-bearing surface, to land with Phase B's contribution flow. Entered as claim-13, computed
-`asserted`, closing condition SK-13.
+ever implies the next. **Checked** by `build/check-ladder.mjs` (Phase B/C): the contribution ladder
+(`periphery/ladder.js`) carries exactly three distinct-labeled states, the forbidden words (true,
+validated, verified, accepted) are absent from the first two states' renderings, and no lower state's
+rendering contains a higher state's own label. Entered as claim-13, now computed `checked`; SK-13 is
+discharged.
 
-**G0-7. A passed gate receipt is never labeled true or validated.** **Prose-specified.** Intended
-check: the same copy-and-label audit as G0-6, scoped to receipt rendering, to land with Phase A/B. No
-claim in the Stage 2 entry separately restates this half; claim-13's closing condition (SK-13) covers
-it by extension, named here rather than left to assumption.
+**G0-7. A passed gate receipt is never labeled true or validated.** **Checked** by the same
+`build/check-ladder.mjs` run as G0-6: the forbidden-word scan covers exactly this half (true,
+validated are among the four words asserted absent from the gate-passed and admitted states'
+renderings). Claim-13's checking record covers it by extension, as this constraint's own entry has
+always said it would.
 
 **G0-8. All inherited substrate code is pinned, hashed, and attributable; local departures are
 explicit patches with named checks.** **Checked** by `build/check-substrate.mjs`, verifying every
@@ -88,20 +91,24 @@ instrument field exists anywhere in this deployment's local schema or manifests,
 A.
 
 **G0-11. This client is unprivileged.** It holds no capability any client with the snapshot lacks.
-**Prose-specified, read half checked.** The read half is `build/check-conformance-read.mjs` (Phase
-A1): an independent minimal client built from `vendor/api/` alone reproduces the app's reads
-byte-identically against the same fixture. The write half (an independent client's exported bundle
-passing the same admission path) lands with Phase B. Entered as claim-9, still computed `asserted`
-(no checking record is attached to the claim itself yet, since the read half alone does not ground
-the whole claim); SK-9 is narrowed to the write half, not discharged.
+**Checked, both halves.** The read half is `build/check-conformance-read.mjs` (Phase A1): an
+independent minimal client built from `vendor/api/` alone reproduces the app's reads byte-identically
+against the same fixture. The write half is `build/check-conformance-write.mjs` (Phase B/C): the same
+independent minimal client's proposal admits through the identical path (`importContribution`, then a
+fresh gate decision) as this app's own bundle for the equivalent proposal. Entered as claim-9, now
+computed `checked` from both checking records; SK-9 is discharged.
 
 **G0-12. Client-neutral artifacts.** Communities, snapshots, cards, and contribution targets this
 app produces carry no reference to this app; admission judges bundles, never the client that
-produced them. **Prose-specified.** Intended check: the neutrality check (grep every artifact the
-founding flow emits, kernel, snapshot, card, contribution-target scaffolding, and fail on any
-reference to this app), to land with Phase B's publish step. Entered as claim-10 (client-neutral
-artifacts) and claim-11 (admission judges bundles, never the client), both computed `asserted`,
-closing conditions SK-10 and SK-11.
+produced them. **Checked.** `build/check-neutrality.mjs` (Phase B/C) walks every artifact the
+founding flow emitted for the founded EpiStack Competition Community and fails on any of this
+deployment's own name-shaped strings, with one narrow, documented exemption (the community card's
+`fetch_locations` and `contribution_target` fields, whose entire function is to name a real transport
+location while this community lives in this repository, SK-21). `build/check-conformance-write.mjs`
+grounds the admission half: neither an independent client's bundle nor this app's own names its
+producing client anywhere in its shape. Entered as claim-10 (client-neutral artifacts) and claim-11
+(admission judges bundles, never the client), both now computed `checked`; SK-10 and SK-11 are
+discharged.
 
 ## Relationship to the design axioms
 

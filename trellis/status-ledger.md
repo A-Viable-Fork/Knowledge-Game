@@ -86,34 +86,66 @@ the v3 claim record carries no timestamp field, so there is nothing to sort by b
 the hash tiebreak, and the module says so rather than inventing a proxy that fails the invariance the
 order itself promises.
 
+**Phase B and C, completed: founding, contributing, and the first community.** `api/contribute.js`
+surfaces the vendored gate (`decide`, `claimRecord`, `linkRecord`), `vendor/api/contest.js`,
+`vendor/api/fork.js`, and `vendor/api/contribution.js` for the Level 3 contribution path: draft,
+real gate decision with the receipt shown, bundle, export. A pasted citation always becomes a
+testimony-class source carrying zero `checking_records`, structurally, so it can never become an
+independent confirmation. `periphery/ladder.js` and `periphery/contribute-screen.js` render the
+three-state ladder (gate-passed, admitted, semantically accepted) on every contribution surface.
+`build/found-community.mjs` and `build/parameter-surface.mjs` implement the founding flow (frame,
+type, free parameters read from `vendor/scaffolder/kernel-config.schema.json`'s own `x-tier`
+annotations, generate through the real unmodified scaffolder, publish) and were exercised for real:
+the **EpiStack Competition Community** is founded and published at `communities/epistack-competition/`
+(the spec's own in-repo fallback, since this session's GitHub access is scoped to one repository;
+the move-out obligation is ledgered, SK-21), self-contained (its own vendored kernel copy, corpus,
+build/check, and `.github/workflows/`). It carries nineteen claims: twelve mechanical protocol
+claims checked against the pinned reference implementation's own suite, six evaluative theses
+(the submission's own arguments) entered bare at their honest floor, and one further claim admitted
+through this app's own contribution path as the first real contribution (Step 4), all documented in
+`communities/epistack-competition/contributions/`. Seven checks are built and green:
+`build/check-conformance-write.mjs` (the write half of claim 9; grounds claim 11),
+`build/check-neutrality.mjs` (claim 10, with one documented transport-hint exemption),
+`build/check-profile-leak.mjs` (claim 4), `build/check-citation.mjs` (claim 12),
+`build/check-ladder.mjs` (claim 13), `build/check-release.mjs` (claim 14, alongside
+`build/compute-release-hash.mjs` which writes the declared hash), and `build/check-seams.mjs`
+(claims 16, 17, 18). Claims 4, 9, 10, 11, 12, 13, 14, 16, 17, and 18 now carry real checking records
+and compute `checked`; SK-4, SK-9, SK-10 through SK-14, and SK-16 through SK-18 are discharged.
+**Stage 3's grounding is complete: all nineteen of this deployment's own governance claims now
+compute `checked`.** The app's default community switched from the fixtures to the founded
+competition community; the fixtures are demoted to secondary, still available from the switcher.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is
 legible rather than discovered piecemeal:
 
-- **The governance kernel, Stage 3 through 5, remainder.** Claim 4 and claims 10 through 18 remain
-  bare; embedding code-to-claim references (Stage 4) and the invitation (Stage 5) have not started.
-- **Phase A, remainder.** Claim 4's contribution-export field-provenance test (personal profile
-  records cannot enter public contribution patches) is not built, since no founding/contribution flow
-  exists yet to test. Claims 16 through 18 (the credential, patch-history, and standing-economy seams)
-  remain unchecked. `manifests/capability.json`'s permissions and profile-upload fields still have no
-  enforcing code.
-- **Phase B, community founding in-app.** No founding flow exists. The neutrality check, the
-  second-client conformance check's write half, and the scaffolder-driven generate step are all
-  named, none built.
-- **Phase C, the first community.** Not started; depends on Phase B.
-- **The four hot-swap seams' active behavior.** All four interfaces are described in
-  `docs/architectural-reading.md` Section 4 as obligations this repository owes; the provider seam
-  now has active behavior and a checking record (claim 15). The credential, patch-history, and
-  standing-economy seams have no code yet. The credential seam's vendored stub
-  (`vendor/api/credential.js`) exists via the substrate pin, but no local evaluator wraps it yet.
+- **The governance kernel, Stage 4 and 5.** Embedding code-to-claim references (Stage 4) and the
+  invitation (Stage 5) have not started. Stage 3's grounding itself is complete: every one of the
+  nineteen claims now computes `checked`.
+- **The credential and standing-economy seams' real evaluators.** Claims 16 and 18 ground the
+  existence of the seam and the reservation of its fields, not an active evaluator: the credential
+  seam's vendored stub (`vendor/api/credential.js`) and the standing-economy configuration remain
+  exactly what upstream specifies and nothing more, per the register's own discipline (free by
+  default, evaluated only once the seam's real implementation lands upstream).
+- **The patch-history seam's durable form.** Claim 17 grounds that bundle identity is content-derived
+  and nothing depends on durable history today; the append-only patch ledger itself (spec `[4.5]`)
+  remains upstream's own specified, not-yet-built surface (`vendor/kernel/store/patch-ledger.js` is
+  still a stub).
+- **A standalone sibling repository for the founded community.** The EpiStack Competition Community
+  lives in this repository (the spec's own fallback); moving it out is ledgered (SK-21), blocked on
+  repository-creation scope this session does not have.
 - **Every check still named "intended" in `trellis/governing-trellis.md` and `trellis/design-axioms.md`.**
-  Of the twelve Tier 0 constraints: G0-8 (substrate integrity) is fully checked; G0-1 (trust boundary)
-  is now fully checked; G0-5 (egress) is now fully checked (both claim-7's and claim-6's halves);
-  G0-11 (unprivileged client) has its read half checked. The remaining constraints are still
+  Of the twelve Tier 0 constraints: G0-8 (substrate integrity), G0-1 (trust boundary), G0-3 (public and
+  private data structurally separate, now fully, both claim-4's and claim-5's halves), G0-4
+  (no hidden ranking objective), G0-5 (egress, both halves), and G0-11 (unprivileged client, now fully,
+  both the read and write halves) are fully checked. The remaining constraints are still
   prose-specified.
-- **The manifests' enforcement.** `manifests/network.json` is now enforced by `check-egress.mjs`.
-  `manifests/capability.json` and `manifests/build-provenance.json` still have no enforcing code.
+- **The manifests' enforcement.** `manifests/network.json` is enforced by `check-egress.mjs`.
+  `manifests/build-provenance.json` is now enforced by `build/check-release.mjs` (written by
+  `build/compute-release-hash.mjs`). `manifests/capability.json`'s permissions and profile-upload
+  fields still have no enforcing code (nothing in this deployment reads them yet, per the file's own
+  declared-empty note); it now also names the founded community's Pages URL as a declared destination.
 
 ## A known, unmechanizable gap
 
