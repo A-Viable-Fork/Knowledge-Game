@@ -399,3 +399,29 @@ a:focus-visible {
 .dashboard-tile-label { font-size: 0.85rem; margin: 0 0 0.3rem; }
 .dashboard-tile-grade { font-size: 0.78rem; color: var(--ink-muted); margin: 0 0 0.4rem; }
 .dashboard-tile-actions { display: flex; gap: 0.4rem; }
+
+/* Onboarding (Phase KG-4) */
+.onboarding-screen { max-width: 560px; margin: 2rem auto; padding: 0 1.1rem; }
+.onboarding-step label { display: block; margin: 0.8rem 0; }
+.onboarding-step input[type="text"] { width: 100%; font: inherit; padding: 0.4rem 0.6rem; }
+.onboarding-continue, .onboarding-finish {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--focus);
+  background: var(--focus);
+  color: #fff;
+  cursor: pointer;
+  margin-top: 0.6rem;
+}
+.onboarding-skip {
+  display: block;
+  margin-top: 1rem;
+  font: inherit;
+  font-size: 0.8rem;
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}

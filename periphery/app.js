@@ -22,6 +22,8 @@ import { renderFilterBar } from "./filter-bar.js";
 import { renderVaultScreen, downloadJSON } from "./vault-screen.js";
 import { renderContributeScreen } from "./contribute-screen.js";
 import { renderExtensionScreen, renderDashboardScreen } from "./extension-screen.js";
+import { renderOnboardingScreen } from "./onboarding-screen.js";
+import { LEARN_EFFICIENTLY_SOURCE } from "./demo-extensions.js";
 
 // The community registry. The founded EpiStack Competition Community (Phase B/C, its community card
 // at communities/epistack-competition/community-card.json) is the default; the two development
@@ -448,8 +450,7 @@ async function loadDashboardScreen(id) {
   renderSwitcher(null);
 }
 
-function boot() {
-  const { community, claim, view, action, target } = parseHash();
+function route({ community, claim, view, action, target }) {
   if (view === "vault") {
     loadVaultScreen();
   } else if (view === "extensions") {
@@ -461,6 +462,52 @@ function boot() {
   } else {
     loadCommunity(community || COMMUNITIES[0].id, claim);
   }
+}
+
+// first-run onboarding (spec Section 6): shown once, before whatever route was actually requested
+// (a deep link is preserved and reached the moment onboarding finishes or is skipped). Activating the
+// learn-efficiently default installs the same demo extension the Extensions screen offers, through the
+// identical conformance path; if the sandbox is unavailable for any reason, onboarding still completes
+// with the null order intact rather than blocking the reader from the feed.
+async function activateLearnEfficientlyDefault() {
+  try {
+    const conformance = await checkConformance(LEARN_EFFICIENTLY_SOURCE, "ranker", [], []);
+    if (!conformance.pass) return;
+    const hash = contentHash(LEARN_EFFICIENTLY_SOURCE);
+    settings.installExtension({ hash, shape: "ranker", label: "Learn-efficiently ranker (demo)", source: LEARN_EFFICIENTLY_SOURCE, conformance, installedAt: Date.now() });
+    settings.setActiveRanker(hash);
+  } catch (e) {
+    void e;
+  }
+}
+
+function boot() {
+  const parsed = parseHash();
+  if (!settings.onboardingSeen()) {
+    const feedEl = document.getElementById("feed");
+    const panelEl = document.getElementById("objective-panel-mount");
+    const filterBarEl = document.getElementById("filter-bar-mount");
+    const syncEl = document.getElementById("sync-state");
+    if (syncEl) syncEl.innerHTML = "";
+    panelEl.innerHTML = "";
+    filterBarEl.innerHTML = "";
+    feedEl.innerHTML = "";
+    renderSwitcher(null);
+    renderOnboardingScreen(feedEl, {
+      onFinish: async (topics, { activateDefault }) => {
+        settings.setFollowedTopics(topics);
+        settings.setOnboardingSeen(true);
+        if (activateDefault) await activateLearnEfficientlyDefault();
+        route(parsed);
+      },
+      onSkip: () => {
+        settings.setOnboardingSeen(true);
+        route(parsed);
+      },
+    });
+    return;
+  }
+  route(parsed);
 }
 
 window.addEventListener("hashchange", boot);
