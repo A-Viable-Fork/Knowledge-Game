@@ -40,6 +40,34 @@ jobs:
         run: node build/check-conformance-read.mjs
       - name: check-feed-determinism
         run: node build/check-feed-determinism.mjs
+      - name: check-ranking-separation
+        run: node build/check-ranking-separation.mjs
+      - name: check-objective
+        run: node build/check-objective.mjs
+      - name: check-vault
+        run: node build/check-vault.mjs
+      - name: check-provider-contract
+        run: node build/check-provider-contract.mjs
+      - name: check-offline-shell
+        run: node build/check-offline-shell.mjs
+      - name: check-epistack-competition
+        run: node build/check-epistack-competition.mjs
+      - name: check-conformance-write
+        run: node build/check-conformance-write.mjs
+      - name: check-neutrality
+        run: node build/check-neutrality.mjs
+      - name: check-profile-leak
+        run: node build/check-profile-leak.mjs
+      - name: check-citation
+        run: node build/check-citation.mjs
+      - name: check-ladder
+        run: node build/check-ladder.mjs
+      - name: check-seams
+        run: node build/check-seams.mjs
+      - name: check-release
+        run: node build/check-release.mjs
+      - name: the founded community's own self-check (self-contained, no reference back into this repository)
+        run: cd communities/epistack-competition && node build/check.mjs
       - name: fixtures are reproducible (regenerate and diff)
         run: |
           node build/emit-fixtures.mjs

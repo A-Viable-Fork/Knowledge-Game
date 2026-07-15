@@ -18,6 +18,12 @@
       "commit": "5ee954d",
       "date": "2026-07-15",
       "description": "Nineteen governance claims entered through the real gate; claim 19 grounded checked by a checking record citing build/check-substrate.mjs, claims 1 through 18 entered bare at their honest asserted floor with characterized gaps in the sorry ledger."
+    },
+    {
+      "stage": "stage-3",
+      "commit": "b5e07d3",
+      "date": "2026-07-15",
+      "description": "Grounding complete: all nineteen governance claims now carry real checking records and compute checked, the last ten (4, 9, 10, 11, 12, 13, 14, 16, 17, 18) grounded across Phase A1, A2, and B/C's checks. Stage 4 (code-to-claim embedding) and Stage 5 (the invitation) remain."
     }
   ]
 }
