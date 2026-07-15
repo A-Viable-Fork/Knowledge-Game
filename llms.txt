@@ -1,0 +1,18 @@
+# The Knowledge Game
+
+A kernel-bearing EpiStack deployment. The app is a fat client over a
+device-local gate: your browser fetches a community's snapshot, verifies
+its hash, and recomputes every grade itself.
+
+Truth about this repository's own state lives in `trellis/status-ledger.md`
+(built vs specified), `trellis/sorry-ledger.md` (named gaps), and
+`trellis/stage-manifest.json` (the stage record), not in prose.
+
+Trust boundary, one line: `periphery/` -> `api/` -> vendored kernel, one
+direction, statically enforced.
+
+The first community lives at `communities/epistack-competition/`;
+contributions arrive as pull requests whose gate re-runs in CI.
+
+Warning: grades are computed by the gate, always. Nothing in this repo
+asserts a grade by hand.

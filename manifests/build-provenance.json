@@ -1,13 +1,13 @@
 {
   "_purpose": "Build provenance. source_commit and artifact_hash are populated by a future build step, not by hand; they are null until that step exists.",
-  "source_commit": "aa0d07e7e6ea8c3fb4383209c31d5edd96e1df7e",
+  "source_commit": "b87961a5ab2ace6a189db55824e031e269e89eb9",
   "upstream_pin": {
     "repo": "A-Viable-Fork/epistack",
     "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
     "provisional": true
   },
   "build_command": ".github/workflows/ci.yml: no build tooling exists (no bundler, no transpiler); the deployed artifact is the checked-out working tree itself, served as vanilla ESM static files, after every build/check-*.mjs passes and app/fixtures/ is confirmed reproducible by regenerating and diffing against the committed content.",
-  "artifact_hash": "e210a7887c18d3dc90782270c4dd694240b7f90d84b8e88f3854df3fc50d0219",
+  "artifact_hash": "bdda29ff3f21292ba3e28da0d0ffa54814245b1c15c98b9544e6a17792b2d505",
   "artifact_hash_note": "artifact_hash is a sha256 over the sorted JSON of file_hashes, itself a sha256 per file over every file `git ls-files --cached --others --exclude-standard` lists (the deployed tree, since no build step compiles source into output), excluding this manifest itself. Recomputed and compared by build/check-release.mjs.",
   "protocol_identity": "v3",
   "provider_contract": "vendor/api/client-api.mjs",
@@ -15,6 +15,7 @@
     ".github/workflows/ci.yml": "7ae30d988c4157941449b565c50ba111175618025c01a5c58a7066119b5c12f6",
     ".gitmodules": "48df8791f20d30fdb7fd035f96b674945364d08001f1383f0ca5f997e92227a2",
     "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "README.md": "4cb88693cba9ab421c335c51c97c8052dfa09781fc0edd887c16c9078441a302",
     "api/README.md": "3319666ef1dcb2ac36990a92bdb8939a056c2c72582c68848f32b484fc104a21",
     "api/alerts.js": "a5fcd58f264c5fe621f64b2736a9d58b8e4222d9c1e629f3578d6367a9fa2e87",
     "api/community.js": "75e24d1c54aac9df30583ac8e0a05ecc8a1319a937bce98629e87083048f010f",
@@ -127,6 +128,7 @@
     "kernel/governance/kernel-config.json": "921b7dd47254133c5eaab4223ebc399c703901971063a771392039328a61f053",
     "kernel/governance/local-source-classes.md": "1fab02ca0cde25589fc4fc207b719f69328f8bac0aac07e91a1a9e5de2f82944",
     "kernel/governance/stage-0.md": "f4a66cca84b12c4bb2c7b604dfde55963022ac48c2bad0111a9f5b3c73f7166a",
+    "llms.txt": "3f6bc1eb931197f56d03ce8aa8e00862270322a32851d8949b990132646e78d3",
     "manifests/README.md": "c36963e3371a2c8b5d6b079abccc1a520be2d0721613eaa2c7a859842d5041bc",
     "manifests/capability.json": "f8ee9aafeb5dbe840dec316383bd6a2754114a19141ced3a092b35164d0acfbb",
     "manifests/network.json": "3ac04cb2130822bccacf058ea964abd06c1594de531d468942a60064554ef165",
