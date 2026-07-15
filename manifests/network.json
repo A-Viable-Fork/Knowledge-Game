@@ -1,6 +1,17 @@
 {
-  "_purpose": "Declares every network destination this deployment may call. Declared-empty until a phase's code earns a wider claim; no code reads this file yet, and no code makes a network call yet.",
-  "allowed_egress_destinations": [],
+  "_purpose": "Declares every network destination this deployment may call. build/check-egress.mjs asserts no request succeeds to a destination outside allowed_egress_destinations.",
+  "allowed_egress_destinations": [
+    {
+      "path": "fixtures/knowledge-game.snapshot.json",
+      "snapshot_hash": "fe87939417838e7b40a33f68a4e54c5ea36ca062e6abf311d8fd08299b5f3f06",
+      "description": "This deployment's own governance kernel: 19 claims, one checked, eighteen asserted."
+    },
+    {
+      "path": "fixtures/math.snapshot.json",
+      "snapshot_hash": "688fba0f08a873f1f1c9d04756f573ef8ac0078f588bb6558701cf7bf4906e52",
+      "description": "Upstream's math kernel, an EpiStack content corpus for contrast, emitted directly from the pinned submodule."
+    }
+  ],
   "telemetry_policy": "none",
   "third_party_analytics": "none"
 }
