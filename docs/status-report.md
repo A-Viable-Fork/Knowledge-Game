@@ -45,7 +45,7 @@ strings, but has no way to verify the label honestly describes the evidence it n
 check can bound semantic honesty of a label the substrate itself does not define beyond its enum;
 this repository's own read-before-merge practice is the standing discipline named in place of one.
 
-## 3. Bounded follow-up engineering (3 items)
+## 3. Bounded follow-up engineering (5 items)
 
 **SK-20**, recency: `api/feed.js`'s null order has nothing between grounding and the identity-hash
 tiebreak, because the v3 claim record carries no timestamp and no other content-derived temporal
@@ -62,6 +62,20 @@ pusher account on every admitted contribution. The credential seam's eventual pr
 machinery scopes anonymity claims to the graph, never the transport; closing this requires a
 transport that does not name the submitting party, not specified upstream or planned locally as of
 this pin.
+
+**SK-23**, the license picker: the founding flow's parameter step does not yet surface a license
+picker, because `vendor/scaffolder/kernel-config.schema.json` carries no `corpus_content_license`
+property as of this pin. Closes automatically in the sense that matters: when the vendored schema
+gains the field, `build/check-parameter-surface.mjs` will fail on the register delta at the next
+re-pin, naming the new field as present in the schema but absent from the founding flow, which is
+the designed detection rather than a bug.
+
+**SK-24**, attribution capture: the draft path captures no typed attribution target when a draft
+derives from a published source, so a community's market-layer royalty machinery (specified,
+upstream, branch-local) has nothing structural to route a distribution toward for a transcribed
+claim admitted here. Closes with a typed `attributionTarget` field on the draft object, always
+present on a source-derived draft, checked so a draft built from a citation always carries a
+target or an explicit none, never a silent absence.
 
 ## 4. Plural community-policy choices (5 items)
 

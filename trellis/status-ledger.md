@@ -180,6 +180,26 @@ commits, and `build/check-stages.mjs` verifies all six stages in true ancestry o
 is now complete against `knowledge-game-spec-v2.md` except the freeze re-pin, due 2026-07-19, which
 remains its own standing obligation and is not claimed here.
 
+**Phase KG-6, completed: the market layer's absorption.** `docs/specification.md` places
+`knowledge-game-spec-v2.md` verbatim, this repository's own governing document, now current through
+the market-layer conversation (the license field in the community card, attribution capture named as
+a bounded follow-up, the sandbox rescoped as this deployment's own Tier 0 financial-sterility choice,
+anonymity scoped to the graph). Two new sorry-ledger entries characterize what the conversation
+spec'd but did not build: SK-23, the license picker (the founding flow's parameter step has no
+picker yet, because the vendored `kernel-config.schema.json` carries no license property; closing is
+detected automatically, `build/check-parameter-surface.mjs` fails on the register delta the day
+upstream adds it), and SK-24, attribution capture (the draft path records no typed attribution
+target for a source-derived draft, so a community's market-layer royalty machinery would have
+nothing structural to route a distribution toward). Both reflected in `docs/status-report.md`'s
+bounded-follow-up division, now 5 items. `build/governance-hash.mjs`'s canonical parameter record
+gains `corpus_content_license` (absent hashes as the honest null `"unspecified"`, never omitted);
+the EpiStack Competition Community declares `attribution-required` in its own
+`founding-config.json`, amendable at the freeze pass, and its re-emitted card's governance-hash
+moves from `c1408ea4ba3560e58226a66014588f133cd3ec1d38fc7d05969809fd0ce230f2` to
+`93c2984eee758282bd4c645df95fb331186f6483b31e10d096e5ba000131fd79`, its snapshot hash unchanged,
+`build/check-card-hashes.mjs` confirming the reproduction and a new deliberate-break case (declaring
+a license moves the hash).
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

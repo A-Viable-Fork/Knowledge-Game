@@ -1,6 +1,6 @@
 {
   "kernel_id": "epistack-competition",
-  "governance_hash": "c1408ea4ba3560e58226a66014588f133cd3ec1d38fc7d05969809fd0ce230f2",
+  "governance_hash": "93c2984eee758282bd4c645df95fb331186f6483b31e10d096e5ba000131fd79",
   "governance_hash_computed_by": "this deployment, app-side (docs/coordination-layer-spec.md's own computation is specified, not yet built upstream)",
   "member_set_commitment": null,
   "snapshot_hash": "88a8ceeb2f60aae52d89df3728062536225dd3f7023c3c0f7eef777ffef8020f",
@@ -24,5 +24,6 @@
     "time_lock_cost": null,
     "decay_rate": null,
     "sybil_resistant_weighting_curve": null
-  }
+  },
+  "corpus_content_license": "attribution-required"
 }
