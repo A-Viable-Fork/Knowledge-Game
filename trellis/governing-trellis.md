@@ -28,6 +28,8 @@ transcript for the one constraint that is checked is recorded in the init report
 `api/` is the sole membrane; the vendored kernel (`vendor/kernel/`) stays pure and headless and
 imports nothing outside itself. **Prose-specified.** Intended check: an import-graph oracle
 (mirroring upstream's `build/check-map.mjs`), named to land with Phase A's first periphery file.
+Entered as claim-8 (`kernel/governance/corpora/knowledge-game-data.js`), computed `asserted`,
+closing condition SK-8 (`trellis/sorry-ledger.md`).
 
 **G0-2. One canonical schema source.** The pinned upstream `vendor/kernel/schema/` is the only
 claim and link shape; no parallel schema is ever invented locally. **Prose-specified.** Intended
@@ -37,30 +39,38 @@ vendored schema, to land alongside the first local module that touches a claim s
 **G0-3. Public and private data are structurally separate.** Personal data held in `vault/` never
 enters a public patch. **Prose-specified.** Intended check: a contribution-export field-provenance
 test asserting every field of an exported bundle traces to non-vault input, to land with Phase A/B's
-contribution path.
+contribution path. Entered as claim-4 and claim-5, both computed `asserted`, closing conditions SK-4
+and SK-5.
 
 **G0-4. No hidden ranking objective.** Ranking never changes standing, grades, receipts, robustness,
 or support structure. **Prose-specified.** Intended check: the no-grade-motion property test
 (perturb the ranking objective vector arbitrarily; every grade and certificate byte-identical),
 mirroring upstream's own third instance of this theorem, to land with Phase A's ranking module.
+Entered as claim-1, computed `asserted`, closing condition SK-1.
 
 **G0-5. No undeclared network egress; no third-party analytics.** All release capabilities are
 declared in `manifests/`. **Prose-specified.** Intended check: a network-request assertion under
 test (no request succeeds that is not in `manifests/network.json`'s declared destinations), to land
-with Phase A's PWA shell.
+with Phase A's PWA shell. Entered as claim-6 and claim-7, both computed `asserted`, closing
+conditions SK-6 and SK-7.
 
 **G0-6. Gate passage, admission, and semantic acceptance render as three distinct states.** No state
 ever implies the next. **Prose-specified.** Intended check: a copy-and-label audit over every
-contribution-bearing surface, to land with Phase B's contribution flow.
+contribution-bearing surface, to land with Phase B's contribution flow. Entered as claim-13, computed
+`asserted`, closing condition SK-13.
 
 **G0-7. A passed gate receipt is never labeled true or validated.** **Prose-specified.** Intended
-check: the same copy-and-label audit as G0-6, scoped to receipt rendering, to land with Phase A/B.
+check: the same copy-and-label audit as G0-6, scoped to receipt rendering, to land with Phase A/B. No
+claim in the Stage 2 entry separately restates this half; claim-13's closing condition (SK-13) covers
+it by extension, named here rather than left to assumption.
 
 **G0-8. All inherited substrate code is pinned, hashed, and attributable; local departures are
 explicit patches with named checks.** **Checked** by `build/check-substrate.mjs`, verifying every
 vendored file's hash against `upstream/lock.json` and the lock's commit against the
 `upstream/epistack` submodule. This is the one constraint Step 3 made mechanical; the deliberate-break
-transcript is in the init report.
+transcript is in the init report. Entered as claim-19, the one claim this kernel grounds today: it
+carries a real checking record citing `build/check-substrate.mjs` and computes to `checked`, not
+`asserted`, verified by `build/check-knowledge-game.mjs`.
 
 **G0-9. Gaps are ledgered, never hidden.** **Prose-specified.** Intended check: a sorry-ledger
 cross-reference check mirroring upstream's linter rule 3 (every gap marker appears in
@@ -77,13 +87,15 @@ A.
 reaches nothing past the public membrane, same check as G0-1) and the second-client conformance
 check (an independent minimal client, built in CI from the vendored public `api/` alone, reproduces
 every app capability against the same published artifacts). The read half lands with Phase A, the
-write half with Phase B.
+write half with Phase B. Entered as claim-9, computed `asserted`, closing condition SK-9.
 
 **G0-12. Client-neutral artifacts.** Communities, snapshots, cards, and contribution targets this
 app produces carry no reference to this app; admission judges bundles, never the client that
 produced them. **Prose-specified.** Intended check: the neutrality check (grep every artifact the
 founding flow emits, kernel, snapshot, card, contribution-target scaffolding, and fail on any
-reference to this app), to land with Phase B's publish step.
+reference to this app), to land with Phase B's publish step. Entered as claim-10 (client-neutral
+artifacts) and claim-11 (admission judges bundles, never the client), both computed `asserted`,
+closing conditions SK-10 and SK-11.
 
 ## Relationship to the design axioms
 

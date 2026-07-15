@@ -1,20 +1,52 @@
 ---
 Type: record
 Purpose: The live obligations ledger. Every gap marker this repository's own code carries (governing-trellis A-9 / G0-9) is listed here one to one; a future check will fail on a marker with no entry here or an entry with no live marker, mirroring upstream's own linter rule 3.
-Depends on: trellis/governing-trellis.md, trellis/design-axioms.md
+Depends on: trellis/governing-trellis.md, trellis/design-axioms.md, kernel/governance/corpora/knowledge-game-data.js
 Depended on by: nothing yet
 ---
 
 # Sorry Ledger
 
-Opens empty. No code exists yet to carry a gap marker.
+Eighteen characterized gaps, one per unsupported governance claim entered at Stage 2
+(`kernel/governance/corpora/knowledge-game-data.js`). Each claim entered bare, with no support and
+no checking record, and the gate floors it at `asserted`, its honest computed grade, verified by
+`build/check-knowledge-game.mjs`. Claim 19 is not listed here: it is grounded today by a real
+checking record citing `build/check-substrate.mjs` and computes to `checked`.
 
 ## Format
 
 | Sorry | Obligation | Status | Opened |
 |---|---|---|---|
 
-Each row, when one exists, names: a stable id (`SK-n`, distinct from upstream's own `G-*` and `SG-*`
-ids so the two ledgers never collide if read side by side); the obligation in one sentence; its
-status (`Open`, `Discharged`, with the discharging commit or check named); and the phase or stage it
-opened in.
+Each row names: a stable id (`SK-n`, distinct from upstream's own `G-*` and `SG-*` ids); the claim it
+closes and its closing condition (the future check and the phase that builds it); status; and the
+stage it opened in.
+
+## Live obligations
+
+| Sorry | Claim | Closing condition | Status | Opened |
+|---|---|---|---|---|
+| SK-1 | claim-1: ranking cannot modify canonical standing, grades, receipts, robustness, or support structure | The no-grade-motion property test: perturb the ranking objective vector arbitrarily and assert every grade and certificate stays byte-identical. Phase A. | Open | Stage 2 |
+| SK-2 | claim-2: the active ranking objective is always visible to the user | An objective-visibility and null-objective-determinism test. Phase A. | Open | Stage 2 |
+| SK-3 | claim-3: behavioral observation is opt-in and default off | An opt-in-observation-default test, asserting no observation is collected unless explicitly enabled. Phase A. | Open | Stage 2 |
+| SK-4 | claim-4: personal profile records cannot enter public contribution patches | A contribution-export field-provenance test: every field of an exported bundle traces to non-vault input. Phase A/B. | Open | Stage 2 |
+| SK-5 | claim-5: profile data is local by default | A vault-default-storage-location test, asserting no profile field is ever written anywhere but local storage absent explicit export. Phase A. | Open | Stage 2 |
+| SK-6 | claim-6: no telemetry endpoint exists beyond the capability manifest's declarations, which declare none | A network-request assertion under test cross-checked against `manifests/network.json`'s telemetry policy. Phase A. | Open | Stage 2 |
+| SK-7 | claim-7: no undeclared network egress exists | A network-request assertion under test: no request succeeds to a destination outside `manifests/network.json`'s declared set. Phase A. | Open | Stage 2 |
+| SK-8 | claim-8: the periphery imports no kernel or store module; the API is the sole membrane | An import-graph oracle, mirroring upstream's `build/check-map.mjs`. Phase A. | Open | Stage 2 |
+| SK-9 | claim-9: this client holds no capability any client with the snapshot lacks | Two parts: the import-graph oracle (SK-8's check, reused for reach) for the read half, and the second-client conformance check (an independent minimal client built from the vendored public `api/` alone) for the write half. Phase A (read), B (write). | Open | Stage 2 |
+| SK-10 | claim-10: artifacts produced by the founding flow are client-neutral | The neutrality check: grep every artifact the founding flow emits (kernel, snapshot, card, contribution-target scaffolding) for any reference to this app. Phase B. | Open | Stage 2 |
+| SK-11 | claim-11: admission judges bundles, never the producing client | The second-client conformance check's write half: an independent minimal client's exported bundle passes the same admission path as one this app produced. Phase B. | Open | Stage 2 |
+| SK-12 | claim-12: a citation cannot become an independent confirmation by being pasted | A copy-and-label audit over the citation/contribution authoring surface, asserting independence is an attested, attributable field, never inferred from a pasted URL. Phase B. | Open | Stage 2 |
+| SK-13 | claim-13: gate passage, admission, and semantic acceptance render as three distinct states, and no rendering implies the next | A copy-and-label audit over every contribution-bearing surface. Phase A/B. | Open | Stage 2 |
+| SK-14 | claim-14: a release's declared artifact hash matches the built artifact | A build-provenance verification comparing `manifests/build-provenance.json`'s declared `artifact_hash` against a fresh, reproducible build. Phase A. | Open | Stage 2 |
+| SK-15 | claim-15: a client can switch providers without presentation changes | A provider-swap snapshot test: the periphery renders identically under the local provider and the remote provider. Phase A. | Open | Stage 2 |
+| SK-16 | claim-16: the credential seam exists; identity thresholds are stored inactive and nothing evaluates them | A static assertion that the credential seam's local evaluator (`api/`) reads no identity-threshold field from any community's parameter record. Phase A/B. | Open | Stage 2 |
+| SK-17 | claim-17: the patch-history seam exists; bundle identity is content-derived and nothing depends on durable history | A grep-style assertion that no local module persists a patch history keyed on anything other than the vendored `contributionId`. Phase A/B. | Open | Stage 2 |
+| SK-18 | claim-18: the standing-economy seam exists; the reserved fields are read by nothing | A schema assertion that the reserved standing-economy parameter field is typed and read by zero call sites. Phase A/B. | Open | Stage 2 |
+
+## A gap the substrate itself cannot close (from deliberate-break two)
+
+| Sorry | Obligation | Closing condition | Status | Opened |
+|---|---|---|---|---|
+| SK-19 | `vendor/kernel/schema/tables.mjs`'s `makeSourceTable` validates only that a source's `source_class` is one of the six substrate-menu strings; it has no way to verify that the label is an honest description of the evidence it names. A source relabeled from `institutional-report` to `primary-measurement` (or any other real menu class) builds and passes with no error, confirmed by deliberate-break two in the Stage 1/2 report. | A source-class honesty review as a standing discipline (this repository's own read-before-merge practice), since no mechanical check can verify semantic honesty of a label the substrate itself does not define beyond its enum. Named here rather than silently trusted. Phase: unscheduled; revisit if a future check proposal can bound this mechanically. | Open | Stage 2 |
