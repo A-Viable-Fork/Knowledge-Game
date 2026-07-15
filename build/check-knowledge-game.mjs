@@ -2,11 +2,11 @@
 //   (Stage 1) and evolved by hand as the kernel's own stages progress, exactly the precedent
 //   upstream's own math kernel set ("check-math was evolved to assert this stage-two floor state",
 //   kernel-workflow-guide.md). Verifies every adopted kind's pinned hash still matches the shared
-//   subtree, the source and kind tables build, the gate accepts the contribution, and, as of Stage 2,
-//   that every one of the 19 governance claims computes to its honestly expected grade: claim 19
-//   (the substrate-integrity claim) to "checked" from its real checking record, and claims 1 through
-//   18 to "asserted", their unsupported floor. No grade below is asserted by this script; every one
-//   is read from the real gate's own computed state.
+//   subtree, the source and kind tables build, the gate accepts the contribution, and that every one
+//   of the 19 governance claims computes to its honestly expected grade: claims 1, 2, 3, 5, 6, 7, 8,
+//   15, and 19 to "checked" from their real checking records, and the rest to "asserted", their
+//   unsupported floor. No grade below is asserted by this script; every one is read from the real
+//   gate's own computed state.
 // Contract: `node build/check-knowledge-game.mjs` exits non-zero on any failure, naming the claim.
 "use strict";
 import { createRequire } from "node:module";
@@ -48,9 +48,12 @@ if (built) {
 
 console.log("\n[3] every claim computes to its honestly expected grade, read from the real gate's state");
 // Phase A1 grounded claims 7 and 8 with real checking records (build/check-egress.mjs,
-// build/check-imports.mjs), alongside claim 19's build/check-substrate.mjs from Stage 2; every other
-// claim remains bare and floors at "asserted".
-const GROUNDED = new Set(["claim-7", "claim-8", "claim-19"]);
+// build/check-imports.mjs), alongside claim 19's build/check-substrate.mjs from Stage 2. Phase A2
+// grounds claims 1, 2, 3, 5, 15 with their own new checks (build/check-ranking-separation.mjs,
+// build/check-objective.mjs, build/check-vault.mjs twice over, build/check-provider-contract.mjs) and
+// attaches the pre-existing build/check-egress.mjs as a second checking record for claim 6, which it
+// already proved but was never wired to. Every other claim remains bare and floors at "asserted".
+const GROUNDED = new Set(["claim-1", "claim-2", "claim-3", "claim-5", "claim-6", "claim-7", "claim-8", "claim-15", "claim-19"]);
 if (built) {
   for (const { rec, spec } of built.claims) {
     const derived = built.view.earnedByIdentity.get(rec.identity);
@@ -62,7 +65,7 @@ if (built) {
 }
 
 console.log("\n" + H);
-if (fails === 0) console.log("verified: the kernel is coherent, the gate accepts all 19 claims, claim 19 computes checked from its real checking record, and claims 1 through 18 compute asserted, their honest unsupported floor.");
+if (fails === 0) console.log("verified: the kernel is coherent, the gate accepts all 19 claims, claims 1, 2, 3, 5, 6, 7, 8, 15, and 19 compute checked from their real checking records, and every other claim computes asserted, its honest unsupported floor.");
 console.log(fails === 0 ? "check-knowledge-game: OK" : `check-knowledge-game: ${fails} FAILURE(S)`);
 console.log(H);
 process.exit(fails === 0 ? 0 : 1);

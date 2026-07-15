@@ -3,8 +3,8 @@
   "allowed_egress_destinations": [
     {
       "path": "fixtures/knowledge-game.snapshot.json",
-      "snapshot_hash": "fe87939417838e7b40a33f68a4e54c5ea36ca062e6abf311d8fd08299b5f3f06",
-      "description": "This deployment's own governance kernel: 19 claims, one checked, eighteen asserted."
+      "snapshot_hash": "88da402b29110da1579c643cb78429da770032aac560f41901906e9bdd49ecd6",
+      "description": "This deployment's own governance kernel: 19 claims, nine checked (claims 1, 2, 3, 5, 6, 7, 8, 15, 19), ten asserted."
     },
     {
       "path": "fixtures/math.snapshot.json",

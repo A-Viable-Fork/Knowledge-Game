@@ -49,7 +49,33 @@ import-graph oracle), `build/check-egress.mjs` (the egress assertion),
 `build/check-feed-determinism.mjs` (order invariance across runs and record permutations). Claims 7
 and 8 now carry real checking records citing `check-egress.mjs` and `check-imports.mjs` and compute
 `checked`; SK-7 and SK-8 are discharged. Claim 9's gap is narrowed to the write half (Phase B); it
-still computes `asserted`. Claims 1 through 6 and 10 through 18 are unchanged, still bare and
+still computes `asserted`.
+
+**Phase A, completed: objectives, the vault, and the shell (Phase A2).** `api/ranking.js` implements
+the objective vector: eleven documented deterministic components, a weighted composition over
+user-set weights, the null (all-zero) vector rendering exactly the null order, and an explainable
+why-answer per card reproducible purely from its own stored contributions. `api/epistemic-cost.js`
+recomputes the active feed under another community's parameters, using the real gate's own
+`storeViewOf` with the untyped-grounds-nothing invariant honestly enforced (a documented departure
+from the vendored kind-table's own looser default), reporting how many cards recompute, how many
+recompute lower, and how many arrive untyped. `vault/vault.js` is the sole persistence module, behind
+`api/settings.js`'s pass-through membrane; a fresh profile is off and empty by construction, off means
+off (no sampling, no buffering, nothing collected), and export/delete-all round-trip exactly what it
+holds. `periphery/objective-panel.js` and `periphery/vault-screen.js` render the weight sliders (with
+inert rows dimmed and labeled) and the vault screen. `sw.js`, deliberately placed at the repository
+root (not `app/`, since GitHub Pages gives no way to widen a service worker's scope after the fact),
+precaches every file the app actually needs, verified against a fresh walk of the real import graph;
+`periphery/app.js` renders visible sync state and an install affordance, and `app/manifest.webmanifest`
+is complete. Five checks are built and green: `build/check-ranking-separation.mjs` (the no-grade-motion
+theorem's next instance), `build/check-objective.mjs` (no hidden default, deterministic, explainable),
+`build/check-vault.mjs` (the vault is the only persistence; off means off), `build/check-provider-contract.mjs`
+(the periphery is provider-agnostic), and `build/check-offline-shell.mjs` (the precache list matches
+the import graph). `build/check-imports.mjs` now also enforces a `vault` zone that imports nothing
+outside itself, and permits `api` to reach it. Claims 1, 2, 3, 5, and 15 now carry real checking
+records citing their respective new checks and compute `checked`; SK-1, SK-2, SK-3, SK-5, and SK-15
+are discharged. Claim 6 now also carries `build/check-egress.mjs` as a second checking record (it
+already proved this in Phase A1; it was simply never wired to claim 6 until now) and computes
+`checked`; SK-6 is discharged. Claim 4 and claims 10 through 18 are unchanged, still bare and
 `asserted`, each with its open characterized gap in `trellis/sorry-ledger.md`.
 
 **A design correction surfaced building the null order.** An earlier draft approximated the null
@@ -65,25 +91,26 @@ order itself promises.
 Everything else in this repository is specified and not yet built, named here so the scope is
 legible rather than discovered piecemeal:
 
-- **The governance kernel, Stage 3 through 5, remainder.** Claims 1 through 6 and 10 through 18 remain
+- **The governance kernel, Stage 3 through 5, remainder.** Claim 4 and claims 10 through 18 remain
   bare; embedding code-to-claim references (Stage 4) and the invitation (Stage 5) have not started.
-- **Phase A, remainder.** Ranking (and its no-grade-motion property test), the ranking/standing
-  separation beyond claim 7's egress half, snapshot-hash verification's UI-level presentation, the
-  offline shell, and installability beyond a bare manifest are not built. `manifests/network.json`'s
-  enforcement now has a real check (`check-egress.mjs`); `manifests/capability.json`'s permissions and
-  profile-upload fields still have none.
+- **Phase A, remainder.** Claim 4's contribution-export field-provenance test (personal profile
+  records cannot enter public contribution patches) is not built, since no founding/contribution flow
+  exists yet to test. Claims 16 through 18 (the credential, patch-history, and standing-economy seams)
+  remain unchecked. `manifests/capability.json`'s permissions and profile-upload fields still have no
+  enforcing code.
 - **Phase B, community founding in-app.** No founding flow exists. The neutrality check, the
   second-client conformance check's write half, and the scaffolder-driven generate step are all
   named, none built.
 - **Phase C, the first community.** Not started; depends on Phase B.
 - **The four hot-swap seams' active behavior.** All four interfaces are described in
-  `docs/architectural-reading.md` Section 4 as obligations this repository owes; none has code yet.
-  The credential seam's vendored stub (`vendor/api/credential.js`) exists via the substrate pin, but
-  no local evaluator wraps it yet.
+  `docs/architectural-reading.md` Section 4 as obligations this repository owes; the provider seam
+  now has active behavior and a checking record (claim 15). The credential, patch-history, and
+  standing-economy seams have no code yet. The credential seam's vendored stub
+  (`vendor/api/credential.js`) exists via the substrate pin, but no local evaluator wraps it yet.
 - **Every check still named "intended" in `trellis/governing-trellis.md` and `trellis/design-axioms.md`.**
   Of the twelve Tier 0 constraints: G0-8 (substrate integrity) is fully checked; G0-1 (trust boundary)
-  is now fully checked; G0-5 (egress) is half checked (claim-7's half, not claim-6's); G0-11
-  (unprivileged client) has its read half checked. The remaining constraints are still
+  is now fully checked; G0-5 (egress) is now fully checked (both claim-7's and claim-6's halves);
+  G0-11 (unprivileged client) has its read half checked. The remaining constraints are still
   prose-specified.
 - **The manifests' enforcement.** `manifests/network.json` is now enforced by `check-egress.mjs`.
   `manifests/capability.json` and `manifests/build-provenance.json` still have no enforcing code.

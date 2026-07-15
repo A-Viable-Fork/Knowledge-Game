@@ -18,7 +18,17 @@ const STORE = {
       statement: "Ranking cannot modify canonical standing, grades, receipts, robustness, or support structure.",
       source_id: "S-kg-spec-v2",
       contributor_id: "P-knowledge-game",
-      declared_grade: "asserted"
+      declared_grade: "checked",
+      checking_records: [
+        {
+          checker_id: "build/check-ranking-separation.mjs",
+          method_class: "direct-measurement",
+          method: "test-execution evidence (kernel/governance/local-source-classes.md, the no-grade-motion property test named there): fuzzes 25 random objective vectors per fixture and asserts the raw snapshot, api.read(), api.reconciliations(), and api.gaps() stay byte-identical before and after; statically verifies api/ranking.js and api/feed.js import nothing that can write",
+          checked_at_state: "ST0",
+          outcome: "confirms",
+          independence: "distinct-party"
+        }
+      ]
     },
     {
       ref: "claim-2",
@@ -26,7 +36,17 @@ const STORE = {
       statement: "The active ranking objective is always visible to the user.",
       source_id: "S-kg-spec-v2",
       contributor_id: "P-knowledge-game",
-      declared_grade: "asserted"
+      declared_grade: "checked",
+      checking_records: [
+        {
+          checker_id: "build/check-objective.mjs",
+          method_class: "direct-measurement",
+          method: "test-execution evidence (kernel/governance/local-source-classes.md, the objective-visibility test named there): asserts an omitted or empty objective vector renders exactly the null order with no hidden default, that the same snapshot and vector yield an identical order across repeated runs and permutations of the input, and that every rendered position's why-answer reproduces purely from that card's own stored component scores",
+          checked_at_state: "ST0",
+          outcome: "confirms",
+          independence: "distinct-party"
+        }
+      ]
     },
     {
       ref: "claim-3",
@@ -34,7 +54,17 @@ const STORE = {
       statement: "Behavioral observation is opt-in and default off.",
       source_id: "S-kg-spec-v2",
       contributor_id: "P-knowledge-game",
-      declared_grade: "asserted"
+      declared_grade: "checked",
+      checking_records: [
+        {
+          checker_id: "build/check-vault.mjs",
+          method_class: "direct-measurement",
+          method: "test-execution evidence (kernel/governance/local-source-classes.md, the opt-in-observation-default test named there): asserts a fresh vault profile reports observation disabled with an empty log, and that five simulated observation events while the toggle is off write zero records",
+          checked_at_state: "ST0",
+          outcome: "confirms",
+          independence: "distinct-party"
+        }
+      ]
     },
     {
       ref: "claim-4",
@@ -50,7 +80,17 @@ const STORE = {
       statement: "Profile data is local by default.",
       source_id: "S-kg-spec-v2",
       contributor_id: "P-knowledge-game",
-      declared_grade: "asserted"
+      declared_grade: "checked",
+      checking_records: [
+        {
+          checker_id: "build/check-vault.mjs",
+          method_class: "direct-measurement",
+          method: "static-analysis evidence (kernel/governance/local-source-classes.md) combined with test-execution evidence: statically scans every file under periphery/, api/, vault/, and app/ and asserts only vault/vault.js touches a storage API, then asserts a fresh profile writes nothing until exported and that export/delete-all round-trip exactly what the vault holds",
+          checked_at_state: "ST0",
+          outcome: "confirms",
+          independence: "distinct-party"
+        }
+      ]
     },
     {
       ref: "claim-6",
@@ -58,7 +98,17 @@ const STORE = {
       statement: "No telemetry endpoint exists beyond the capability manifest's declarations, which declare none.",
       source_id: "S-kg-spec-v2",
       contributor_id: "P-knowledge-game",
-      declared_grade: "asserted"
+      declared_grade: "checked",
+      checking_records: [
+        {
+          checker_id: "build/check-egress.mjs",
+          method_class: "direct-measurement",
+          method: "observed-network-behavior evidence (kernel/governance/local-source-classes.md): runs api/community.js under a stubbed global fetch and asserts every URL it actually requests is one of manifests/network.json's declared destinations, which declare no telemetry endpoint",
+          checked_at_state: "ST0",
+          outcome: "confirms",
+          independence: "distinct-party"
+        }
+      ]
     },
     {
       ref: "claim-7",
@@ -150,7 +200,17 @@ const STORE = {
       statement: "A client can switch providers without presentation changes.",
       source_id: "S-kg-spec-v2",
       contributor_id: "P-knowledge-game",
-      declared_grade: "asserted"
+      declared_grade: "checked",
+      checking_records: [
+        {
+          checker_id: "build/check-provider-contract.mjs",
+          method_class: "direct-measurement",
+          method: "test-execution evidence (kernel/governance/local-source-classes.md, the provider-swap snapshot test named there): a second provider built independently from the vendored gate primitives (never importing local-provider.mjs) is compared against the vendored local provider; read() output and both null-order and weighted-objective rankings are byte-identical, and renderCard is a pure function of that identical row data (visual confirmation via a separate browser smoke test)",
+          checked_at_state: "ST0",
+          outcome: "confirms",
+          independence: "distinct-party"
+        }
+      ]
     },
     {
       ref: "claim-16",

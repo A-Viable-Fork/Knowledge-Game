@@ -37,24 +37,27 @@ check: a grep-style assertion that no local module defines a claim or link shape
 vendored schema, to land alongside the first local module that touches a claim shape (Phase A).
 
 **G0-3. Public and private data are structurally separate.** Personal data held in `vault/` never
-enters a public patch. **Prose-specified.** Intended check: a contribution-export field-provenance
-test asserting every field of an exported bundle traces to non-vault input, to land with Phase A/B's
-contribution path. Entered as claim-4 and claim-5, both computed `asserted`, closing conditions SK-4
-and SK-5.
+enters a public patch. **Prose-specified, half grounded.** `build/check-vault.mjs` (Phase A2)
+statically scans `periphery/`, `api/`, `vault/`, and `app/` and asserts only `vault/vault.js` touches
+a storage API, then asserts a fresh profile writes nothing until exported and that export/delete-all
+round-trip exactly what the vault holds; this grounds claim-5 (now `checked`, SK-5 discharged) but not
+claim-4 (still `asserted`, SK-4 open: no contribution-export path exists yet to assert field
+provenance over). The constraint as a whole stays prose-specified until claim-4 also grounds.
 
 **G0-4. No hidden ranking objective.** Ranking never changes standing, grades, receipts, robustness,
-or support structure. **Prose-specified.** Intended check: the no-grade-motion property test
-(perturb the ranking objective vector arbitrarily; every grade and certificate byte-identical),
-mirroring upstream's own third instance of this theorem, to land with Phase A's ranking module.
-Entered as claim-1, computed `asserted`, closing condition SK-1.
+or support structure. **Checked** by `build/check-ranking-separation.mjs` (Phase A2), fuzzing 25
+random objective vectors per fixture and asserting the raw snapshot, every grade, every reconciliation,
+and every gap stay byte-identical before and after, and statically verifying the ranker's own modules
+import nothing that can write. Entered as claim-1, now computed `checked` from a distinct-party
+checking record citing this check; SK-1 is discharged.
 
 **G0-5. No undeclared network egress; no third-party analytics.** All release capabilities are
-declared in `manifests/`. **Prose-specified, half grounded.** `build/check-egress.mjs` (Phase A1)
-runs the data layer under a stubbed fetch and asserts every requested URL is a declared destination;
-this grounds claim-7 (now `checked`, SK-7 discharged) but not claim-6 (still `asserted`, SK-6 open:
-the telemetry-specific half of this constraint has no dedicated check yet, since no telemetry code
-exists to assert the absence of). The constraint as a whole stays prose-specified until claim-6 also
-grounds.
+declared in `manifests/`. **Checked** by `build/check-egress.mjs` (Phase A1), which runs the data
+layer under a stubbed fetch and asserts every requested URL is a declared destination. This grounds
+both claim-7 (`checked`, SK-7 discharged) and claim-6 (now also `checked`, SK-6 discharged): the same
+check, attached as claim-6's checking record in Phase A2, already proved no telemetry endpoint exists
+beyond `manifests/network.json`'s declarations, which declare none; it had simply never been wired to
+that claim until now.
 
 **G0-6. Gate passage, admission, and semantic acceptance render as three distinct states.** No state
 ever implies the next. **Prose-specified.** Intended check: a copy-and-label audit over every
