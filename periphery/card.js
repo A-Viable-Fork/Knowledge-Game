@@ -8,9 +8,10 @@
 // Contract: renderCard(row, ctx) -> HTMLElement. `row` is an api.read() row (identity, kind,
 //   statement, declared_grade, earned_grade) plus `whyThisCard` and `position` (its feed index).
 //   `ctx` carries `sourcesById`, `rowsByIdentity`, `robustnessByIdentity`, `gapsByIdentity`,
-//   `kernelId`, `isDeepLinkTarget(identity)`, and `onContribute(action, row)` (action includes
-//   "comment" and "reply", target the row a new comment attaches to or replies to; "promote", target
-//   the comment being lifted into a claim draft).
+//   `kernelId`, `isDeepLinkTarget(identity)`, `isWatched(identity)` and `onToggleWatch(row)`
+//   (standing-motion alerts, Phase KG-4), and `onContribute(action, row)` (action includes "comment"
+//   and "reply", target the row a new comment attaches to or replies to; "promote", target the
+//   comment being lifted into a claim draft).
 // Invariant: a grade is rendered as a computed reading, labeled as such, never as truth, validation,
 //   or acceptance. Grade is encoded by lattice position with a color plus a textual grade word,
 //   color never carrying the distinction alone. No likes, no counters, no engagement chrome. A
@@ -146,13 +147,18 @@ function levelThree(row, ctx) {
   if (!ctx.onContribute) return null;
   const actions = row.kind === "comment" ? COMMENT_LEVEL_3_ACTIONS : LEVEL_3_ACTIONS;
   const extra = row.kind === "comment" ? [] : [el("button", { class: "contribute-action", type: "button", onclick: () => ctx.onContribute("comment", row) }, "Comment")];
+  const watched = ctx.isWatched && ctx.isWatched(row.identity);
+  const watchBtn = ctx.onToggleWatch
+    ? el("button", { class: "contribute-action watch-action", type: "button", "aria-pressed": watched ? "true" : "false", onclick: () => ctx.onToggleWatch(row) }, watched ? "Unwatch" : "Watch")
+    : null;
   return el(
     "div",
     { class: "level-3-actions" },
     ...actions.map((a) =>
       el("button", { class: "contribute-action", type: "button", onclick: () => ctx.onContribute(a.action, row) }, a.label)
     ),
-    ...extra
+    ...extra,
+    watchBtn
   );
 }
 

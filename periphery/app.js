@@ -15,10 +15,12 @@ import { orderByObjective, explainPosition, COMPONENTS } from "../api/ranking.js
 import { epistemicCost, epistemicCostSummary } from "../api/epistemic-cost.js";
 import { kindsPresent, applyFilter } from "../api/filter.js";
 import { checkConformance, runRanker, runRenderer, contentHash } from "../api/extension.js";
+import { computeAlerts, refreshWatches } from "../api/alerts.js";
 import * as settings from "../api/settings.js";
 import { renderCard } from "./card.js";
 import { renderObjectivePanel } from "./objective-panel.js";
 import { renderFilterBar } from "./filter-bar.js";
+import { renderAlertsPanel } from "./alerts-panel.js";
 import { renderVaultScreen, downloadJSON } from "./vault-screen.js";
 import { renderContributeScreen } from "./contribute-screen.js";
 import { renderExtensionScreen, renderDashboardScreen } from "./extension-screen.js";
@@ -178,6 +180,7 @@ async function loadCommunity(id, deepLinkClaim) {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
   const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
   feedEl.setAttribute("aria-busy", "true");
   feedEl.innerHTML = "";
   const status = document.createElement("p");
@@ -202,6 +205,27 @@ async function loadCommunity(id, deepLinkClaim) {
   const sourcesById = sourcesMap(community.raw);
   const gapsByIdentity = new Map(community.api.gaps({}).map((g) => [g.identity, g]));
   const rowsByIdentity = new Map(rows.map((r) => [r.identity, r]));
+
+  // standing-motion alerts: diff this load against the last-seen grade of every watched claim, then
+  // refresh the stored snapshot so the NEXT load diffs against this one, not a stale reading.
+  const priorWatches = settings.getWatches(meta.id);
+  const alerts = computeAlerts(priorWatches, rows);
+  renderAlertsPanel(alertsPanelEl, { alerts });
+  settings.setWatches(meta.id, refreshWatches(priorWatches, rows));
+  let watchedIdentities = new Set(priorWatches.map((w) => w.identity));
+  function toggleWatch(row) {
+    if (watchedIdentities.has(row.identity)) {
+      watchedIdentities.delete(row.identity);
+    } else {
+      watchedIdentities.add(row.identity);
+    }
+    const nextWatches = [...watchedIdentities].map((identity) => {
+      const r = rowsByIdentity.get(identity);
+      return { identity, kind: r.kind, grade: r.earned_grade };
+    });
+    settings.setWatches(meta.id, nextWatches);
+    renderFeed();
+  }
 
   let weights = settings.getObjective();
   const observationOn = settings.observationEnabled();
@@ -249,8 +273,10 @@ async function loadCommunity(id, deepLinkClaim) {
         gapsByIdentity,
         rowsByIdentity,
         excludedKinds,
+        isWatched: (identity) => watchedIdentities.has(identity),
         isDeepLinkTarget: (identity) => identity === deepLinkClaim,
         onContribute: (action, targetRow) => setHash({ view: "contribute", action, target: targetRow.identity, community: meta.id }),
+        onToggleWatch: (targetRow) => toggleWatch(targetRow),
       });
       card.dataset.identity = row.identity;
       card.dataset.kind = row.kind;
@@ -313,10 +339,12 @@ async function loadContributeScreen(id, action, targetIdentity) {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
   const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
   const syncEl = document.getElementById("sync-state");
   if (syncEl) syncEl.innerHTML = "";
   panelEl.innerHTML = "";
   filterBarEl.innerHTML = "";
+  alertsPanelEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "true");
 
@@ -342,10 +370,12 @@ function loadVaultScreen() {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
   const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
   const syncEl = document.getElementById("sync-state");
   if (syncEl) syncEl.innerHTML = "";
   panelEl.innerHTML = "";
   filterBarEl.innerHTML = "";
+  alertsPanelEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "false");
   renderVaultScreen(feedEl, {
@@ -368,10 +398,12 @@ async function loadExtensionScreen(id) {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
   const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
   const syncEl = document.getElementById("sync-state");
   if (syncEl) syncEl.innerHTML = "";
   panelEl.innerHTML = "";
   filterBarEl.innerHTML = "";
+  alertsPanelEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "true");
 
@@ -414,10 +446,12 @@ async function loadDashboardScreen(id) {
   const feedEl = document.getElementById("feed");
   const panelEl = document.getElementById("objective-panel-mount");
   const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
   const syncEl = document.getElementById("sync-state");
   if (syncEl) syncEl.innerHTML = "";
   panelEl.innerHTML = "";
   filterBarEl.innerHTML = "";
+  alertsPanelEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "true");
 
@@ -487,10 +521,12 @@ function boot() {
     const feedEl = document.getElementById("feed");
     const panelEl = document.getElementById("objective-panel-mount");
     const filterBarEl = document.getElementById("filter-bar-mount");
+    const alertsPanelEl = document.getElementById("alerts-panel-mount");
     const syncEl = document.getElementById("sync-state");
     if (syncEl) syncEl.innerHTML = "";
     panelEl.innerHTML = "";
     filterBarEl.innerHTML = "";
+    alertsPanelEl.innerHTML = "";
     feedEl.innerHTML = "";
     renderSwitcher(null);
     renderOnboardingScreen(feedEl, {
