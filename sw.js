@@ -44,6 +44,7 @@ const PRECACHE_URLS = [
   "vendor/kernel/analysis/characterized-gaps.mjs",
   "vendor/kernel/analysis/reconciliation.mjs",
   "vendor/kernel/analysis/robustness.mjs",
+  "vendor/kernel/gate/comment-guard.mjs",
   "vendor/kernel/gate/gate.mjs",
   "vendor/kernel/grounding/earned-grade.mjs",
   "vendor/kernel/schema/canonical.mjs",

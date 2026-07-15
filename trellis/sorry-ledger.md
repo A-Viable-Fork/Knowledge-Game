@@ -15,7 +15,7 @@ write half; the read half was already discharged in the sense of narrowing it, a
 attached), SK-10, SK-11, SK-12, SK-13, SK-14, SK-16, SK-17, and SK-18. Stage 3's grounding is
 complete: all nineteen of the nineteen claims now compute `checked`, verified by
 `build/check-knowledge-game.mjs`. The entries below are kept for their historical record (each row
-shows what the gap asked for, struck through, beside what discharged it); only SK-19 through SK-21
+shows what the gap asked for, struck through, beside what discharged it); only SK-19 through SK-22
 below remain open.
 
 ## Format
@@ -67,3 +67,9 @@ stage it opened in.
 | Sorry | Obligation | Closing condition | Status | Opened |
 |---|---|---|---|---|
 | SK-21 | The founded EpiStack Competition Community (`communities/epistack-competition/`) lives in this repository, the spec's own fallback ("otherwise `communities/epistack-competition/` in this repository") rather than a standalone sibling repository, since this session's GitHub access is scoped to this one repository and creating a new one is outside that scope. The directory is self-contained by construction (its own vendored kernel copy, its own corpus, its own build/check, its own `.github/workflows/`), so the move is a directory copy, not a rewrite. A structural tension follows: the community card's `fetch_locations` and `contribution_target` fields, which exist to name a real, honest transport location, necessarily name this repository's own URL while the community lives here, in tension with the founding flow's own client-neutrality discipline (no emitted artifact names this app or repository); `build/check-neutrality.mjs` documents and scopes this tension explicitly rather than silently exempting it. | Create (or gain the ability to create) a standalone sibling repository, copy `communities/epistack-competition/` there unchanged, update `fetch_locations` and `contribution_target` to the sibling repository's own URLs, and update this deployment's `COMMUNITIES` registry (`periphery/app.js`) and `manifests/network.json` to fetch from the new location. Phase: unscheduled; blocked on this session (or a future one) gaining repository-creation scope or the operator creating the sibling repository directly. | Open | Phase B/C |
+
+## A transport-layer gap named amending the credential-seam paragraph (spec v2, Section 5)
+
+| Sorry | Obligation | Closing condition | Status | Opened |
+|---|---|---|---|---|
+| SK-22 | v1 contributions ride the GitHub-native PR path (`api/contribute.js`'s `bundleProposal` export, admitted through a community's own repository), which names the pusher account on every admitted contribution. The credential seam's eventual presentation machinery guarantees the attestation graph itself carries no linkage beyond the presented predicate, but it cannot retroactively anonymize the transport that carried the bundle there: whoever pushes the PR is visible to the hosting platform and to anyone who reads the PR's own metadata, regardless of what identity grade the graph presents. Anonymity claims in this deployment are therefore scoped to the graph, never the transport, and agent-side de-anonymization is always unilateral (an agent can later prove which acts were theirs; absent an opening authority, no one can prove it about them). | A transport that does not name the submitting party (a relay, a submission intermediary, or an anonymous-PR mechanism), layered underneath the existing GitHub-native contribution path without changing the gate or the bundle format. Phase: unscheduled; no such transport is specified upstream or planned locally as of this pin. | Open | Phase KG-4 (re-pin) |

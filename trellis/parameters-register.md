@@ -37,9 +37,15 @@ and store an identity-threshold value per contribution action (propose, contest,
 community's parameter record. These fields are reserved now and marked
 `inactive-until-credential-seam-active`: no code reads them in v1, because the credential seam's v1
 evaluator (spec Section 5) permits any action any community's other parameters allow, with no
-identity requirement. When upstream's real credential evaluator (`api/credential.js`'s eventual
-non-stub implementation) lands, these same fields begin evaluating without any community needing
-re-founding.
+identity requirement. In v1, contributions ride the GitHub-native PR path, which names the pusher,
+so v1 offers no anonymity at the transport layer: the presentation machinery, once built, guarantees
+the attestation graph itself carries no linkage, but the admission path still names who pushed.
+Anonymity claims are therefore scoped to the graph, not the transport; agent-side de-anonymization
+is always unilateral (an agent can later prove which acts were theirs, but absent an opening
+authority no one can prove it about them); and transport-level anonymity (relays, submission
+intermediaries) is its own gap, ledgered separately from the credential seam itself. When upstream's
+real credential evaluator (`api/credential.js`'s eventual non-stub implementation) lands, these same
+fields begin evaluating without any community needing re-founding.
 
 **Standing-economy parameters.** A field is reserved in every community's parameter record for a
 future standing-economy configuration (time-lock cost, decay rate, Sybil-resistant weighting curve).

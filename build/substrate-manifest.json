@@ -14,6 +14,7 @@
     "kernel/composition/transfer.mjs",
     "kernel/composition/vocabulary.mjs",
     "kernel/gate/clean-json.js",
+    "kernel/gate/comment-guard.mjs",
     "kernel/gate/gate.mjs",
     "kernel/gate/immune.js",
     "kernel/gate/lifecycle.js",
