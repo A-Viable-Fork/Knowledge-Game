@@ -1,0 +1,190 @@
+/* Design register: calm, typographic, serious-playful. The grade mark is the visual protagonist
+   of the card; nothing competes with it. Dark mode follows prefers-color-scheme; motion is disabled
+   under prefers-reduced-motion. Grade color is a monotone scale over the lattice order and never the
+   sole channel: every grade badge also carries its grade word as text. */
+
+:root {
+  --paper: #f7f5f0;
+  --ink: #16181c;
+  --ink-muted: #55595f;
+  --line: #d8d4c8;
+  --card-bg: #ffffff;
+  --focus: #2f6df0;
+
+  /* the lattice-order color scale: bottom to settled, monotone in perceived strength */
+  --grade-ungraded: #9a9a94;
+  --grade-asserted: #8a8f98;
+  --grade-supported: #5f8fae;
+  --grade-corroborated: #3f7fae;
+  --grade-checked: #2c8a5f;
+  --grade-independently-rechecked: #1f6f4a;
+  --grade-constitutive: #6a4fae;
+
+  --radius: 14px;
+  --motion: 180ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #12140f;
+    --ink: #f1efe8;
+    --ink-muted: #b7b3a6;
+    --line: #33362c;
+    --card-bg: #1b1e17;
+    --focus: #7aa2ff;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.45;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--card-bg);
+  color: var(--ink);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  z-index: 10;
+}
+.skip-link:focus { left: 1rem; top: 1rem; }
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem 0.75rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.app-header h1 { font-size: 1.15rem; margin: 0; letter-spacing: 0.01em; }
+
+.community-switcher { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.community-switcher button {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+.community-switcher button[aria-current="true"] {
+  color: var(--ink);
+  border-color: var(--focus);
+  font-weight: 600;
+}
+.community-switcher button:focus-visible,
+.card summary:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.feed {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.feed-status { color: var(--ink-muted); padding: 2rem 0; text-align: center; }
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  scroll-margin-top: 6rem;
+  transition: box-shadow var(--motion) ease, border-color var(--motion) ease;
+}
+.card[data-target="true"] {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 25%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+}
+
+.card-top { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.badge-kind { color: var(--ink-muted); background: transparent; }
+
+.grade-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  flex: none;
+}
+.grade-ungraded, .grade-dot.g-ungraded { background: var(--grade-ungraded); }
+.grade-asserted, .grade-dot.g-asserted { background: var(--grade-asserted); }
+.grade-supported, .grade-dot.g-supported { background: var(--grade-supported); }
+.grade-corroborated, .grade-dot.g-corroborated { background: var(--grade-corroborated); }
+.grade-checked, .grade-dot.g-checked { background: var(--grade-checked); }
+.grade-independently-rechecked, .grade-dot.g-independently-rechecked { background: var(--grade-independently-rechecked); }
+.grade-constitutive, .grade-dot.g-constitutive { background: var(--grade-constitutive); }
+
+.badge-grade { border-color: transparent; background: color-mix(in srgb, var(--ink) 6%, transparent); }
+
+.statement { font-size: 1.02rem; margin: 0.65rem 0 0.4rem; }
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+}
+
+.why-card { font-style: italic; }
+
+.card details { margin-top: 0.6rem; }
+.card summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  padding: 0.3rem 0;
+}
+.level-2 { padding-top: 0.5rem; font-size: 0.9rem; }
+.level-2 h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-muted); margin: 0.7rem 0 0.25rem; }
+.level-2 ul { margin: 0.25rem 0; padding-left: 1.1rem; }
+.level-2 .empty { color: var(--ink-muted); font-style: italic; }
+
+.claim-link { color: var(--focus); text-decoration: underline; word-break: break-word; }
+
+.app-footer {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 3rem;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+  text-align: center;
+}

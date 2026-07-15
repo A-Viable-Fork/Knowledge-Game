@@ -1,0 +1,10 @@
+{
+  "name": "The Knowledge Game",
+  "short_name": "Knowledge Game",
+  "description": "A community feed reader for the EpiStack protocol: typed claims, graded on device.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0e1210",
+  "theme_color": "#0e1210",
+  "icons": []
+}

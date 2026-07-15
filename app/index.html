@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Knowledge Game</title>
+<meta name="description" content="A community feed reader for the EpiStack protocol: typed claims, graded on device.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#feed">Skip to feed</a>
+<header class="app-header">
+  <h1>The Knowledge Game</h1>
+  <nav class="community-switcher" id="community-switcher" aria-label="Community switcher"></nav>
+</header>
+<main id="feed" class="feed" aria-live="polite" aria-busy="true">
+  <p class="feed-status" id="feed-status">Loading the feed...</p>
+</main>
+<footer class="app-footer">
+  <p>Grades are computed on device from the public graph. A grade is a computed reading, never a claim of truth.</p>
+</footer>
+<script type="module" src="../periphery/app.js"></script>
+</body>
+</html>
