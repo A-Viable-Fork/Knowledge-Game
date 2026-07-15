@@ -33,24 +33,45 @@ precedent upstream's own math kernel set for evolving a generated check across s
 from spec Sections 2, 5, and 9 are entered through the real gate
 (`kernel/governance/corpora/knowledge-game-data.js`). Claim 19 ("all inherited substrate code matches
 the lock") carries a real checking record citing `build/check-substrate.mjs` and computes to
-`checked`, the one claim this Stage 2 entry can honestly ground today. Claims 1 through 18 enter bare,
-with no support and no checking record, and compute to `asserted`, their honest floor; each carries a
-characterized gap in `trellis/sorry-ledger.md` (SK-1 through SK-18) naming its closing condition. No
-grade above is asserted by hand anywhere in this repository, including in this ledger: every grade
-above is read from the real gate's own computed state, verified by `build/check-knowledge-game.mjs`.
+`checked`, the one claim this Stage 2 entry could honestly ground at the time. No grade above is
+asserted by hand anywhere in this repository, including in this ledger: every grade above is read from
+the real gate's own computed state, verified by `build/check-knowledge-game.mjs`.
+
+**The vertical slice, Phase A1: the feed reader, its four checks, and two more claims grounded.**
+`api/community.js` fetches a snapshot and refuses to load one whose recomputed hash does not match
+its declared `snapshot_hash`; `api/feed.js` implements the null-objective order (grounding, then a
+void recency term, then the identity-hash tiebreak: see the note below and SK-20).
+`periphery/app.js` and `periphery/card.js` render the feed, Levels 1 and 2, over the two fixtures
+emitted into `app/fixtures/` (this repository's own kernel, and upstream's math kernel, emitted with
+`build/emit-fixtures.mjs`). Four checks are built and green: `build/check-imports.mjs` (the
+import-graph oracle), `build/check-egress.mjs` (the egress assertion),
+`build/check-conformance-read.mjs` (the second-client conformance check's read half), and
+`build/check-feed-determinism.mjs` (order invariance across runs and record permutations). Claims 7
+and 8 now carry real checking records citing `check-egress.mjs` and `check-imports.mjs` and compute
+`checked`; SK-7 and SK-8 are discharged. Claim 9's gap is narrowed to the write half (Phase B); it
+still computes `asserted`. Claims 1 through 6 and 10 through 18 are unchanged, still bare and
+`asserted`, each with its open characterized gap in `trellis/sorry-ledger.md`.
+
+**A design correction surfaced building the null order.** An earlier draft approximated the null
+order's "recency" term with each claim's position in the snapshot's raw `entries` array. This was
+rejected once `build/check-feed-determinism.mjs`'s permutation test would have exposed it as
+order-dependent on incidental serialization, not on claim content. Recency is now honestly void (SK-20):
+the v3 claim record carries no timestamp field, so there is nothing to sort by between grouping and
+the hash tiebreak, and the module says so rather than inventing a proxy that fails the invariance the
+order itself promises.
 
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is
 legible rather than discovered piecemeal:
 
-- **The governance kernel, Stage 3 through 5.** Grounding claims 1 through 18 beyond their bare floor
-  (Stage 3), embedding code-to-claim references (Stage 4), and the invitation (Stage 5) have not
-  started; Phases A and B build and ground them per the closing conditions in
-  `trellis/sorry-ledger.md`.
-- **Phase A, the base reader.** No periphery code exists. The import-graph oracle, the
-  ranking/standing separation property test, snapshot hash verification, and the PWA shell are all
-  named in `trellis/governing-trellis.md` as intended checks with no implementation yet.
+- **The governance kernel, Stage 3 through 5, remainder.** Claims 1 through 6 and 10 through 18 remain
+  bare; embedding code-to-claim references (Stage 4) and the invitation (Stage 5) have not started.
+- **Phase A, remainder.** Ranking (and its no-grade-motion property test), the ranking/standing
+  separation beyond claim 7's egress half, snapshot-hash verification's UI-level presentation, the
+  offline shell, and installability beyond a bare manifest are not built. `manifests/network.json`'s
+  enforcement now has a real check (`check-egress.mjs`); `manifests/capability.json`'s permissions and
+  profile-upload fields still have none.
 - **Phase B, community founding in-app.** No founding flow exists. The neutrality check, the
   second-client conformance check's write half, and the scaffolder-driven generate step are all
   named, none built.
@@ -59,12 +80,13 @@ legible rather than discovered piecemeal:
   `docs/architectural-reading.md` Section 4 as obligations this repository owes; none has code yet.
   The credential seam's vendored stub (`vendor/api/credential.js`) exists via the substrate pin, but
   no local evaluator wraps it yet.
-- **Every check named "intended" in `trellis/governing-trellis.md` and `trellis/design-axioms.md`.**
-  Eleven of the twelve Tier 0 constraints are prose-specified; only the substrate-integrity
-  constraint (G0-8 / A-8) is checked, as recorded above.
-- **The manifests' enforcement.** `manifests/` scaffolds declared-empty capability sets; no code
-  reads or enforces them yet, so their content is a commitment for Phase A to hold to, not yet a
-  checked property.
+- **Every check still named "intended" in `trellis/governing-trellis.md` and `trellis/design-axioms.md`.**
+  Of the twelve Tier 0 constraints: G0-8 (substrate integrity) is fully checked; G0-1 (trust boundary)
+  is now fully checked; G0-5 (egress) is half checked (claim-7's half, not claim-6's); G0-11
+  (unprivileged client) has its read half checked. The remaining constraints are still
+  prose-specified.
+- **The manifests' enforcement.** `manifests/network.json` is now enforced by `check-egress.mjs`.
+  `manifests/capability.json` and `manifests/build-provenance.json` still have no enforcing code.
 
 ## A known, unmechanizable gap
 

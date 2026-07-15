@@ -47,11 +47,15 @@ if (built) {
 }
 
 console.log("\n[3] every claim computes to its honestly expected grade, read from the real gate's state");
+// Phase A1 grounded claims 7 and 8 with real checking records (build/check-egress.mjs,
+// build/check-imports.mjs), alongside claim 19's build/check-substrate.mjs from Stage 2; every other
+// claim remains bare and floors at "asserted".
+const GROUNDED = new Set(["claim-7", "claim-8", "claim-19"]);
 if (built) {
   for (const { rec, spec } of built.claims) {
     const derived = built.view.earnedByIdentity.get(rec.identity);
     const earned = derived ? derived.earned : "ungraded";
-    const expected = spec.ref === "claim-19" ? "checked" : "asserted";
+    const expected = GROUNDED.has(spec.ref) ? "checked" : "asserted";
     ok(earned === expected, `${spec.ref} (${rec.identity.slice(0, 12)}...) earns '${earned}', expected '${expected}': ${spec.statement.slice(0, 60)}...`);
     ok(spec.declared_grade === earned, `${spec.ref} declared_grade ('${spec.declared_grade}') equals its earned grade ('${earned}'), asserting nothing above its honest floor`);
   }

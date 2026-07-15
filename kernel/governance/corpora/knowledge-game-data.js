@@ -66,7 +66,17 @@ const STORE = {
       statement: "No undeclared network egress exists.",
       source_id: "S-kg-spec-v2",
       contributor_id: "P-knowledge-game",
-      declared_grade: "asserted"
+      declared_grade: "checked",
+      checking_records: [
+        {
+          checker_id: "build/check-egress.mjs",
+          method_class: "direct-measurement",
+          method: "observed-network-behavior evidence (kernel/governance/local-source-classes.md): runs api/community.js under a stubbed global fetch and asserts every URL it actually requests is one of manifests/network.json's declared destinations",
+          checked_at_state: "ST0",
+          outcome: "confirms",
+          independence: "distinct-party"
+        }
+      ]
     },
     {
       ref: "claim-8",
@@ -74,7 +84,17 @@ const STORE = {
       statement: "The periphery imports no kernel or store module; the API is the sole membrane.",
       source_id: "S-kg-spec-v2",
       contributor_id: "P-knowledge-game",
-      declared_grade: "asserted"
+      declared_grade: "checked",
+      checking_records: [
+        {
+          checker_id: "build/check-imports.mjs",
+          method_class: "direct-measurement",
+          method: "static-analysis evidence (kernel/governance/local-source-classes.md): statically parses every import statement in periphery/, api/, and kernel/governance/ and asserts each stays within its membrane zone (periphery reaches vendor/kernel only through api/; api/ imports only vendor/ and itself)",
+          checked_at_state: "ST0",
+          outcome: "confirms",
+          independence: "distinct-party"
+        }
+      ]
     },
     {
       ref: "claim-9",

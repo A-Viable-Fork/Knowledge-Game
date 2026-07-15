@@ -26,10 +26,10 @@ transcript for the one constraint that is checked is recorded in the init report
 
 **G0-1. One trust boundary, one direction.** `periphery/` reaches the kernel only through `api/`;
 `api/` is the sole membrane; the vendored kernel (`vendor/kernel/`) stays pure and headless and
-imports nothing outside itself. **Prose-specified.** Intended check: an import-graph oracle
-(mirroring upstream's `build/check-map.mjs`), named to land with Phase A's first periphery file.
-Entered as claim-8 (`kernel/governance/corpora/knowledge-game-data.js`), computed `asserted`,
-closing condition SK-8 (`trellis/sorry-ledger.md`).
+imports nothing outside itself. **Checked** by `build/check-imports.mjs` (Phase A1), the import-graph
+oracle, statically parsing every import in `periphery/`, `api/`, and `kernel/governance/`. Entered as
+claim-8 (`kernel/governance/corpora/knowledge-game-data.js`), now computed `checked` from a
+distinct-party checking record citing this check; SK-8 (`trellis/sorry-ledger.md`) is discharged.
 
 **G0-2. One canonical schema source.** The pinned upstream `vendor/kernel/schema/` is the only
 claim and link shape; no parallel schema is ever invented locally. **Prose-specified.** Intended
@@ -49,10 +49,12 @@ mirroring upstream's own third instance of this theorem, to land with Phase A's 
 Entered as claim-1, computed `asserted`, closing condition SK-1.
 
 **G0-5. No undeclared network egress; no third-party analytics.** All release capabilities are
-declared in `manifests/`. **Prose-specified.** Intended check: a network-request assertion under
-test (no request succeeds that is not in `manifests/network.json`'s declared destinations), to land
-with Phase A's PWA shell. Entered as claim-6 and claim-7, both computed `asserted`, closing
-conditions SK-6 and SK-7.
+declared in `manifests/`. **Prose-specified, half grounded.** `build/check-egress.mjs` (Phase A1)
+runs the data layer under a stubbed fetch and asserts every requested URL is a declared destination;
+this grounds claim-7 (now `checked`, SK-7 discharged) but not claim-6 (still `asserted`, SK-6 open:
+the telemetry-specific half of this constraint has no dedicated check yet, since no telemetry code
+exists to assert the absence of). The constraint as a whole stays prose-specified until claim-6 also
+grounds.
 
 **G0-6. Gate passage, admission, and semantic acceptance render as three distinct states.** No state
 ever implies the next. **Prose-specified.** Intended check: a copy-and-label audit over every
@@ -83,11 +85,12 @@ instrument field exists anywhere in this deployment's local schema or manifests,
 A.
 
 **G0-11. This client is unprivileged.** It holds no capability any client with the snapshot lacks.
-**Prose-specified.** Intended check, two-part per spec Section 2: the import-graph oracle (the app
-reaches nothing past the public membrane, same check as G0-1) and the second-client conformance
-check (an independent minimal client, built in CI from the vendored public `api/` alone, reproduces
-every app capability against the same published artifacts). The read half lands with Phase A, the
-write half with Phase B. Entered as claim-9, computed `asserted`, closing condition SK-9.
+**Prose-specified, read half checked.** The read half is `build/check-conformance-read.mjs` (Phase
+A1): an independent minimal client built from `vendor/api/` alone reproduces the app's reads
+byte-identically against the same fixture. The write half (an independent client's exported bundle
+passing the same admission path) lands with Phase B. Entered as claim-9, still computed `asserted`
+(no checking record is attached to the claim itself yet, since the read half alone does not ground
+the whole claim); SK-9 is narrowed to the write half, not discharged.
 
 **G0-12. Client-neutral artifacts.** Communities, snapshots, cards, and contribution targets this
 app produces carry no reference to this app; admission judges bundles, never the client that
