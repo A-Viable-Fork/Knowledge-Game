@@ -10,6 +10,8 @@
 //   node built-ins; it never imports anything from this repository's own api/ or periphery/. The
 //   "app" side actually exercises this app's real api/community.js (under a stubbed fetch, so this
 //   runs headless), never a second hand-written copy of the same vendor calls.
+// Governs: claim-9: the independent client's read-side fixture below is the read half of the proof
+//   that this app holds no capability a vendor-api-only client lacks.
 "use strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";

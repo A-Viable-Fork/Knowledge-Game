@@ -9,6 +9,9 @@
 // Invariant: the candidate's code runs with no capability this module did not hand it: no import, no
 //   fetch, no DOM, no access to anything outside the one input value passed to extensionMain, and no
 //   reference back into the host's own memory (structured-clone through postMessage only).
+// Governs: claim-20: this module is the structural half of "cannot execute outside its sandbox"; the
+//   candidate cannot reach fetch, DOM, or host memory regardless of what api/extension.js decides
+//   about its conformance.
 "use strict";
 
 // wraps the candidate source so it runs identically under a browser Worker (self, postMessage,

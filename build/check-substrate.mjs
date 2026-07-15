@@ -8,6 +8,8 @@
 //   cached value; the submodule's commit is read from git itself, never from a stored string other
 //   than the lock's own commit_hash field. A single byte changed in any vendored file, or a
 //   submodule checked out to any commit other than the lock's, fails this check by name.
+// Governs: claim-19: this file is claim 19's own checker; every vendored file's hash and the
+//   submodule's checked-out commit are verified here against upstream/lock.json on every run.
 "use strict";
 import { readFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";

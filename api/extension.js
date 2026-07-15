@@ -13,6 +13,9 @@
 //   install a candidate, never grant it a capability the sandbox does not already enforce. A failed
 //   conformance check is never silently retried with weaker rules, and this module persists nothing
 //   itself (the caller, via api/settings.js, decides whether a passed candidate is actually installed).
+// Governs: claim-20: checkConformance's ranking-separation fuzz refuses install to any candidate that
+//   mutates a grade-bearing field, drops a row, or introduces an unknown identity, and
+//   build/check-extension-seam.mjs proves this by naming the violation on a mutating candidate.
 "use strict";
 import { sha256Hex } from "../vendor/kernel/schema/sha256.mjs";
 import { runInSandbox } from "./extension-sandbox.js";

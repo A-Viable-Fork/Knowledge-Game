@@ -9,6 +9,9 @@
 //   first two states (gate-passed, admitted); "accepted" appears only inside the third state's own
 //   label ("semantically accepted"), because that state IS semantic acceptance and nothing else. No
 //   rendering of a lower state ever contains a higher state's label.
+// Governs: claim-13: STATES and renderLadder are the one rendering of gate-passed, admitted, and
+//   semantically accepted; build/check-ladder.mjs asserts the labels and that no lower state's caption
+//   borrows a higher state's word.
 "use strict";
 
 export const STATES = [

@@ -1,5 +1,7 @@
 {
   "_purpose": "Declares this deployment's capability surface. Declared-empty until a phase's code earns a wider claim; no code reads this file yet.",
+  "release_version": "stage-5",
+  "release_description": "The workflow track complete against trellis/stage-manifest.json: stages 0 through 5 all landed. Not a semantic version; this deployment's own unit of progress is the stage record, not an arbitrary number.",
   "permissions": [],
   "profile_upload_policy": "never",
   "ranking_execution_location": "device",

@@ -19,6 +19,13 @@
 //   comes from build/parameter-surface.mjs, itself reading the schema's own x-tier annotations, never
 //   hand-listed here. Every emitted artifact is checked for this deployment's own name and URL by
 //   build/check-neutrality.mjs, a check this module does not perform on itself.
+// Governs: claim-10: emitCommunityArtifacts writes every founded artifact from config and the built
+//   snapshot alone, never this deployment's own name or URL; build/check-neutrality.mjs greps the
+//   result for it.
+// Governs: claim-16: reportParameters surfaces config.identity_thresholds as stored and
+//   inactive-until-credential-seam-active; no call here or elsewhere evaluates it to gate behavior.
+// Governs: claim-18: reportParameters surfaces config.standing_economy as stored and read by zero call
+//   sites; the reserved fields pass through to the community card and nothing else touches them.
 "use strict";
 import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";

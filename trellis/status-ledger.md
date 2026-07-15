@@ -152,6 +152,34 @@ exported (`kernel/governance/contributions/0001-the-extension-seam.json`), then 
 floor and grounded, once `build/check-extension-seam.mjs` existed, with a real checking record. All
 twenty of this deployment's own governance claims now compute `checked`.
 
+**Phase KG-5, completed: embed, invite, release.** Closes the workflow track. Stage 4: a load-bearing
+`// Governs: claim-N` comment, naming the claim and one binding sentence, lands in the ranker and
+objective components, the vault, the draft builder and bundle serializer, the egress-bearing data
+layer and the api membrane, the conformance clients' fixtures, the founding flow, the ladder
+renderer, the release manifest, the three seam interfaces, the substrate check, and the extension
+loader and sandbox, all 20 claims covered across 23 references in 10 files. `build/check-
+references.mjs` verifies every reference resolves and every claim is covered, and regenerates
+`docs/blast-radius.md` from the same parse, failing on a stale committed copy. `build/check-
+parameter-surface.mjs` closes the spec's remaining parameter-surface deliverable: the founding
+flow's editable set (`kernel_id`, `local_kinds`, `sources`, `time_lock`) matches
+`vendor/scaffolder/kernel-config.schema.json`'s own free tier exactly, with `adopted_type_hashes`
+present but fixed for composition, its real enforcement (`hashTypeBundle`, `makeSourceTable`'s
+closed source-class menu) never bypassed. Stage 5: `docs/invitation.md` states what exists, what is
+open and whose it is, and how to arrive at each role (reader, contributor, client author, founder,
+extension author), claiming no community into existence and counting the competition community's
+engagement only as the graph shows it (19 claims and one corroborating link, all from this
+deployment's own founding contributor identities, no independent third party yet). The conditional
+move-out (SK-21) was checked again this phase: no sibling repository exists in this session's scope,
+so no artifacts moved and SK-21 stays open. The release: `manifests/capability.json` carries a
+`release_version` of `stage-5`, naming the stage record rather than an arbitrary number;
+`docs/status-report.md` carries spec Section 11's five-way division (20 built-and-checked, 1
+built-but-manually-governed, 3 bounded follow-up, 5 plural community-policy choices, 4 open
+research items) and the seams table; `docs/screenshots/` carries mobile and desktop captures of the
+deployed feed. `trellis/stage-manifest.json` gains `stage-4` and `stage-5` entries at their real
+commits, and `build/check-stages.mjs` verifies all six stages in true ancestry order. This repository
+is now complete against `knowledge-game-spec-v2.md` except the freeze re-pin, due 2026-07-19, which
+remains its own standing obligation and is not claimed here.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

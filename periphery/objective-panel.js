@@ -14,6 +14,9 @@
 //   summary line names it explicitly rather than reporting "null order" while something else is
 //   actually ordering the feed; the native weight controls stay visible and honest about their own
 //   (unconsulted) state underneath it.
+// Governs: claim-2: this is the render surface for "the active ranking objective is always visible";
+//   it never omits a component and never reports null order while an extension ranker is actually
+//   ordering the feed.
 "use strict";
 
 function el(tag, attrs, ...children) {
