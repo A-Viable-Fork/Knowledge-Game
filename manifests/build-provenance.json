@@ -6,8 +6,9 @@
     "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
     "provisional": true
   },
-  "build_command": null,
+  "build_command": ".github/workflows/ci.yml: no build tooling exists (no bundler, no transpiler); the deployed artifact is the checked-out working tree itself, served as vanilla ESM static files, after every build/check-*.mjs passes and app/fixtures/ is confirmed reproducible by regenerating and diffing against the committed content.",
   "artifact_hash": null,
+  "artifact_hash_note": "No single artifact hash applies while there is no build step compiling source into output; the deployed tree is the source tree, verified file-by-file by the check suite rather than by one compiled-artifact hash. See trellis/sorry-ledger.md SK-14.",
   "protocol_identity": "v3",
   "provider_contract": "vendor/api/client-api.mjs"
 }

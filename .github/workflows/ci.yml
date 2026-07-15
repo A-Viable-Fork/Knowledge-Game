@@ -1,0 +1,63 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: check-substrate
+        run: node build/check-substrate.mjs
+      - name: check-stages
+        run: node build/check-stages.mjs
+      - name: check-knowledge-game
+        run: node build/check-knowledge-game.mjs
+      - name: check-imports
+        run: node build/check-imports.mjs
+      - name: check-egress
+        run: node build/check-egress.mjs
+      - name: check-conformance-read
+        run: node build/check-conformance-read.mjs
+      - name: check-feed-determinism
+        run: node build/check-feed-determinism.mjs
+      - name: fixtures are reproducible (regenerate and diff)
+        run: |
+          node build/emit-fixtures.mjs
+          git diff --exit-code app/fixtures
+      - uses: actions/configure-pages@v5
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        with:
+          path: .
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: check
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
