@@ -377,3 +377,20 @@ a:focus-visible {
 .comment-statement { font-size: 0.88rem; font-style: italic; margin: 0.25rem 0; }
 .comment-actions { display: flex; gap: 0.4rem; }
 .comment-actions .contribute-action { font-size: 0.72rem; padding: 0.25rem 0.6rem; }
+
+/* Extensions and the contestable dashboard (Phase KG-4) */
+.extension-screen, .dashboard-screen { max-width: 640px; margin: 0 auto; padding: 0 1.1rem; }
+.extension-list { list-style: none; padding: 0; margin: 0.6rem 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.extension-row { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.8rem; }
+.extension-label { font-weight: 600; margin: 0; }
+.extension-hash { font-size: 0.74rem; color: var(--ink-muted); word-break: break-all; margin: 0.2rem 0; }
+.extension-conformance { font-size: 0.78rem; margin: 0.2rem 0; }
+.extension-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.4rem; }
+.extension-status { font-size: 0.8rem; color: var(--ink-muted); min-height: 1.2em; }
+.extension-demo-installs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.6rem 0; }
+.extension-install-form { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.8rem; }
+.dashboard-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.7rem; margin-top: 0.6rem; }
+.dashboard-tile { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem; }
+.dashboard-tile-label { font-size: 0.85rem; margin: 0 0 0.3rem; }
+.dashboard-tile-grade { font-size: 0.78rem; color: var(--ink-muted); margin: 0 0 0.4rem; }
+.dashboard-tile-actions { display: flex; gap: 0.4rem; }

@@ -10,7 +10,9 @@
 //   getWatches(communityId)/setWatches (standing-motion alert subscriptions, each a snapshot of the
 //   watched identity's last-seen grade so a later diff can tell motion from a fresh read);
 //   getExtensions()/installExtension(entry)/uninstallExtension(hash) (the extension registry: hash,
-//   shape, label, and the conformance receipt recorded at install time).
+//   shape, label, and the conformance receipt recorded at install time); getActiveRanker()/
+//   setActiveRanker(hash) and getActiveRenderer()/setActiveRenderer(hash) (which installed extension,
+//   if any, the feed currently runs; uninstalling an active extension clears it).
 // Invariant: a fresh profile constructs its off state rather than reading a configured default: no
 //   call ever writes a store on read, so a profile that has never called setObjective or
 //   setObservationEnabled has no key in storage at all, and every reader treats absence as off/empty
@@ -119,6 +121,27 @@ export function installExtension(entry) {
 export function uninstallExtension(hash) {
   const store = readStore();
   store.extensions = (store.extensions || []).filter((e) => e.hash !== hash);
+  if (store.activeRanker === hash) delete store.activeRanker;
+  if (store.activeRenderer === hash) delete store.activeRenderer;
+  writeStore(store);
+}
+
+export function getActiveRanker() {
+  return readStore().activeRanker || null;
+}
+export function setActiveRanker(hash) {
+  const store = readStore();
+  if (hash) store.activeRanker = hash;
+  else delete store.activeRanker;
+  writeStore(store);
+}
+export function getActiveRenderer() {
+  return readStore().activeRenderer || null;
+}
+export function setActiveRenderer(hash) {
+  const store = readStore();
+  if (hash) store.activeRenderer = hash;
+  else delete store.activeRenderer;
   writeStore(store);
 }
 

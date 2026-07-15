@@ -14,12 +14,14 @@ import { whyThisCard } from "../api/feed.js";
 import { orderByObjective, explainPosition, COMPONENTS } from "../api/ranking.js";
 import { epistemicCost, epistemicCostSummary } from "../api/epistemic-cost.js";
 import { kindsPresent, applyFilter } from "../api/filter.js";
+import { checkConformance, runRanker, runRenderer, contentHash } from "../api/extension.js";
 import * as settings from "../api/settings.js";
 import { renderCard } from "./card.js";
 import { renderObjectivePanel } from "./objective-panel.js";
 import { renderFilterBar } from "./filter-bar.js";
 import { renderVaultScreen, downloadJSON } from "./vault-screen.js";
 import { renderContributeScreen } from "./contribute-screen.js";
+import { renderExtensionScreen, renderDashboardScreen } from "./extension-screen.js";
 
 // The community registry. The founded EpiStack Competition Community (Phase B/C, its community card
 // at communities/epistack-competition/community-card.json) is the default; the two development
@@ -66,6 +68,18 @@ function renderSwitcher(activeId) {
   vaultBtn.className = "vault-nav-button";
   vaultBtn.addEventListener("click", () => setHash({ view: "vault" }));
   nav.appendChild(vaultBtn);
+
+  const extensionsBtn = document.createElement("button");
+  extensionsBtn.textContent = "Extensions";
+  extensionsBtn.className = "extensions-nav-button";
+  extensionsBtn.addEventListener("click", () => setHash({ view: "extensions" }));
+  nav.appendChild(extensionsBtn);
+
+  const dashboardBtn = document.createElement("button");
+  dashboardBtn.textContent = "Dashboard";
+  dashboardBtn.className = "dashboard-nav-button";
+  dashboardBtn.addEventListener("click", () => setHash({ view: "dashboard" }));
+  nav.appendChild(dashboardBtn);
 }
 
 function linksMaps(raw) {
@@ -205,13 +219,26 @@ async function loadCommunity(id, deepLinkClaim) {
     });
   }
 
-  function renderFeed() {
+  async function renderFeed() {
     const extra = { reconciliations, observation: { enabled: observationOn, log: settings.observationLog() } };
     const { visible } = applyFilter(rows, excludedKinds, community.raw.kinds);
-    const ordered = orderByObjective(visible, weights, community.raw.state, extra);
+    const activeRankerHash = settings.getActiveRanker();
+    const activeRankerEntry = activeRankerHash ? (settings.getExtensions() || []).find((e) => e.hash === activeRankerHash && e.shape === "ranker") : null;
+    let ordered;
+    let usedExtension = false;
+    if (activeRankerEntry) {
+      try {
+        ordered = await runRanker(activeRankerEntry.source, visible, weights, community.raw.state.links || []);
+        usedExtension = true;
+      } catch (e) {
+        ordered = orderByObjective(visible, weights, community.raw.state, extra);
+      }
+    } else {
+      ordered = orderByObjective(visible, weights, community.raw.state, extra);
+    }
     feedEl.innerHTML = "";
     ordered.forEach((row, i) => {
-      row.whyThisCard = explainPosition(row, i);
+      row.whyThisCard = usedExtension ? `active ranker extension: ${activeRankerEntry.label}, position ${i}` : explainPosition(row, i);
       const card = renderCard(row, {
         kernelId: community.kernelId,
         sourcesById,
@@ -335,10 +362,100 @@ function loadVaultScreen() {
   renderSwitcher(null);
 }
 
+async function loadExtensionScreen(id) {
+  const feedEl = document.getElementById("feed");
+  const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
+  const syncEl = document.getElementById("sync-state");
+  if (syncEl) syncEl.innerHTML = "";
+  panelEl.innerHTML = "";
+  filterBarEl.innerHTML = "";
+  feedEl.innerHTML = "";
+  feedEl.setAttribute("aria-busy", "true");
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const fixtureRows = community.api.read({});
+  const fixtureLinks = community.raw.state.links || [];
+  feedEl.setAttribute("aria-busy", "false");
+
+  function draw() {
+    renderExtensionScreen(feedEl, {
+      extensions: settings.getExtensions(),
+      activeRanker: settings.getActiveRanker(),
+      activeRenderer: settings.getActiveRenderer(),
+      onInstall: async (source, shape, label) => {
+        const conformance = await checkConformance(source, shape, fixtureRows, fixtureLinks);
+        if (conformance.pass) {
+          settings.installExtension({ hash: contentHash(source), shape, label, source, conformance, installedAt: Date.now() });
+        }
+        draw();
+        return conformance;
+      },
+      onUninstall: (hash) => { settings.uninstallExtension(hash); draw(); },
+      onSetActiveRanker: (hash) => { settings.setActiveRanker(hash); draw(); },
+      onSetActiveRenderer: (hash) => { settings.setActiveRenderer(hash); draw(); },
+    });
+  }
+  draw();
+  renderSwitcher(null);
+}
+
+async function loadDashboardScreen(id) {
+  const feedEl = document.getElementById("feed");
+  const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
+  const syncEl = document.getElementById("sync-state");
+  if (syncEl) syncEl.innerHTML = "";
+  panelEl.innerHTML = "";
+  filterBarEl.innerHTML = "";
+  feedEl.innerHTML = "";
+  feedEl.setAttribute("aria-busy", "true");
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const activeHash = settings.getActiveRenderer();
+  const entry = activeHash ? (settings.getExtensions() || []).find((e) => e.hash === activeHash && e.shape === "renderer") : null;
+  feedEl.setAttribute("aria-busy", "false");
+
+  let descriptor = null;
+  let error = null;
+  if (entry) {
+    try {
+      descriptor = await runRenderer(entry.source, community.api.read({}));
+    } catch (e) {
+      error = e.message;
+    }
+  }
+  renderDashboardScreen(feedEl, {
+    descriptor, error,
+    onContribute: (action, targetRow) => setHash({ view: "contribute", action, target: targetRow.identity, community: meta.id }),
+  });
+  renderSwitcher(null);
+}
+
 function boot() {
   const { community, claim, view, action, target } = parseHash();
   if (view === "vault") {
     loadVaultScreen();
+  } else if (view === "extensions") {
+    loadExtensionScreen(community || COMMUNITIES[0].id);
+  } else if (view === "dashboard") {
+    loadDashboardScreen(community || COMMUNITIES[0].id);
   } else if (view === "contribute") {
     loadContributeScreen(community || COMMUNITIES[0].id, action, target);
   } else {
