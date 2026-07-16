@@ -13,9 +13,17 @@
 //   is the one arrangement that lets the worker see the whole site it needs to precache. An uncached
 //   community's fetch fails as a rejected promise this app's own fetch call surfaces as a refusal to
 //   load (api/community.js already refuses on any non-ok response or fetch rejection); this worker
-//   never fabricates a placeholder response for a miss.
+//   never fabricates a placeholder response for a miss. Phase KG-6b: this worker's fetch handler
+//   already calls caches.match() with no cache name, which by spec searches every open cache in
+//   creation order, so a community a reader pins (api/pins.js, its own "kg-pins-v1" cache) is served
+//   offline by this same handler with no code change here. The one change this phase does require:
+//   activate's cleanup must name PINS_CACHE_NAME alongside CACHE_NAME, or every worker update would
+//   delete a reader's pins as an unrecognized cache. PINS_CACHE_NAME's literal value must stay equal
+//   to api/pins.js's own CACHE_NAME constant; build/check-offline-shell.mjs cross-checks the two files
+//   textually so they cannot silently drift apart.
 "use strict";
 const CACHE_NAME = "knowledge-game-shell-v1";
+const PINS_CACHE_NAME = "kg-pins-v1";
 const PRECACHE_URLS = [
   "api/alerts.js",
   "api/community.js",
@@ -25,8 +33,12 @@ const PRECACHE_URLS = [
   "api/extension.js",
   "api/feed.js",
   "api/filter.js",
+  "api/outbox.js",
+  "api/pins.js",
   "api/ranking.js",
   "api/settings.js",
+  "api/sync.js",
+  "api/virtual.js",
   "app/../communities/epistack-competition/snapshot/epistack-competition.snapshot.json",
   "app/fixtures/knowledge-game.snapshot.json",
   "app/fixtures/math.snapshot.json",
@@ -48,7 +60,9 @@ const PRECACHE_URLS = [
   "periphery/ladder.js",
   "periphery/objective-panel.js",
   "periphery/onboarding-screen.js",
+  "periphery/outbox-screen.js",
   "periphery/vault-screen.js",
+  "periphery/virtual-states.js",
   "vault/vault.js",
   "vendor/api/client-api.mjs",
   "vendor/api/contest.js",
@@ -83,7 +97,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((names) => Promise.all(names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n))))
+      .then((names) => Promise.all(names.filter((n) => n !== CACHE_NAME && n !== PINS_CACHE_NAME).map((n) => caches.delete(n))))
       .then(() => self.clients.claim())
   );
 });

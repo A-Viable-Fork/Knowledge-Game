@@ -63,8 +63,10 @@ Grounded by 1 check(s): `build/check-egress.mjs`
 
 No undeclared network egress exists.
 
-Referenced by 1 file(s):
+Referenced by 3 file(s):
 - `api/community.js`: build/check-egress.mjs runs this exact function under a stubbed fetch and fails on any URL outside manifests/network.json's declared destinations.
+- `api/outbox.js`: regateOne's only network call is fetchCommunity's own already-declared destination; the outbox opens no new destination for build/check-egress.mjs to miss.
+- `api/pins.js`: pinCommunity's one cache write follows fetchCommunity's own declared-destination fetch; it opens no new network destination of its own for build/check-egress.mjs to miss.
 
 Grounded by 1 check(s): `build/check-egress.mjs`
 

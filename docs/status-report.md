@@ -45,7 +45,7 @@ strings, but has no way to verify the label honestly describes the evidence it n
 check can bound semantic honesty of a label the substrate itself does not define beyond its enum;
 this repository's own read-before-merge practice is the standing discipline named in place of one.
 
-## 3. Bounded follow-up engineering (8 items)
+## 3. Bounded follow-up engineering (10 items)
 
 **SK-20**, recency: `api/feed.js`'s null order has nothing between grounding and the identity-hash
 tiebreak, because the v3 claim record carries no timestamp and no other content-derived temporal
@@ -90,6 +90,22 @@ repository's scope. An operator action, not an engineering one.
 **SK-27**, push notifications: not built. Adding them would introduce a new runtime egress
 destination (a push service) that `manifests/network.json` and `manifests/capability.json` do not
 yet declare. A deferred egress decision, not yet chosen either way.
+
+**SK-28**, wifi-only reading's cross-browser gap: `api/sync.js`'s wifi-only policy reads
+`navigator.connection.type`, the Network Information API, unavailable in Safari and Firefox as of
+this pin. There, `isWifi` is always `undefined`, and `shouldSync`'s own conservative reading (never
+sync on an unconfirmed connection) means wifi-only behaves as manual on those browsers: never wrong,
+since it never sync on a reading it cannot confirm, but never as convenient as intended either.
+Closes if a cross-browser connection-type signal becomes available, or is accepted as a permanent,
+honestly-documented browser gap.
+
+**SK-29**, demoted-entry re-editing: the outbox screen offers a demoted (re-gate-failed) entry only
+Discard, showing the fresh gate feedback that demoted it; it does not yet offer inline editing and
+requeueing from that same screen; the reader drafts a fresh proposal through the ordinary contribute
+screen instead. Contest and fork bundles stay export-only, as before this phase; they were never
+made outbox-eligible, since they are not the ordinary claim-contribution path this phase's own
+prompt scoped the outbox to. Closes with an edit-in-place form on the outbox screen, seeded from the
+demoted entry's own stored bundle content.
 
 ## 4. Plural community-policy choices (5 items)
 

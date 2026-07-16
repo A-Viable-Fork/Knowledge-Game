@@ -1,8 +1,15 @@
 // Role: the vault screen. Shows the observation toggle and everything the vault currently holds,
-//   with export (a JSON download assembled client-side) and delete-all.
-// Contract: renderVaultScreen(container, { observationOn, log, onToggle, onExport, onDeleteAll }).
-// Invariant: renders only what api/settings.js reports; this module holds no storage access of its
-//   own and no logic beyond presentation, per the membrane (periphery never reaches vault/ directly).
+//   with export (a JSON download assembled client-side) and delete-all. Phase KG-6b adds the pins
+//   list (which communities are pinned for offline reading, at what snapshot age, with unpin) and the
+//   sync policy control (manual, wifi-only, automatic; a vault-held setting per this phase's own "no
+//   silent sync" discipline).
+// Contract: renderVaultScreen(container, { observationOn, log, onToggle, onExport, onDeleteAll, pins,
+//   onUnpin, syncPolicy, onSyncPolicyChange }). pins is api/pins.js's listPins() output, each
+//   {communityId, snapshotHash, pinnedAt}; onUnpin(communityId) unpins. syncPolicy is one of "manual"/
+//   "wifi-only"/"automatic"; onSyncPolicyChange(next) persists it.
+// Invariant: renders only what api/settings.js and api/pins.js report; this module holds no storage
+//   access of its own and no logic beyond presentation, per the membrane (periphery never reaches
+//   vault/ directly).
 "use strict";
 
 function el(tag, attrs, ...children) {
@@ -19,7 +26,65 @@ function el(tag, attrs, ...children) {
   return node;
 }
 
-export function renderVaultScreen(container, { observationOn, log, onToggle, onExport, onDeleteAll }) {
+function pinAgeLabel(pinnedAt) {
+  const days = Math.floor((Date.now() - pinnedAt) / (24 * 60 * 60 * 1000));
+  return days < 1 ? "pinned less than a day ago" : `pinned ${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+function renderPinsSection(pins, onUnpin) {
+  return el(
+    "div",
+    { class: "pins-section" },
+    el("h3", {}, "Pinned communities"),
+    pins.length
+      ? el(
+          "ul",
+          { class: "pins-list" },
+          ...pins.map((p) =>
+            el(
+              "li",
+              {},
+              el("span", {}, `${p.communityId} (snapshot ${p.snapshotHash.slice(0, 12)}..., ${pinAgeLabel(p.pinnedAt)})`),
+              onUnpin ? el("button", { type: "button", onclick: () => onUnpin(p.communityId) }, "Unpin") : null
+            )
+          )
+        )
+      : el("p", { class: "empty" }, "No community is pinned. Pinning locks a community's snapshot into this device's cache for deliberate offline reading.")
+  );
+}
+
+const SYNC_POLICIES = [
+  { id: "manual", label: "Manual (sync only when I ask)" },
+  { id: "wifi-only", label: "Wifi-only" },
+  { id: "automatic", label: "Automatic" },
+];
+
+function renderSyncPolicySection(syncPolicy, onSyncPolicyChange) {
+  return el(
+    "div",
+    { class: "sync-policy-section" },
+    el("h3", {}, "Sync policy"),
+    el(
+      "p",
+      {},
+      "Offline is this app's default state; online is a pair of transport verbs you choose, never an ambient assumption. No sync ever runs silently outside this setting, except the sync-now action, which is always yours to press."
+    ),
+    el(
+      "fieldset",
+      { class: "sync-policy-options" },
+      ...SYNC_POLICIES.map((p) =>
+        el(
+          "label",
+          {},
+          el("input", { type: "radio", name: "sync-policy", value: p.id, checked: p.id === syncPolicy ? true : undefined, onchange: () => onSyncPolicyChange(p.id) }),
+          " " + p.label
+        )
+      )
+    )
+  );
+}
+
+export function renderVaultScreen(container, { observationOn, log, onToggle, onExport, onDeleteAll, pins, onUnpin, syncPolicy, onSyncPolicyChange }) {
   container.innerHTML = "";
 
   const toggle = el("input", {
@@ -54,6 +119,8 @@ export function renderVaultScreen(container, { observationOn, log, onToggle, onE
       ),
       el("h3", {}, "What the vault holds"),
       logSection,
+      pins ? renderPinsSection(pins, onUnpin) : null,
+      syncPolicy ? renderSyncPolicySection(syncPolicy, onSyncPolicyChange) : null,
       el(
         "div",
         { class: "vault-actions" },

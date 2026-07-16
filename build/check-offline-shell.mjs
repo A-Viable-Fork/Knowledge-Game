@@ -1,12 +1,18 @@
 // Role: verifies the service worker's precache list against a fresh walk of the real import graph
 //   (build/shell-files.mjs), so the list can never go stale (naming a file that no longer exists or a
 //   reference no longer reached) or go missing an entry (a new import the list was never updated for).
+//   Phase KG-6b extends this to pinned communities: a reader's own pinned snapshot lives in a SEPARATE
+//   cache (api/pins.js's "kg-pins-v1"), never the static shell precache, so this check instead proves
+//   sw.js's activate handler will not delete that cache as an unrecognized one, and that the two
+//   files' literal cache-name constants have not silently drifted apart.
 // Contract: `node build/check-offline-shell.mjs` exits non-zero on any mismatch, naming the file.
-// Invariant: this proves the precache LIST is complete and accurate; it does not itself prove the
-//   browser actually serves cached content correctly offline (a service worker's install/activate/
-//   fetch lifecycle cannot be exercised headlessly in plain Node). True offline behavior was smoke-
-//   tested by hand in a real browser (network disabled, hard reload); the report says so plainly
-//   rather than claiming this check proves more than a list comparison.
+// Invariant: this proves the precache LIST is complete and accurate, and that the pins cache survives
+//   the service worker's own cleanup; it does not itself prove the browser actually serves cached
+//   content correctly offline (a service worker's install/activate/fetch lifecycle cannot be
+//   exercised headlessly in plain Node). True offline behavior, pinned communities included, was
+//   smoke-tested by hand in a real browser (network disabled, hard reload); the report says so
+//   plainly rather than claiming this check proves more than a list comparison and a textual
+//   cross-check.
 "use strict";
 import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -44,6 +50,17 @@ console.log("\n[4] every listed file actually exists on disk");
 for (const f of precache) {
   ok(existsSync(join(ROOT, f)), `precached file exists: ${f}`);
 }
+
+console.log("\n[5] the pins cache (Phase KG-6b) survives the service worker's own cleanup");
+const pinsMatch = swSource.match(/const PINS_CACHE_NAME = "([^"]+)"/);
+ok(!!pinsMatch, "sw.js declares a PINS_CACHE_NAME constant");
+const activateMatch = swSource.match(/self\.addEventListener\("activate"[\s\S]*?\}\);/);
+ok(!!activateMatch && activateMatch[0].includes("PINS_CACHE_NAME"), "sw.js's activate handler's cleanup filter names PINS_CACHE_NAME alongside CACHE_NAME, so it is never deleted as an unrecognized cache");
+
+const pinsSource = readFileSync(join(ROOT, "api", "pins.js"), "utf8");
+const apiCacheMatch = pinsSource.match(/const CACHE_NAME = "([^"]+)"/);
+ok(!!apiCacheMatch, "api/pins.js declares its own CACHE_NAME constant");
+ok(!!pinsMatch && !!apiCacheMatch && pinsMatch[1] === apiCacheMatch[1], `sw.js's PINS_CACHE_NAME and api/pins.js's CACHE_NAME are the same literal value (sw.js: ${pinsMatch && pinsMatch[1]}, api/pins.js: ${apiCacheMatch && apiCacheMatch[1]})`);
 
 console.log("\n" + H);
 if (fails === 0) console.log("verified: sw.js's precache list exactly matches a fresh walk of the real import graph from app/index.html, no stale or missing entries. True offline behavior was smoke-tested by hand in a browser, not by this check.");

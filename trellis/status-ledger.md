@@ -226,6 +226,52 @@ Three obligations follow this phase and are ledgered rather than built, not sile
 repository's engineering scope, and SK-27 (push notifications), a deferred egress decision, not yet
 chosen. `docs/status-report.md`'s bounded-follow-up division gains all three, now 8 items.
 
+**Phase KG-6b, completed: offline, the outbox, and the virtual layer.** Makes offline this
+deployment's honestly-stated default state and online a pair of transport verbs a reader chooses,
+never an ambient assumption. Download pins: `vault/vault.js` gains `getPins`/`setPin`/`removePin`
+(which communities are pinned, at what snapshot hash, when); `api/pins.js`'s `pinCommunity` locks the
+already-verified, already-fetched snapshot response into Cache Storage (`kg-pins-v1`), opening no
+network destination `manifests/network.json` does not already declare. `sw.js`'s existing fetch
+handler already serves any open cache by default, so a pinned community is served offline with no
+handler change; its `activate` cleanup now names `PINS_CACHE_NAME` alongside `CACHE_NAME` so a worker
+update never deletes a reader's pins as an unrecognized cache, and `build/check-offline-shell.mjs`
+cross-checks the two files' cache-name literals so they cannot silently drift apart. The card
+ontology completes into a triad in `periphery/card.js`: actual claims (graded, solid), comments
+(gradeless discussion, Phase KG-4), and virtuals (ghosted potentials, this phase), the last carrying
+its own three-state vocabulary (`periphery/virtual-states.js`: drafted, gate-passed, submitted) never
+appended to `periphery/ladder.js`'s own STATES. The outbox (`api/outbox.js`): a gate-passed bundle
+queues locally with its own snapshot hash and citation-source record
+(`api/contribute.js`'s draft* functions now also return `extraSources`); `pushOutbox` re-gates every
+queued entry against a freshly fetched snapshot before it may submit, rebuilding the real records via
+`vendor/api/contribution.js`'s `importContribution` (itself refusing a tampered bundle outright) and
+rerunning the real gate, never trusting the bundle's own stored receipt; a pass moves the entry to
+submitted with a fresh receipt, a fail demotes it to draft carrying that receipt's own feedback
+(`periphery/gate-feedback.js`'s `describeReceipt`, reused rather than re-implemented); `sweepAdmitted`
+removes a submitted entry once its proposed identity reads as a real row, scoped per community so one
+community's fresh rows never sweep another's queue. This deployment's contribution transport has
+never been a live network POST (the existing bundle-plus-pull-request handoff), so the outbox's own
+"push" is honestly scoped as batched re-validation and re-export, opening no new egress destination
+either. The virtual lens (`api/virtual.js`'s `computeLensImpact`): a counterfactual standing-impact
+reading computed by applying the outbox's own proposals onto a state COPY
+(`vendor/kernel/store/apply.mjs`, itself pure) and rereading it through the real grounding
+(`vendor/api/providers/local-provider.mjs`'s `createLocalProvider`, never a second grounding
+implementation), off by default, always labeled with the snapshot age it was computed against, never
+touching the community's own live state. Sync policy: `vault/vault.js` gains
+`getSyncPolicy`/`setSyncPolicy` (manual, wifi-only, or automatic; absence is manual, the most
+conservative reading) and `getLastSynced`/`setLastSynced`; `api/sync.js`'s `shouldSync` is the one
+decision point every network-gated call in the periphery is routed through, sync-now always an
+escape hatch regardless of policy. Three new checks: `build/check-virtual-isolation.mjs` fuzzes
+outbox and lens states over a real fixture and proves the mirror's own read() output and state stay
+byte-identical throughout, and that no virtual record's identity or statement ever enters the
+mirror's serialized state; `build/check-outbox.mjs` proves a real round trip (queue, re-gate, submit),
+a genuine stale-re-gate demotion (a support link whose target leaves the graph in a freshly re-hashed
+snapshot), a real admission sweep (caught a real bug this same check surfaced: `regateOne` was not
+setting `receipt.proposed_identity` on the fresh receipt, meaning an admitted contribution would never
+have left the outbox in practice; fixed in the same commit), and tamper refusal; `build/check-sync-
+policy.mjs` proves every (policy, trigger, wifi-reading) combination makes a network call if and only
+if `shouldSync` authorizes it. `manifests/capability.json` records that this phase adds no new runtime
+destination beyond what `manifests/network.json` already declares.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is
