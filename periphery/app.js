@@ -23,6 +23,7 @@ import { pinCommunity, unpinCommunity, isPinned, pinAge, listPins } from "../api
 import { listOutbox, removeFromOutbox, pushOutbox, sweepAdmitted } from "../api/outbox.js";
 import { virtualRowsFor, computeLensImpact } from "../api/virtual.js";
 import { shouldSync } from "../api/sync.js";
+import { applySkin, wireSkinPreference } from "./skin-apply.js";
 import { renderCard } from "./card.js";
 import { renderObjectivePanel } from "./objective-panel.js";
 import { renderFilterBar } from "./filter-bar.js";
@@ -465,6 +466,12 @@ function loadVaultScreen() {
       settings.setSyncPolicy(policy);
       loadVaultScreen();
     },
+    currentSkin: settings.getSkin(),
+    onSkinChange: (skinId) => {
+      settings.setSkin(skinId);
+      applySkin(skinId);
+      loadVaultScreen();
+    },
   });
 }
 
@@ -808,4 +815,5 @@ window.addEventListener("hashchange", boot);
 setupShell();
 wireSelfHidingHeader();
 wireBottomNav();
+wireSkinPreference(() => settings.getSkin());
 boot();

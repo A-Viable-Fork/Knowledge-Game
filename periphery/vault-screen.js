@@ -4,13 +4,16 @@
 //   sync policy control (manual, wifi-only, automatic; a vault-held setting per this phase's own "no
 //   silent sync" discipline).
 // Contract: renderVaultScreen(container, { observationOn, log, onToggle, onExport, onDeleteAll, pins,
-//   onUnpin, syncPolicy, onSyncPolicyChange }). pins is api/pins.js's listPins() output, each
-//   {communityId, snapshotHash, pinnedAt}; onUnpin(communityId) unpins. syncPolicy is one of "manual"/
-//   "wifi-only"/"automatic"; onSyncPolicyChange(next) persists it.
+//   onUnpin, syncPolicy, onSyncPolicyChange, currentSkin, onSkinChange }). pins is api/pins.js's
+//   listPins() output, each {communityId, snapshotHash, pinnedAt}; onUnpin(communityId) unpins.
+//   syncPolicy is one of "manual"/"wifi-only"/"automatic"; onSyncPolicyChange(next) persists it.
+//   currentSkin/onSkinChange (Phase KG-8) wire periphery/skin-picker.js's own picker, rendered here
+//   since this screen is this app's own settings page.
 // Invariant: renders only what api/settings.js and api/pins.js report; this module holds no storage
 //   access of its own and no logic beyond presentation, per the membrane (periphery never reaches
 //   vault/ directly).
 "use strict";
+import { renderSkinPicker } from "./skin-picker.js";
 
 function el(tag, attrs, ...children) {
   const node = document.createElement(tag);
@@ -84,7 +87,7 @@ function renderSyncPolicySection(syncPolicy, onSyncPolicyChange) {
   );
 }
 
-export function renderVaultScreen(container, { observationOn, log, onToggle, onExport, onDeleteAll, pins, onUnpin, syncPolicy, onSyncPolicyChange }) {
+export function renderVaultScreen(container, { observationOn, log, onToggle, onExport, onDeleteAll, pins, onUnpin, syncPolicy, onSyncPolicyChange, currentSkin, onSkinChange }) {
   container.innerHTML = "";
 
   const toggle = el("input", {
@@ -121,6 +124,7 @@ export function renderVaultScreen(container, { observationOn, log, onToggle, onE
       logSection,
       pins ? renderPinsSection(pins, onUnpin) : null,
       syncPolicy ? renderSyncPolicySection(syncPolicy, onSyncPolicyChange) : null,
+      el("div", { class: "skin-picker-mount" }),
       el(
         "div",
         { class: "vault-actions" },
@@ -129,6 +133,10 @@ export function renderVaultScreen(container, { observationOn, log, onToggle, onE
       )
     )
   );
+
+  if (currentSkin) {
+    renderSkinPicker(container.querySelector(".skin-picker-mount"), { currentSkin, onChange: onSkinChange });
+  }
 }
 
 // assembles and triggers a client-side JSON download; no network call, no server involved.

@@ -351,6 +351,33 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
 }
 .vault-actions .vault-delete { color: var(--danger); border-color: var(--danger); }
 
+/* The skin picker (Phase KG-8): live preview swatches read a skin's own real tokens directly. */
+.skin-picker { margin-top: 1rem; }
+.skin-options { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem; }
+.skin-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+}
+.skin-option-label { font-weight: 600; min-width: 4.5rem; }
+.skin-swatch-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid;
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
+}
+.skin-swatch-surface { width: 1rem; height: 1rem; border-radius: 50%; display: inline-block; }
+.skin-swatch-text { font-size: 0.8rem; font-weight: 700; }
+.skin-swatch-grades { display: flex; gap: 0.15rem; }
+.skin-swatch-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; display: inline-block; }
+.skin-swatch-accent { width: 1rem; height: 1rem; border-radius: 50%; display: inline-block; }
+
 /* Sync state (Phase KG-7: inline in the slim bar's header row, not its own block) */
 .sync-state {
   font-size: 0.66rem;
