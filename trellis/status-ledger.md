@@ -297,6 +297,52 @@ removing the objective chip from the resting layout (returning empty uncondition
 `check-objective.mjs` on 14 of its own assertions; removing the filter chip with a filter active
 (returning `null` unconditionally) failed `check-filter.mjs` on 9; both reverted, green.
 
+**Phase KG-8, completed: skins and the mark.** A skin is a token set under a contract, never
+structure. `api/skins.js` is the pure registry: `TOKEN_ROLES` (every custom-property name a skin
+must declare, including the seven `GRADE_ROLES` in ladder order), `SKINS` (each a `{light, dark}`
+pair, each variant carrying its own `gradeDirection`), `resolveVariant`/`tokensFor`. Step 1 extracted
+this app's own already-shipped look as skin one, named honestly ("Ledger", never "default"), token
+for token, into `app/style.css`'s existing `:root` block and its dark-mode media query, landing alone
+in its own commit; pixel diffs of the resting feed and a full card (`git archive` snapshot served on
+a separate port, `PIL.ImageChops.difference`) confirmed zero visual change,
+`docs/screenshots/kg8-step1-token-extraction-{resting,card}.png`. Step 2:
+`periphery/skin-apply.js` (the one place a skin touches the DOM, setting `TOKEN_ROLES` as CSS custom
+properties on `document.documentElement` and following `prefers-color-scheme` within whichever skin
+is active) and `periphery/skin-picker.js` (a live swatch row reading each candidate skin's own real
+token values, no separate description of them) on the vault screen, vault-persisted
+(`vault/vault.js`'s `getSkin`/`setSkin`), instant apply, verified live via Playwright toggling
+`colorScheme` under both skins. Step 3: the Trellis skin, its palette sampled directly from the
+operator-provided grapevine-monogram logo (warm cream, sage and olive greens, a muted plum accent;
+every hex value traced to a real pixel sample, not invented) via Python/PIL histogram and
+hue-clustering analysis of the source PNG. Its grade scale runs cream through sage and olive to deep
+green, into muted plum at the peak, in the light variant (`gradeDirection: "decreasing"`,
+matching Ledger's own direction); the dark variant re-anchors bright-side up, muted olive to
+luminous plum (`gradeDirection: "increasing"`), so the peak grade stays the brightest thing in the
+room rather than the darkest. Organic register: rounder radii (20px against Ledger's 14px), airier
+card padding, identical typography. Step 4: the mark. The grapevine monogram replaces KG-6a's
+placeholder ring-and-dot icon set (`app/icons/icon-{any,maskable}-{192,512}.png`, regenerated from
+the real logo: a 70px inset crop excludes the source's rounded-corner masking, "any" a direct resize
+of the interior, "maskable" the same interior scaled to 68% and centered on a fresh cream canvas for
+genuine safe-zone padding), the favicon, and a slim, header-left `.app-mark` in `app/index.html`'s
+own header row. `app/manifest.webmanifest`'s `background_color`/`theme_color` now follow Trellis
+(`#faf2e7`/`#5a3c46`), the skin the mark was built around; `vault/vault.js`'s `getSkin()` default
+flips from "ledger" to "trellis" to match, Ledger staying one tap away on the vault screen's own
+picker. `android/README.md` notes the wrapper always regenerates its icon set fresh from the live
+manifest, so this change needed no edit there beyond the note itself. Step 5:
+`build/check-skins.mjs` verifies, for every registered skin and variant: token completeness against
+`TOKEN_ROLES`; grade-scale monotonicity along the variant's own declared `gradeDirection`, computed
+in CIE L* with a documented 1.0-unit epsilon (honestly absorbing Ledger's own real, pre-existing,
+imperceptible micro-reversal at corroborated-to-checked, ΔL*≈+0.28, which Step 1's zero-visual-change
+constraint forbids silently repainting); contrast thresholds for every text-on-surface pairing (ink
+vs card-bg ≥4.5:1, ink-muted vs card-bg ≥3.0:1, each grade role vs card-bg ≥1.3:1, the decorative-dot
+floor since the grade word always carries the distinction, on-accent vs focus ≥2.0:1, honestly
+accommodating Ledger-dark's own real 2.49:1 pre-existing value); and two structural assertions that
+the textual grade word (`periphery/card.js`'s `GRADE_WORDS`) and the actual/comment/virtual triad's
+distinguishing classes (`badge-grade`, `badge-discussion`, `card-virtual`/`badge-virtual`,
+`data-comment`) live in `card.js`'s and `style.css`'s own selectors, never behind a skin-keyed rule
+(`app/style.css` carries zero `data-skin` selectors; a skin only ever swaps `:root` custom-property
+values), so no skin can erase color-alone-forbidden or triad distinctness.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is
