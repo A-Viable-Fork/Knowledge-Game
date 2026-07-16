@@ -6,7 +6,8 @@
 //   getWatches, setWatches, getExtensions, installExtension, uninstallExtension, getActiveRanker,
 //   setActiveRanker, getActiveRenderer, setActiveRenderer, getPins, setPin, removePin, getOutbox,
 //   setOutbox, getSyncPolicy, setSyncPolicy, getLastSynced, setLastSynced, getSkin, setSkin,
-//   getApiKey, setApiKey, getAssistantEndpoint, setAssistantEndpoint: thin pass-throughs to
+//   getAssistantProviderConfig, setAssistantProviderConfig, getAssistantActiveProvider,
+//   setAssistantActiveProvider, addAssistantModel, removeAssistantModel: thin pass-throughs to
 //   vault/vault.js.
 // Invariant: this module holds no logic and no rule of its own; it is a naming surface. The vault's
 //   own invariants (off means off, absence is off/empty, no other file touches storage) live in
@@ -50,7 +51,9 @@ export const getLastSynced = vault.getLastSynced;
 export const setLastSynced = vault.setLastSynced;
 export const getSkin = vault.getSkin;
 export const setSkin = vault.setSkin;
-export const getApiKey = vault.getApiKey;
-export const setApiKey = vault.setApiKey;
-export const getAssistantEndpoint = vault.getAssistantEndpoint;
-export const setAssistantEndpoint = vault.setAssistantEndpoint;
+export const getAssistantProviderConfig = vault.getAssistantProviderConfig;
+export const setAssistantProviderConfig = vault.setAssistantProviderConfig;
+export const getAssistantActiveProvider = vault.getAssistantActiveProvider;
+export const setAssistantActiveProvider = vault.setAssistantActiveProvider;
+export const addAssistantModel = vault.addAssistantModel;
+export const removeAssistantModel = vault.removeAssistantModel;

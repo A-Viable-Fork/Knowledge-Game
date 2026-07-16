@@ -1,17 +1,23 @@
-// Role: the assistant screen (Phase KG-9, spec Section 6, "Assistant extensions"). BYOK setup
-//   (endpoint URL, model, API key, all vault-held) plus the two tasks: formalize (informal text, an
-//   optional existing claim as context, in -> a prefilled draft screen out) and explain (an existing
-//   claim's own support-chain slice in -> a plain-text answer out). Reuses periphery/contribute-
-//   screen.js's own renderContributeScreen for the formalize task's actual draft, unchanged, so the
-//   collaborative gate feedback the reader already knows is exactly what renders here too.
-// Contract: renderAssistantScreen(container, ctx) -> void. ctx = { community, apiKey, endpoint
-//   ({url, model} | null), online, onSaveEndpoint({url, model}), onSaveApiKey(key), onFormalize
-//   (informalText, contextClaim|null) -> Promise<{statement, kind, action, note}>, onExplain(claim) ->
-//   Promise<{answer}>, contributionTarget?, communityId?, onBack }.
-// Invariant: renders a plain inert notice and attempts no call when offline or unconfigured (no key,
-//   no endpoint); nothing here queues a call for later. onFormalize/onExplain are the caller's own
-//   functions (periphery/app.js), which alone read the vault-held key; this module never touches
-//   storage itself.
+// Role: the assistant screen (Phase KG-9, spec Section 6, "Assistant extensions"; Phase KG-9b adds
+//   provider presets and the model picker). BYOK setup (provider preset, endpoint, API key, model, all
+//   vault-held, per provider) plus the two tasks: formalize (informal text, an optional existing claim
+//   as context, in -> a prefilled draft screen out) and explain (an existing claim's own support-chain
+//   slice in -> a plain-text answer out). Reuses periphery/contribute-screen.js's own
+//   renderContributeScreen for the formalize task's actual draft, unchanged, so the collaborative gate
+//   feedback the reader already knows is exactly what renders here too.
+// Contract: renderAssistantScreen(container, ctx) -> void. ctx = { community, presets
+//   (api/assistant.js's PROVIDER_PRESETS), active ({providerId, preset, endpoint, apiKey, model,
+//   addedModels} | null, the currently active provider's full config), activeProviderId, getProviderConfig
+//   (providerId) -> {endpoint, apiKey, model, addedModels} | null, online, onSaveProvider(providerId,
+//   {endpoint, apiKey, model}), onSelectActiveProvider(providerId), onAddModel(providerId, modelId),
+//   onRemoveModel(providerId, modelId), onFormalize(informalText, contextClaim|null) ->
+//   Promise<{statement, kind, action, note}>, onExplain(claim) -> Promise<{answer}>,
+//   contributionTarget?, communityId?, onBack }.
+// Invariant: renders a plain inert notice and attempts no call when offline or unconfigured (no
+//   active provider); nothing here queues a call for later. onFormalize/onExplain are the caller's
+//   own functions (periphery/app.js), which alone read the vault-held key; this module never touches
+//   storage itself. The model dropdown is populated from the preset's starter list plus the
+//   provider's own vault-persisted added models, never a live fetch of a provider's model catalog.
 "use strict";
 import { renderContributeScreen } from "./contribute-screen.js";
 
@@ -29,32 +35,126 @@ function el(tag, attrs, ...children) {
   return node;
 }
 
+const CORS_LABEL = {
+  "verified-browser-direct": "Verified browser-direct",
+  "relay-required": "Requires a CORS-permitting relay or gateway",
+};
+
 function renderSetup(ctx) {
-  let url = (ctx.endpoint && ctx.endpoint.url) || "";
-  let model = (ctx.endpoint && ctx.endpoint.model) || "";
-  let key = ctx.apiKey || "";
-  const statusEl = el("p", { class: "assistant-setup-status", "aria-live": "polite" }, "");
-  const form = el(
-    "form",
-    {
-      class: "assistant-setup-form",
-      onsubmit: (e) => {
-        e.preventDefault();
-        if (!url.trim() || !model.trim()) { statusEl.textContent = "an endpoint URL and a model are both required"; return; }
-        ctx.onSaveEndpoint({ url: url.trim(), model: model.trim() });
-        ctx.onSaveApiKey(key.trim() || null);
-        statusEl.textContent = "Saved.";
+  let selectedId = ctx.activeProviderId || (ctx.presets[0] && ctx.presets[0].id);
+  const bodyMount = el("div", { class: "assistant-provider-body" });
+
+  function renderProviderBody() {
+    bodyMount.innerHTML = "";
+    const preset = ctx.presets.find((p) => p.id === selectedId) || ctx.presets[0];
+    const existing = ctx.getProviderConfig(selectedId);
+    let url = (existing && existing.endpoint) || preset.endpoint || "";
+    let model = (existing && existing.model) || preset.starterModels[0] || "";
+    let key = (existing && existing.apiKey) || "";
+    let addedModels = (existing && existing.addedModels) || [];
+    let newModelId = "";
+    const statusEl = el("p", { class: "assistant-setup-status", "aria-live": "polite" }, "");
+
+    function modelOptions() {
+      return [...preset.starterModels, ...addedModels].map((m) => el("option", { value: m, selected: m === model ? "" : undefined }, m));
+    }
+
+    const modelSelectMount = el("div", { class: "assistant-model-select-mount" });
+    function renderModelSelect() {
+      modelSelectMount.innerHTML = "";
+      modelSelectMount.appendChild(
+        el("label", {}, "Model", el("select", { onchange: (e) => (model = e.target.value) }, ...modelOptions()))
+      );
+      if (addedModels.length) {
+        modelSelectMount.appendChild(
+          el(
+            "ul",
+            { class: "assistant-added-models" },
+            ...addedModels.map((m) =>
+              el(
+                "li", {},
+                m,
+                el("button", {
+                  type: "button", class: "assistant-remove-model",
+                  onclick: () => { ctx.onRemoveModel(selectedId, m); addedModels = addedModels.filter((x) => x !== m); if (model === m) model = preset.starterModels[0]; renderModelSelect(); },
+                }, "Remove")
+              )
+            )
+          )
+        );
+      }
+    }
+    renderModelSelect();
+
+    const addModelForm = el(
+      "form",
+      {
+        class: "assistant-add-model-form",
+        onsubmit: (e) => {
+          e.preventDefault();
+          const id = newModelId.trim();
+          if (!id) return;
+          ctx.onAddModel(selectedId, id);
+          if (!addedModels.includes(id)) addedModels = [...addedModels, id];
+          model = id;
+          newModelId = "";
+          addModelInput.value = "";
+          renderModelSelect();
+        },
       },
-    },
-    el("h3", {}, "Assistant setup"),
-    el("p", {}, "Bring your own key. The key lives in the vault only, exportable and deletable like everything there; it is never shipped in any extension or written into any patch."),
-    el("label", {}, "Endpoint URL (any OpenAI-compatible chat-completions endpoint)", el("input", { type: "text", value: url, placeholder: "https://api.openai.com/v1/chat/completions", oninput: (e) => (url = e.target.value) })),
-    el("label", {}, "Model", el("input", { type: "text", value: model, placeholder: "gpt-4o-mini", oninput: (e) => (model = e.target.value) })),
-    el("label", {}, "API key", el("input", { type: "password", value: key, oninput: (e) => (key = e.target.value) })),
-    el("button", { type: "submit" }, "Save"),
-    statusEl
+      el("label", {}, "Add a model id", (function () {
+        const input = el("input", { type: "text", placeholder: "a model id this provider serves", oninput: (e) => (newModelId = e.target.value) });
+        return input;
+      })())
+    );
+    const addModelInput = addModelForm.querySelector("input");
+    addModelForm.appendChild(el("button", { type: "submit" }, "Add model"));
+
+    const form = el(
+      "form",
+      {
+        class: "assistant-setup-form",
+        onsubmit: (e) => {
+          e.preventDefault();
+          if (!url.trim() || !model.trim() || !key.trim()) { statusEl.textContent = "an endpoint, a model, and an API key are all required"; return; }
+          ctx.onSaveProvider(selectedId, { endpoint: url.trim(), apiKey: key.trim(), model: model.trim() });
+          statusEl.textContent = "Saved.";
+        },
+      },
+      el("p", { class: "assistant-cors-badge" }, `${CORS_LABEL[preset.corsStatus] || preset.corsStatus}. ${preset.corsNote}`),
+      el("label", {}, `Endpoint URL (${preset.keyHeaderForm})`, el("input", { type: "text", value: url, placeholder: preset.endpoint || "https://your-relay.example/v1/chat/completions", oninput: (e) => (url = e.target.value) })),
+      modelSelectMount,
+      el("label", {}, "API key", el("input", { type: "password", value: key, oninput: (e) => (key = e.target.value) })),
+      el("button", { type: "submit" }, "Save"),
+      statusEl
+    );
+    bodyMount.appendChild(form);
+    bodyMount.appendChild(addModelForm);
+
+    if (existing && selectedId !== ctx.activeProviderId) {
+      const useBtn = el("button", { type: "button", class: "assistant-use-provider" }, `Use ${preset.name} for the assistant`);
+      useBtn.addEventListener("click", () => ctx.onSelectActiveProvider(selectedId));
+      bodyMount.appendChild(useBtn);
+    } else if (existing) {
+      bodyMount.appendChild(el("p", { class: "assistant-active-note" }, `${preset.name} is the assistant's active provider.`));
+    }
+  }
+  renderProviderBody();
+
+  const presetSelect = el(
+    "select",
+    { onchange: (e) => { selectedId = e.target.value; renderProviderBody(); } },
+    ...ctx.presets.map((p) => el("option", { value: p.id, selected: p.id === selectedId ? "" : undefined }, p.name))
   );
-  return form;
+
+  return el(
+    "div",
+    { class: "assistant-setup" },
+    el("h3", {}, "Assistant setup"),
+    el("p", {}, "Bring your own key. The key lives in the vault only, exportable and deletable like everything there; it is never shipped in any extension or written into any patch. Each provider you configure keeps its own key, endpoint, and model."),
+    el("label", {}, "Provider", presetSelect),
+    bodyMount
+  );
 }
 
 function renderFormalizeTask(container, ctx) {
@@ -160,8 +260,8 @@ export function renderAssistantScreen(container, ctx) {
 
   if (ctx.online === false) {
     section.appendChild(el("p", { class: "assistant-offline-notice" }, "Offline. The assistant makes no network call while offline; nothing is queued for later."));
-  } else if (!ctx.apiKey || !ctx.endpoint) {
-    section.appendChild(el("p", { class: "assistant-offline-notice" }, "No key or endpoint configured yet. Save both above to use the assistant."));
+  } else if (!ctx.active) {
+    section.appendChild(el("p", { class: "assistant-offline-notice" }, "No provider configured yet. Save a provider above to use the assistant."));
   } else {
     const formalizeMount = el("div", { class: "assistant-formalize-mount" });
     const explainMount = el("div", { class: "assistant-explain-mount" });
