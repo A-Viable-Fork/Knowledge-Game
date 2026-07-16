@@ -5,8 +5,8 @@
     "repo": "epistack",
     "url": "https://github.com/A-Viable-Fork/epistack.git"
   },
-  "commit_hash": "ce7ca282fb7cb896db9f20e48ea160df1d5f3f2b",
-  "acquisition_date": "2026-07-15",
+  "commit_hash": "b97c2ad178bce92c81b180cd13bcbcfc6ce2f83b",
+  "acquisition_date": "2026-07-16",
   "provisional": true,
   "repin_obligation": "Re-pin at the upstream freeze, 2026-07-19, is a standing obligation. This flag and this note must both be updated together: provisional becomes false only once the commit above is the frozen commit and every hash below has been recomputed against it.",
   "extraction": {

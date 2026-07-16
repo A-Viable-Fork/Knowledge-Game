@@ -1,13 +1,13 @@
 {
   "_purpose": "Build provenance. source_commit and artifact_hash are populated by a future build step, not by hand; they are null until that step exists.",
-  "source_commit": "f1b9410d3867a2929eadd22036c80fb0223df7e3",
+  "source_commit": "f27217084aae6feab4049c3f6d6c555670ba0e15",
   "upstream_pin": {
     "repo": "A-Viable-Fork/epistack",
     "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
     "provisional": true
   },
   "build_command": ".github/workflows/ci.yml: no build tooling exists (no bundler, no transpiler); the deployed artifact is the checked-out working tree itself, served as vanilla ESM static files, after every build/check-*.mjs passes and app/fixtures/ is confirmed reproducible by regenerating and diffing against the committed content.",
-  "artifact_hash": "67bc56e9d155930f1534868a7177c293d738555db76660cf27b6415858661a36",
+  "artifact_hash": "99dfa3962699e31337f6f8fe6cb69702016defa9715c0e9d3f2e46efd266424b",
   "artifact_hash_note": "artifact_hash is a sha256 over the sorted JSON of file_hashes, itself a sha256 per file over every file `git ls-files --cached --others --exclude-standard` lists (the deployed tree, since no build step compiles source into output), excluding this manifest itself. Recomputed and compared by build/check-release.mjs.",
   "protocol_identity": "v3",
   "provider_contract": "vendor/api/client-api.mjs",
@@ -226,7 +226,7 @@
     "trellis/sorry-ledger.md": "a282381b61b2d01873e367e180154c543579497725e33d323b15fcc098e7acff",
     "trellis/stage-manifest.json": "beadc0a1c30b02d712979408cdcb042714ad3d65a26ad3211d6dde15d3354bf9",
     "trellis/status-ledger.md": "fd44f3f3589961be50d2767975cb6761b394d5159d4ff2a05fc58bea3530295f",
-    "upstream/lock.json": "875431336de4e126300f9f42730e07bd81f050332c98c3e8166e0e9b2023f498",
+    "upstream/lock.json": "77053a8f8e672b558fe87bc8b7625b389aa140dbebc7c1aaa66179c5215a3449",
     "vault/README.md": "4fecc95e8001c0b201e44021e1ea668e6df9d429147903d3eaab5638d9e3f7c9",
     "vault/vault.js": "0e2ba1845dae44a6b514138213ba87e1c13d8b2ea4c864a62aa721d28b18c6e3",
     "vendor/api/client-api.mjs": "79756dba3de8de064cf6ce133755311d121a27cf0aca46938388b50e9966238b",
