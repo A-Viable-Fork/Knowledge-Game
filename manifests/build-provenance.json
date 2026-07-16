@@ -1,19 +1,19 @@
 {
   "_purpose": "Build provenance. source_commit and artifact_hash are populated by a future build step, not by hand; they are null until that step exists.",
-  "source_commit": "24c68ec758882c999dd3f9d811261828aaeb8b83",
+  "source_commit": "f1b9410d3867a2929eadd22036c80fb0223df7e3",
   "upstream_pin": {
     "repo": "A-Viable-Fork/epistack",
     "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
     "provisional": true
   },
   "build_command": ".github/workflows/ci.yml: no build tooling exists (no bundler, no transpiler); the deployed artifact is the checked-out working tree itself, served as vanilla ESM static files, after every build/check-*.mjs passes and app/fixtures/ is confirmed reproducible by regenerating and diffing against the committed content.",
-  "artifact_hash": "b199a81343d8d346e6f4ee0b622250446a8f9af5199239cf8ebc5b327ba606b6",
+  "artifact_hash": "67bc56e9d155930f1534868a7177c293d738555db76660cf27b6415858661a36",
   "artifact_hash_note": "artifact_hash is a sha256 over the sorted JSON of file_hashes, itself a sha256 per file over every file `git ls-files --cached --others --exclude-standard` lists (the deployed tree, since no build step compiles source into output), excluding this manifest itself. Recomputed and compared by build/check-release.mjs.",
   "protocol_identity": "v3",
   "provider_contract": "vendor/api/client-api.mjs",
   "file_hashes": {
     ".github/workflows/android-release.yml": "35dd69277baf3ad851f309e77391185df054609af08e03d26f3d62268a3d4219",
-    ".github/workflows/ci.yml": "22ae966ead8445a6e695cb1c0d246af3b3e6ac8802067c835948dc266b8131f2",
+    ".github/workflows/ci.yml": "29c70ef13a0edea4e75c39e9278880646b5d21b80aba3a1fd449b0f38e7e657f",
     ".gitmodules": "48df8791f20d30fdb7fd035f96b674945364d08001f1383f0ca5f997e92227a2",
     "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
     "README.md": "4cb88693cba9ab421c335c51c97c8052dfa09781fc0edd887c16c9078441a302",
@@ -43,7 +43,7 @@
     "api/sync.js": "ea961090e8bae99d40a02a0d18263161907d2c6d713f50e906c985f12e3b2b10",
     "api/virtual.js": "58afbda7ebd63a3d4cd61719e252f4678ac2adea060e25fffbed624f6b247068",
     "app/README.md": "9cf2b5a45cfa77be1c96612c83bc05b69f971eff1201e5efc76173c55029fb00",
-    "app/fixtures/knowledge-game.snapshot.json": "bf5dce05ec5a7d40a2d8508c716f81f7cfedea87e40dbbe2d76747cf209b66da",
+    "app/fixtures/knowledge-game.snapshot.json": "be355f18710db3d039ae3fd3c81d9ee3ea8091ad208c80f1ab03ec2346715d29",
     "app/fixtures/math.snapshot.json": "631147a0fe84edf093712a620d2a87a10a921a9d6a6f9a43f85d2e07d8619f14",
     "app/icons/icon-any-192.png": "22c12a92b13654166ba2155444337ebf420cb1ded3ce6fa136bb9732af3035d5",
     "app/icons/icon-any-512.png": "1f1f77f632e25a66ec87d007a0e319f8c145ac9b919ac92f6091917b5366ff92",
