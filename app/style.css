@@ -123,6 +123,10 @@ a:focus-visible {
 .communities-screen { max-width: 640px; margin: 0 auto; padding: 1rem 1.1rem; }
 .communities-screen h2 { font-size: 1rem; }
 .mirror-convention-note { font-size: 0.82rem; color: var(--ink-muted); border-left: 3px solid var(--focus); padding: 0.4rem 0.7rem; margin: 0.6rem 0; }
+.room-case-framing { font-size: 0.85rem; color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.8rem; margin: 0 0 0.8rem; background: var(--card-bg); }
+.room-case-framing-mark { color: var(--ink-muted); font-style: italic; }
+.room-walk-buttons { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.4rem 0; }
+.room-walk-button { font: inherit; font-size: 0.8rem; padding: 0.3rem 0.65rem; border-radius: 999px; border: 1px solid var(--focus); background: var(--card-bg); color: var(--ink); cursor: pointer; }
 .community-contribution-target { font-size: 0.75rem; color: var(--ink-muted); word-break: break-all; }
 .communities-list { list-style: none; padding: 0; margin: 0.6rem 0; display: flex; flex-direction: column; gap: 0.6rem; }
 .communities-list li { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.8rem; flex-wrap: wrap; }

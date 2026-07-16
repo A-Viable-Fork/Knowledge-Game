@@ -479,6 +479,38 @@ static scan naming the exact file; planting the private-key canary and driving t
 `check-accounts.mjs`'s own per-level assertions naming it; all three reverted, green. Capability
 manifest is unchanged: the account is entirely local, opening no new runtime destination.
 
+**Phase KG-13, completed: the three rooms as communities.** Re-pinned upstream/epistack to
+`6b3cbfcd5a63b126a5ac6740a1feb2f9e92d80f4` (Step 0, exactly as KG-10's own re-pin process: submodule
+checkout, `build/vendor-extract.mjs` re-run, `upstream/lock.json`'s hashes regenerated, the one
+changed vendored file, `vendor/kernel/_nodes.js`, copied into both founded communities' own
+self-contained vendor copies so `check-neutrality.mjs`'s byte-identity assertion holds). `build/emit-
+rooms.mjs` emits the LHC and covid rooms by dynamic-importing epistack's own unmodified `buildLhc()`
+and `buildCovid()` directly, staged the same way `vendor-kernel.mjs` stages any kernel; the eggs room
+merges its three domain stores (nutrition, environment, economics) into one state over their one
+shared source and kind table, excluding the cross-domain composite layer this deployment's snapshot
+format cannot represent, stated as such in the script's own header and `manifests/network.json`'s
+description rather than forced. Three snapshots (`app/fixtures/lhc.snapshot.json`,
+`eggs.snapshot.json`, `covid.snapshot.json`) and three community cards (`communities/rooms/*-card.json`)
+are written; each card's `contribution_target` names the epistack repository at the pinned commit,
+never this app. `api/room-walks.js` carries `ROOM_WALKS`, the one list naming which of the
+competition's own case-claims (none of which cite a claim-level anchor inside a room, only the
+room's checker script) walk into which room's entry point; `periphery/card.js` renders one always-
+visible walk button per target, `periphery/app.js` wires it to `setHash`. Case framing (one sentence
+per room, drawn from the institutional entrance's own language, marked as app chrome) renders at the
+top of each room's feed. New check: `build/check-rooms.mjs` (every snapshot hash matches its card and
+resolves; every card's contribution target names epistack and never this app or the Knowledge-Game
+repository; each room recomputes on device with a sampled claim's grade matching a fresh re-run of
+epistack's own builder; every `ROOM_WALKS` target names a room that actually exists and a claim that
+actually exists in the loaded competition snapshot; the network manifest's room destinations each
+name epistack). CI gained a reproducibility step: `build/emit-rooms.mjs` regenerated and diffed
+against the committed snapshots and cards, the same discipline the math and knowledge-game fixtures
+already hold. Deliberate-break coverage: pointing a room card's contribution target at the Knowledge-
+Game repository failed `check-rooms.mjs`'s neutrality assertion naming the room exactly; doctoring a
+room card's `snapshot_hash` failed the card-snapshot match assertion for that room alone; adding a
+walk target naming a room that does not exist failed the walk-resolution assertion naming it; all
+three reverted, green. Capability manifest is unchanged: the rooms are three more same-origin
+fixtures, opening no new runtime destination.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

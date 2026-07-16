@@ -5,7 +5,7 @@
     "repo": "epistack",
     "url": "https://github.com/A-Viable-Fork/epistack.git"
   },
-  "commit_hash": "b97c2ad178bce92c81b180cd13bcbcfc6ce2f83b",
+  "commit_hash": "6b3cbfcd5a63b126a5ac6740a1feb2f9e92d80f4",
   "acquisition_date": "2026-07-16",
   "provisional": true,
   "repin_obligation": "Re-pin at the upstream freeze, 2026-07-19, is a standing obligation. This flag and this note must both be updated together: provisional becomes false only once the commit above is the frozen commit and every hash below has been recomputed against it.",
@@ -18,7 +18,7 @@
   },
   "extracted_files": {
     "kernel/README.md": "da153537c3883bf87191c2c8924c0121bdae1cd645bd810d713d6c4c4d4dc1c3",
-    "kernel/_nodes.js": "6d1f9e356d73b1fbe8ef2d43e82151485868fd0f3e5622823e1e2967ef391677",
+    "kernel/_nodes.js": "5f7f0b0da47f18990f37e0a7050ae81d5aec11feae8a989006954c269a0f7719",
     "kernel/analysis/characterized-gaps.mjs": "8a4c87e3a28014e463dfcbe5bb5a625b09ed8fdccc996355b731a6766fc92db2",
     "kernel/analysis/gaps.js": "fff2452abca17addb3920bac95fd9a3b89ac72853860145d150463342d695b37",
     "kernel/analysis/reconciliation.mjs": "c5b92515a20e5cc4fabdf1b555c118defc123da7da7b4ede24bda5b7f1dd9cbd",

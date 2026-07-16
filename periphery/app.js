@@ -46,6 +46,7 @@ import { renderRegistryScreen } from "./registry-screen.js";
 import { renderRegisterArtifactScreen } from "./register-artifact-screen.js";
 import { createAccount, exportAccount, importAccount } from "../api/account.js";
 import { renderAccountScreen } from "./account-screen.js";
+import { ROOM_WALKS } from "../api/room-walks.js";
 import { checkSkinConformance } from "../api/skin-conformance.js";
 import { SKINS } from "../api/skins.js";
 
@@ -63,6 +64,26 @@ const COMMUNITIES = [
   // decided by which communities choose to pin it, never a privileged act this app performs.
   { id: "knowledge-game", label: "Knowledge-Game (this repository's own governance kernel, mirrored)", path: "fixtures/knowledge-game.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game", mirror: true },
   { id: "math", label: "EpiStack (upstream protocol repository's math kernel, mirrored)", path: "fixtures/math.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/epistack", mirror: true },
+  // the three rooms (Phase KG-13): the competition's three cases, working corpora in epistack,
+  // emitted here as ordinary browsable communities. The app hosts no room content; each fetches its
+  // snapshot by hash and its contribution target names epistack's own corpus path, never this app.
+  // caseFraming is one sentence drawn from docs/for-the-institutional-adopter.md (upstream), rendered
+  // as app chrome, never as a room claim.
+  {
+    id: "lhc", label: "The LHC Room (black holes)", path: "fixtures/lhc.snapshot.json", mirror: true,
+    contributionTarget: "https://github.com/A-Viable-Fork/epistack/tree/main/corpora/lhc",
+    caseFraming: "The clean case: existential-sounding risk, resolvable grounding, its safety standing checkable by anyone under named parameters.",
+  },
+  {
+    id: "eggs", label: "The Eggs Room (nutrition)", path: "fixtures/eggs.snapshot.json", mirror: true,
+    contributionTarget: "https://github.com/A-Viable-Fork/epistack/tree/main/corpora/eggs",
+    caseFraming: "The stress test for a noisy, contested empirical field: claims ground to their own floors where evidence supports them, and an unsettled cross-domain weighing is left honestly unsettled rather than synthesized into false confidence.",
+  },
+  {
+    id: "covid", label: "The Covid Room (pandemic origins)", path: "fixtures/covid.snapshot.json", mirror: true,
+    contributionTarget: "https://github.com/A-Viable-Fork/epistack/tree/main/corpora/covid",
+    caseFraming: "The adversarial case: genuinely contested ground, motivated parties, evidence spanning domains, where disagreement localizes to named claims and parameters instead of camps.",
+  },
 ];
 
 function parseHash() {
@@ -422,6 +443,21 @@ async function loadCommunity(id, deepLinkClaim) {
       ordered = orderByObjective(visible, weights, community.raw.state, extra);
     }
     feedEl.innerHTML = "";
+    // the case framing (Phase KG-13 Step 3): app chrome, never a room claim, shown once at the top
+    // of a room's own feed so a judge understands what they are looking at before reading any card.
+    if (meta.caseFraming) {
+      const framingEl = document.createElement("p");
+      framingEl.className = "room-case-framing";
+      const strong = document.createElement("strong");
+      strong.textContent = "This room's case: ";
+      framingEl.appendChild(strong);
+      framingEl.appendChild(document.createTextNode(meta.caseFraming));
+      const mark = document.createElement("span");
+      mark.className = "room-case-framing-mark";
+      mark.textContent = " (framing, not a room claim)";
+      framingEl.appendChild(mark);
+      feedEl.appendChild(framingEl);
+    }
     ordered.forEach((row, i) => {
       row.whyThisCard = usedExtension ? `active ranker extension: ${activeRankerEntry.label}, position ${i}` : explainPosition(row, i);
       const card = renderCard(row, {
@@ -436,6 +472,8 @@ async function loadCommunity(id, deepLinkClaim) {
         isDeepLinkTarget: (identity) => identity === deepLinkClaim,
         onContribute: (action, targetRow) => setHash({ view: "contribute", action, target: targetRow.identity, community: meta.id }),
         onToggleWatch: (targetRow) => toggleWatch(targetRow),
+        roomWalks: meta.id === "epistack-competition" ? ROOM_WALKS : undefined,
+        onWalkToRoom: (roomId) => setHash({ community: roomId, view: "feed", claim: null }),
       });
       card.dataset.identity = row.identity;
       card.dataset.kind = row.kind;

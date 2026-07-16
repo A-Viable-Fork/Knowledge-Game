@@ -19,7 +19,11 @@
 //   and "reply", target the row a new comment attaches to or replies to; "promote", target the
 //   comment being lifted into a claim draft), and (Phase KG-6b, virtual rows only)
 //   `onDiscardVirtual(row)` and `lensImpact` (a Map from api/virtual.js's computeLensImpact,
-//   identity -> {from, to}, rendered only when the lens is on).
+//   identity -> {from, to}, rendered only when the lens is on). Phase KG-13: `roomWalks` (a Map,
+//   identity -> [{roomId, roomLabel}], present only for a community that carries case-claims about
+//   the three rooms) and `onWalkToRoom(roomId)`; a claim named in the map renders one button per
+//   target, always visible (not gated behind the Level 2 disclosure), walking the reader into that
+//   room's own community.
 // Invariant: a grade is rendered as a computed reading, labeled as such, never as truth, validation,
 //   or acceptance. Grade is encoded by lattice position with a color plus a textual grade word,
 //   color never carrying the distinction alone. No likes, no counters, no engagement chrome. A
@@ -220,6 +224,26 @@ function renderVirtualCard(row, ctx) {
   );
 }
 
+// the case-claim walks (Phase KG-13 Step 2): the competition's own case-claims about the three
+// rooms carry a walkable link into the corresponding room, the same cross-community walk pattern
+// the mirror established, preserving a way back (the room is an ordinary community; Feed/Communities
+// nav always returns). ctx.roomWalks is a Map(identity -> [{roomId, roomLabel}]), present only when
+// the loaded community actually carries case-claims (epistack-competition today); absent everywhere
+// else, rendering nothing. Where the decomposition names no precise claim-level anchor inside the
+// room (every case-claim here cites the room's checker script, never a specific ref), the walk goes
+// to the room's entry point, never a fabricated anchor.
+function roomWalkButtons(row, ctx) {
+  const targets = ctx.roomWalks && ctx.roomWalks.get(row.identity);
+  if (!targets || !targets.length) return null;
+  return el(
+    "div",
+    { class: "room-walk-buttons" },
+    ...targets.map((t) =>
+      el("button", { type: "button", class: "room-walk-button", onclick: () => ctx.onWalkToRoom(t.roomId) }, `Walk into ${t.roomLabel}`)
+    )
+  );
+}
+
 export function renderCard(row, ctx) {
   if (row.virtual) return renderVirtualCard(row, ctx);
   const isTarget = ctx.isDeepLinkTarget(row.identity);
@@ -234,6 +258,7 @@ export function renderCard(row, ctx) {
       { class: "card-meta" },
       el("span", {}, `origin: ${ctx.kernelId}`)
     ),
+    roomWalkButtons(row, ctx),
     el(
       "details",
       {},

@@ -104,6 +104,17 @@ module.exports = [
     ]
   },
   {
+    "path": "kernel/composition/algebra.mjs",
+    "type": "kernel",
+    "group": "composition",
+    "flows": [
+      {
+        "type": "checked-by",
+        "to": "build/check-algebra.mjs"
+      }
+    ]
+  },
+  {
     "path": "kernel/gate/clean-json.js",
     "type": "kernel",
     "group": "gate"
