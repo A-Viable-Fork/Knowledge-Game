@@ -26,6 +26,7 @@ const CACHE_NAME = "knowledge-game-shell-v1";
 const PINS_CACHE_NAME = "kg-pins-v1";
 const PRECACHE_URLS = [
   "api/alerts.js",
+  "api/assistant.js",
   "api/community.js",
   "api/contribute.js",
   "api/epistemic-cost.js",
@@ -52,6 +53,7 @@ const PRECACHE_URLS = [
   "app/style.css",
   "periphery/alerts-panel.js",
   "periphery/app.js",
+  "periphery/assistant-screen.js",
   "periphery/card.js",
   "periphery/communities-screen.js",
   "periphery/contribute-screen.js",

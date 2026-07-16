@@ -349,6 +349,61 @@ regenerates and rebuilds at `appVersionCode` 3, `appVersionName` 0.3.0-test, aga
 `assetlinks.json` is unchanged (same signing key, same certificate fingerprint), so the operator's
 origin-root file, if already placed, stays valid.
 
+**Phase KG-9, completed: assistant extensions and the publish walkthrough.** Two pre-launch features.
+First, the seam change: `docs/specification.md`'s extension-seam section is amended, network access
+becoming capability-scoped rather than blanket-denied. `api/extension-sandbox.js`'s fetch now denies
+everything by default (unchanged for a candidate declaring no destinations) but, for a candidate
+declaring exact destinations, allows exactly those and refuses everything else by name before any
+real network attempt, enforced in the sandbox itself, never merely trusted of the candidate.
+`api/extension.js`'s `validateDestinations` refuses a wildcard or non-absolute-URL declaration at
+conformance time, before the candidate ever runs; `checkConformance`/`runRanker`/`runRenderer` thread
+the declaration through, and a new `runWorkflow` serves the workflow shape. The install form
+(`periphery/extension-screen.js`) renders every declared destination by name and requires an explicit
+consent checkbox before enabling install; a blank declaration installs immediately, fully offline, as
+before. The wallet exclusion becomes a stated registry policy of this deployment (this app's own
+registry carries no financial extensions) rather than a structural impossibility, named explicitly
+per the amended spec's own discipline. Second, the first assistant extension (`api/assistant.js`,
+workflow-shaped): its prompt pack is assembled entirely from this deployment's own real vocabulary
+(`vendor/kernel/schema/confidence.mjs`'s grade lattice, the active community's own kind table, a
+register note restating the ladder and citation discipline already rendered elsewhere), never an
+invented one. Two tasks: formalize (informal text, an optional existing claim as context, in ->
+statement/kind/candidate-support-shape out, feeding `periphery/contribute-screen.js`'s own draft
+screen unchanged through a new `ctx.prefill` field, visually attributed "drafted with assistant help"
+and never a field on the claim record itself) and explain (an existing claim's own support-chain
+slice, read locally with no network, in -> a plain-text answer out). Provider-agnostic: the endpoint
+and model are both user-configured vault fields (`vault/vault.js`'s `getApiKey`/`setApiKey`,
+`getAssistantEndpoint`/`setAssistantEndpoint`, same off-by-absence discipline as everything else
+there), verified end to end against a real local server implementing the OpenAI-compatible
+chat-completions shape (`POST /v1/chat/completions` -> `choices[0].message.content`). The key is read
+only at call time and passed transiently into the sandbox, never persisted by the extension itself,
+never shipped in any manifest; `build/check-profile-leak.mjs`'s canary fuzz now extends to it.
+Offline or unconfigured, `periphery/assistant-screen.js` renders a plain inert notice and attempts no
+call. Third, the publish walkthrough (`build/found-community.mjs`'s `emitPublishWalkthrough`): after
+publish, the emitted tree is staged into one downloadable bundle and a checklist
+(`PUBLISH-WALKTHROUGH.md`) names what to create (the repository, its one Pages settings flip), what
+to upload (the bundle, the exact tar/git commands), and what to verify (the snapshot URL serving, the
+card's own `fetch_locations` resolving to the identical URL, one gate-check Actions run), each a
+checkbox naming the exact link or command, ending with the card ready to share; no credential is ever
+requested and nothing here touches GitHub automatically. Verified end to end against a scratch
+community: the staged bundle extracted and passed its own `check.mjs` standalone, exactly what the
+real Actions workflow runs. Two new/updated checks: `build/check-extension-seam.mjs` gains the
+capability-scoped egress contract (a candidate with no declared destinations reaches nothing even
+against a real reachable server; one with declared destinations reaches exactly those, proven against
+a real server, both the allowed and the refused call; a malformed declaration is refused before the
+candidate ever runs; both demo extensions still declare none and still pass; install renders
+destinations and requires consent); `build/check-assistant.mjs` (new) proves the assistant's own one
+declared destination, its real-server egress, its offline honesty, and that its output cannot reach
+any store except through the ordinary draft path, structurally and by a runtime fuzz over
+adversarial, bundle-shaped input. Claim 20's own checking record is amended to describe the new
+contract and gains a second, independent record naming `build/check-assistant.mjs` as its own worked
+example; rebuilt through the real gate, the claim's content-derived identity is unchanged and its
+earned grade still recomputes checked. Deliberate-break coverage: forcing `ASSISTANT_SOURCE` to fetch
+a hardcoded destination outside its declared list failed `check-assistant.mjs` naming the exact
+undeclared URL; planting a key canary and routing it through `bundleProposal` failed
+`check-profile-leak.mjs` on both its static import-graph scan and its runtime fuzz; wiring the
+formalize task's own result directly into `queueBundle`, bypassing the draft screen, failed
+`check-assistant.mjs`'s import-graph and direct-call assertions; all three reverted, green.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

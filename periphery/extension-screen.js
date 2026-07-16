@@ -1,19 +1,30 @@
-// Role: the extension screen (spec Section 6). Lists installed extensions by hash with their shape
-//   and conformance receipt, offers the two shipped demonstrations (learn-efficiently ranker,
-//   contestable dashboard) as one-click installs through the identical public path any pasted
-//   candidate source uses, and a generic "install custom source" form. Also renders the dashboard
-//   view: the active renderer extension's descriptor turned into live tiles (contest/fork wired
-//   host-side; the extension itself never touches the DOM).
+// Role: the extension screen (spec Section 6; capability-scoped network as of Phase KG-9). Lists
+//   installed extensions by hash with their shape, conformance receipt, and declared network
+//   destinations (if any), offers the two shipped demonstrations (learn-efficiently ranker,
+//   contestable dashboard, both declaring none) as one-click installs through the identical public
+//   path any pasted candidate source uses, and a generic "install custom source" form. Also renders
+//   the dashboard view: the active renderer extension's descriptor turned into live tiles (contest/
+//   fork wired host-side; the extension itself never touches the DOM).
 // Contract: renderExtensionScreen(container, ctx) -> void. ctx = { extensions, activeRanker,
-//   activeRenderer, onInstall(source, shape, label), onUninstall(hash), onSetActiveRanker(hash|null),
-//   onSetActiveRenderer(hash|null) }. renderDashboardScreen(container, ctx) -> void. ctx = {
-//   descriptor: {tiles}|null, error?, onContribute(action, row) }.
+//   activeRenderer, onInstall(source, shape, label, declaredDestinations), onUninstall(hash),
+//   onSetActiveRanker(hash|null), onSetActiveRenderer(hash|null) }. renderDashboardScreen(container,
+//   ctx) -> void. ctx = { descriptor: {tiles}|null, error?, onContribute(action, row) }.
 // Invariant: an extension only ever appears here after api/extension.js's checkConformance passed; a
 //   failed install shows the reason and installs nothing. No installed source is ever eval'd outside
-//   api/extension-sandbox.js's worker.
+//   api/extension-sandbox.js's worker. When the declared-destinations field is non-empty, the install
+//   form renders every one of them by name and disables its submit button until a consent checkbox
+//   naming them is checked; a blank declaration (fully offline) never shows or requires the checkbox
+//   at all, matching the sandbox's own zero-destination default.
 "use strict";
 import { checkConformance, contentHash } from "../api/extension.js";
 import { LEARN_EFFICIENTLY_SOURCE, CONTESTABLE_DASHBOARD_SOURCE } from "./demo-extensions.js";
+
+function parseDestinations(text) {
+  return String(text || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
 
 function el(tag, attrs, ...children) {
   const node = document.createElement(tag);
@@ -40,6 +51,9 @@ function extensionRow(entry, ctx) {
     el("p", { class: "extension-label" }, `${entry.label} (${SHAPE_LABELS[entry.shape] || entry.shape})`),
     el("p", { class: "extension-hash" }, `hash: ${entry.hash}`),
     el("p", { class: "extension-conformance" }, `conformance: ${entry.conformance.pass ? "passed" : "failed"} (${(entry.conformance.receipts || []).map((r) => r.probe).join(", ")})`),
+    (entry.declaredDestinations || []).length
+      ? el("p", { class: "extension-destinations" }, `network: ${entry.declaredDestinations.join(", ")}`)
+      : el("p", { class: "extension-destinations extension-offline" }, "network: none (runs fully offline)"),
     el(
       "div",
       { class: "extension-actions" },
@@ -54,9 +68,9 @@ function extensionRow(entry, ctx) {
   );
 }
 
-async function installDemo(source, shape, label, ctx, statusEl) {
+async function installDemo(source, shape, label, ctx, statusEl, declaredDestinations) {
   statusEl.textContent = "Checking conformance...";
-  const result = await ctx.onInstall(source, shape, label);
+  const result = await ctx.onInstall(source, shape, label, declaredDestinations || []);
   statusEl.textContent = result.pass ? `Installed (hash ${contentHash(source).slice(0, 12)}...)` : `Refused: ${result.reason}`;
 }
 
@@ -78,6 +92,45 @@ export function renderExtensionScreen(container, ctx) {
   let customSource = "";
   let customShape = "ranker";
   let customLabel = "";
+  let customDestinationsText = "";
+  let consented = false;
+
+  const consentMount = el("div", { class: "extension-consent-mount" });
+  const submitBtn = el("button", { type: "submit" }, "Check conformance and install");
+
+  function refreshConsent() {
+    const destinations = parseDestinations(customDestinationsText);
+    consentMount.innerHTML = "";
+    if (destinations.length === 0) {
+      consented = true; // fully offline: nothing to consent to
+      submitBtn.disabled = false;
+      return;
+    }
+    consented = false;
+    submitBtn.disabled = true;
+    consentMount.appendChild(
+      el(
+        "div",
+        { class: "extension-consent" },
+        el("p", {}, `This extension declares network access to:`),
+        el("ul", {}, ...destinations.map((d) => el("li", {}, d))),
+        el(
+          "label",
+          {},
+          el("input", {
+            type: "checkbox",
+            onchange: (e) => {
+              consented = e.target.checked;
+              submitBtn.disabled = !consented;
+            },
+          }),
+          `I understand this extension can reach exactly the ${destinations.length} destination${destinations.length === 1 ? "" : "s"} above, and nothing else.`
+        )
+      )
+    );
+  }
+  refreshConsent();
+
   const customForm = el(
     "form",
     {
@@ -85,14 +138,23 @@ export function renderExtensionScreen(container, ctx) {
       onsubmit: async (e) => {
         e.preventDefault();
         if (!customSource.trim()) { statusEl.textContent = "source is required"; return; }
-        await installDemo(customSource, customShape, customLabel || "custom extension", ctx, statusEl);
+        const destinations = parseDestinations(customDestinationsText);
+        if (destinations.length > 0 && !consented) { statusEl.textContent = "consent to the declared destinations is required"; return; }
+        await installDemo(customSource, customShape, customLabel || "custom extension", ctx, statusEl, destinations);
       },
     },
     el("h3", {}, "Install a custom extension"),
     el("label", {}, "Shape", el("select", { onchange: (e) => (customShape = e.target.value) }, ...["ranker", "renderer", "workflow"].map((s) => el("option", { value: s, selected: s === customShape ? "" : undefined }, SHAPE_LABELS[s])))),
     el("label", {}, "Label", el("input", { type: "text", oninput: (e) => (customLabel = e.target.value) })),
     el("label", {}, "Source (defines extensionMain(input))", el("textarea", { required: true, rows: "6", oninput: (e) => (customSource = e.target.value) })),
-    el("button", { type: "submit" }, "Check conformance and install")
+    el(
+      "label",
+      {},
+      "Declared network destinations (one exact URL per line; blank means fully offline)",
+      el("textarea", { rows: "3", oninput: (e) => { customDestinationsText = e.target.value; refreshConsent(); } })
+    ),
+    consentMount,
+    submitBtn
   );
 
   container.appendChild(

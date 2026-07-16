@@ -30,7 +30,7 @@ record. `docs/blast-radius.md` carries the full file-level detail; this is the c
 | claim-17 | `build/check-seams.mjs` |
 | claim-18 | `build/check-seams.mjs` |
 | claim-19 | `build/check-substrate.mjs` |
-| claim-20 | `build/check-extension-seam.mjs` |
+| claim-20 | `build/check-extension-seam.mjs`, `build/check-assistant.mjs` |
 
 Three structural checks ground the workflow track itself rather than a numbered claim:
 `build/check-references.mjs` (Stage 4: every governance reference resolves, all 20 claims are

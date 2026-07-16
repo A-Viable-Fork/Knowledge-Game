@@ -68,7 +68,8 @@ console.log("\n[5] the sandbox integrity probe itself holds (fetch is denied bef
   const benign = 'function extensionMain(input) { return input.rows; }';
   const result = await extMod.checkConformance(benign, "ranker", FIXTURE_ROWS, FIXTURE_LINKS);
   ok(result.pass === true, "a benign, non-mutating ranker passes conformance");
-  ok(result.receipts[0].probe === "sandbox-fetch-denied" && result.receipts[0].pass === true, "the sandbox-fetch-denied probe runs first and holds");
+  ok(result.receipts[0].probe === "declared-destinations" && result.receipts[0].valid === true, "the declared-destinations probe runs first and validates the (empty) declaration");
+  ok(result.receipts[1].probe === "sandbox-fetch-denied" && result.receipts[1].pass === true, "the sandbox-fetch-denied baseline probe runs second and holds");
 }
 
 console.log("\n[6] both shipped demonstration extensions pass conformance under their declared shape");
@@ -82,6 +83,8 @@ console.log("\n[6] both shipped demonstration extensions pass conformance under 
   ok(ordered[0].identity === "b", "learn-efficiently ranks the claim with an outgoing support first (b supports a)");
   const descriptor = await extMod.runRenderer(demo.CONTESTABLE_DASHBOARD_SOURCE, FIXTURE_ROWS);
   ok(Array.isArray(descriptor.tiles) && descriptor.tiles.length === 2, "the dashboard descriptor carries one tile per measurement-kind row, excluding the comment");
+  ok(r1.receipts.find((r) => r.probe === "declared-destinations").destinations.length === 0, "the learn-efficiently ranker declares no destinations");
+  ok(r2.receipts.find((r) => r.probe === "declared-destinations").destinations.length === 0, "the contestable dashboard declares no destinations");
 }
 
 console.log("\n[7] first-party loads through the identical public path: app.js and extension-screen.js both import the same source constants, no separate privileged copy");
@@ -97,8 +100,67 @@ console.log("\n[7] first-party loads through the identical public path: app.js a
   ok(typeof h === "string" && h.length === 64, `contentHash produces a 64-hex sha256 digest (got ${h.slice(0, 12)}...)`);
 }
 
+// Phase KG-9: capability-scoped network. A real local HTTP server (no external egress; this
+// environment's own loopback only) stands in for a candidate's inference endpoint, so the sandbox's
+// enforcement is proven against a real reachable destination and a real refused one, never a mock of
+// the fetch call itself.
+const http = await import("node:http");
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ echoed: req.url }));
+});
+await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+const { port } = server.address();
+const DECLARED_URL = `http://127.0.0.1:${port}/declared`;
+const UNDECLARED_URL = `http://127.0.0.1:${port}/undeclared`;
+
+console.log("\n[8] an extension with no declared destinations can reach nothing (a real, reachable local server included)");
+{
+  const source = `function extensionMain(input) { return fetch(input.url).then(function (r) { return r.json(); }); }`;
+  const result = await sandboxMod.runInSandbox(source, { url: DECLARED_URL }, { declaredDestinations: [] });
+  ok(result.ok === false, "a candidate with no declared destinations is refused even though the target server is real and reachable");
+  ok(/fetch is not available/.test(result.error || ""), `the refusal is the baseline denial, not a network-level failure (got: ${result.error})`);
+}
+
+console.log("\n[9] an extension with declared destinations can reach exactly those and nothing else");
+{
+  // a well-behaved workflow candidate declines to act (no fetch attempted) on a task-less input, the
+  // exact input checkConformance's own generic workflow probe calls it with; this is the same
+  // discipline the shipped assistant extension follows.
+  const source = `function extensionMain(input) { if (!input || !input.url) return { idle: true }; return fetch(input.url).then(function (r) { return r.json(); }); }`;
+  const allowed = await sandboxMod.runInSandbox(source, { url: DECLARED_URL }, { declaredDestinations: [DECLARED_URL] });
+  ok(allowed.ok === true, `a call to the exact declared destination succeeds (got: ${allowed.error})`);
+  ok(allowed.ok && allowed.result && allowed.result.echoed === "/declared", "the response body is the real server's own reply, not a stub");
+
+  const refused = await sandboxMod.runInSandbox(source, { url: UNDECLARED_URL }, { declaredDestinations: [DECLARED_URL] });
+  ok(refused.ok === false, "a call to a different URL on the identical reachable server is refused");
+  ok(refused.ok === false && refused.error.includes(UNDECLARED_URL), `the refusal names the undeclared URL exactly (got: ${refused.error})`);
+
+  const conformance = await extMod.checkConformance(source, "workflow", FIXTURE_ROWS, FIXTURE_LINKS, [DECLARED_URL]);
+  ok(conformance.pass === true, `a workflow candidate declaring one real destination passes conformance (reason: ${conformance.reason || "n/a"})`);
+  const runResult = await extMod.runWorkflow(source, { url: DECLARED_URL }, [DECLARED_URL]);
+  ok(runResult && runResult.echoed === "/declared", "runWorkflow threads the declared destination through to the real sandboxed call");
+}
+server.close();
+
+console.log("\n[10] a malformed declaration (a wildcard) is refused at conformance time, naming the offending entry, before the candidate ever runs");
+{
+  const benign = 'function extensionMain(input) { return input.rows; }';
+  const result = await extMod.checkConformance(benign, "ranker", FIXTURE_ROWS, FIXTURE_LINKS, ["https://api.example.com/*"]);
+  ok(result.pass === false, "a wildcard destination fails conformance");
+  ok((result.reason || "").includes("https://api.example.com/*"), `the refusal names the offending wildcard entry (got: ${result.reason})`);
+  ok(result.receipts.length === 1 && result.receipts[0].probe === "declared-destinations", "conformance stops at the declaration check; the candidate never reaches the sandbox at all");
+}
+
+console.log("\n[11] install renders the declared destinations and requires consent before installing");
+{
+  const screenSrc = readFileSync(join(ROOT, "periphery", "extension-screen.js"), "utf8");
+  ok(/declaredDestinations/.test(screenSrc), "the install form threads declaredDestinations through to onInstall");
+  ok(/consent/i.test(screenSrc), "the install form renders a consent step naming the declared destinations");
+}
+
 console.log("\n" + H);
-if (fails === 0) console.log("verified: conformance refuses a mutating or unsandboxed candidate by name, both demo extensions pass, and the first-party ranker loads through the identical public path.");
+if (fails === 0) console.log("verified: conformance refuses a mutating, unsandboxed, or malformed-destination candidate by name; both demo extensions declare no destinations and still pass; a candidate with no declared destinations reaches nothing and one with declared destinations reaches exactly those against a real local server; the first-party ranker loads through the identical public path.");
 console.log(fails === 0 ? "check-extension-seam: OK" : `check-extension-seam: ${fails} FAILURE(S)`);
 console.log(H);
 process.exit(fails === 0 ? 0 : 1);

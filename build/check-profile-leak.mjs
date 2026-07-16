@@ -36,10 +36,14 @@ function makeMemoryLocalStorage() {
 globalThis.localStorage = makeMemoryLocalStorage();
 const vault = await import(join(ROOT, "vault", "vault.js"));
 const CANARY = "CANARY-9f3a7c1e-do-not-leak";
+const KEY_CANARY = "sk-CANARY-do-not-leak-1a2b3c4d";
 vault.setObjective({ "learn-efficiently": 3 });
 vault.setObservationEnabled(true);
 vault.recordObservation({ type: "dwell", identity: CANARY, kind: "measurement", at: Date.now(), note: CANARY });
+vault.setApiKey(KEY_CANARY); // Phase KG-9: the assistant's BYOK credential, planted as its own canary
+vault.setAssistantEndpoint({ url: "https://example.invalid/v1/chat/completions", model: "canary-model" });
 ok(JSON.stringify(vault.exportAll()).includes(CANARY), "sanity: the canary is actually present in the vault's own export (the seed worked)");
+ok(JSON.stringify(vault.exportAll()).includes(KEY_CANARY), "sanity: the key canary is actually present in the vault's own export (exportable like every other vault field)");
 
 console.log("\n[3] fuzzing the draft and bundle path; no canary reaches any bundle");
 const { fetchCommunity } = await import(join(ROOT, "api", "community.js"));
@@ -74,6 +78,21 @@ console.log("\n[4] a draft that never mentions the canary produces a bundle that
   const { proposal, receipt } = draftProposal(community, { statement: "A wholly unrelated claim about type systems.", kind: "measurement", contributorId: "fuzz-tester" });
   const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
   ok(!JSON.stringify(bundle).includes(CANARY), "the canary, present in the vault throughout, does not appear in a bundle whose draft never mentioned it");
+  ok(!JSON.stringify(bundle).includes(KEY_CANARY), "the key canary, present in the vault throughout, does not appear in any bundle either");
+}
+
+console.log("\n[5] the key canary specifically: static scan plus a fuzz across every statement, key never reaches a bundle");
+{
+  const apiSrc = readFileSync(join(ROOT, "api", "assistant.js"), "utf8");
+  const specs = [...apiSrc.matchAll(/import\s+[^"']*["']([^"']+)["']/g)].map((m) => m[1]);
+  ok(!specs.some((s) => /contribute\.js|contribution\.js/.test(s)), `api/assistant.js imports ${JSON.stringify(specs)}, none reaching the draft or bundle path`);
+  for (const statement of [...FUZZ_STATEMENTS, KEY_CANARY]) {
+    const { proposal, receipt } = draftProposal(community, { statement, kind: "measurement", contributorId: "fuzz-tester" });
+    if (!proposal) continue;
+    const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
+    const bundleText = JSON.stringify(bundle);
+    ok(!bundleText.includes(KEY_CANARY) || statement === KEY_CANARY, `statement "${statement.slice(0, 20)}...": the key canary appears in the bundle only when it was the drafter's own literal input, never from the vault`);
+  }
 }
 
 console.log("\n" + H);

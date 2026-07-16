@@ -5,8 +5,8 @@
 //   setFollowedTopics, onboardingSeen, setOnboardingSeen, getWatches, setWatches, getExtensions,
 //   installExtension, uninstallExtension, getActiveRanker, setActiveRanker, getActiveRenderer,
 //   setActiveRenderer, getPins, setPin, removePin, getOutbox, setOutbox, getSyncPolicy,
-//   setSyncPolicy, getLastSynced, setLastSynced, getSkin, setSkin: thin pass-throughs to
-//   vault/vault.js.
+//   setSyncPolicy, getLastSynced, setLastSynced, getSkin, setSkin, getApiKey, setApiKey,
+//   getAssistantEndpoint, setAssistantEndpoint: thin pass-throughs to vault/vault.js.
 // Invariant: this module holds no logic and no rule of its own; it is a naming surface. The vault's
 //   own invariants (off means off, absence is off/empty, no other file touches storage) live in
 //   vault/vault.js and are unchanged by being reached through here.
@@ -47,3 +47,7 @@ export const getLastSynced = vault.getLastSynced;
 export const setLastSynced = vault.setLastSynced;
 export const getSkin = vault.getSkin;
 export const setSkin = vault.setSkin;
+export const getApiKey = vault.getApiKey;
+export const setApiKey = vault.setApiKey;
+export const getAssistantEndpoint = vault.getAssistantEndpoint;
+export const setAssistantEndpoint = vault.setAssistantEndpoint;
