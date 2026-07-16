@@ -7,8 +7,12 @@
 //   within itself, never overriding it with a fixed choice.
 // Invariant: never writes anything but CSS custom properties; touches no storage itself (the caller
 //   reads api/settings.js's getSkin() and passes the id in). Applying "ledger" produces the exact
-//   values app/style.css's own :root block already declares statically, so a fresh profile (skin
-//   defaulting to "ledger") renders identically whether or not this module has run yet.
+//   values app/style.css's own :root block already declares statically (Ledger's own light variant,
+//   preserved byte-for-byte from before this phase); a profile that has explicitly chosen Ledger
+//   therefore renders identically whether or not this module has run yet. A fresh profile defaults to
+//   "trellis" instead (api/settings.js's getSkin()), so this module's very first call is what paints
+//   the new default; there is no static-CSS fallback for it, by design, since Trellis did not exist
+//   before this phase.
 "use strict";
 import { tokensFor, resolveVariant, TOKEN_ROLES } from "../api/skins.js";
 

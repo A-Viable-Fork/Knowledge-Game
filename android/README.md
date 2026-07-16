@@ -9,6 +9,10 @@ Pages alone.
 - Package id: `com.aviablefork.knowledgegame`
 - Wraps: `https://a-viable-fork.github.io/Knowledge-Game/app/`
 - Signing: `test-keystore/` (TEST ONLY, see its own README)
+- Icon: `app/manifest.webmanifest`'s own icon set (Phase KG-8: the grapevine-monogram mark, real PNG
+  files, maskable and any). This project always generates fresh from the live manifest
+  (`generate-project.mjs`), so a future icon change here needs no change to this directory at all;
+  the next build simply picks up whatever `app/icons/` currently serves.
 
 ## Regenerating the project
 

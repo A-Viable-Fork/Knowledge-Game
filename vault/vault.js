@@ -23,8 +23,9 @@
 //   online sync is a verb the reader chooses, never an assumption); getLastSynced(communityId)/
 //   setLastSynced(communityId, at) (the visible last-synced timestamp per community, absence is null).
 //   Phase KG-8: getSkin()/setSkin(skinId) (which registered skin id, api/skins.js's own SKINS array;
-//   absence is "ledger", this app's original look, so a fresh profile renders identically to before
-//   this phase ever existed).
+//   absence is "trellis", the skin built around the app's own new mark, shipped as default once the
+//   mark exists to ship around; "ledger", this app's original look, stays one tap away on the vault
+//   screen's own picker for anyone who prefers it).
 // Invariant: a fresh profile constructs its off state rather than reading a configured default: no
 //   call ever writes a store on read, so a profile that has never called setObjective or
 //   setObservationEnabled has no key in storage at all, and every reader treats absence as off/empty
@@ -207,7 +208,7 @@ export function setLastSynced(communityId, at) {
 }
 
 export function getSkin() {
-  return readStore().skin || "ledger";
+  return readStore().skin || "trellis";
 }
 export function setSkin(skinId) {
   const store = readStore();

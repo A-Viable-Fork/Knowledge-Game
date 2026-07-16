@@ -96,7 +96,8 @@ html, body {
   .app-header { transition: none; }
 }
 .header-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-.active-community-name { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-mark { flex: none; border-radius: 30%; width: 1.35rem; height: 1.35rem; }
+.active-community-name { flex: 1; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .indicator-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .indicator-chip {
