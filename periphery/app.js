@@ -360,7 +360,7 @@ async function loadCommunity(id, deepLinkClaim) {
     let usedExtension = false;
     if (activeRankerEntry) {
       try {
-        ordered = await runRanker(activeRankerEntry.source, visible, weights, community.raw.state.links || []);
+        ordered = await runRanker(activeRankerEntry.source, visible, weights, community.raw.state.links || [], activeRankerEntry.declaredDestinations || []);
         usedExtension = true;
       } catch (e) {
         ordered = orderByObjective(visible, weights, community.raw.state, extra);
@@ -523,10 +523,10 @@ async function loadExtensionScreen(id) {
       extensions: settings.getExtensions(),
       activeRanker: settings.getActiveRanker(),
       activeRenderer: settings.getActiveRenderer(),
-      onInstall: async (source, shape, label) => {
-        const conformance = await checkConformance(source, shape, fixtureRows, fixtureLinks);
+      onInstall: async (source, shape, label, declaredDestinations) => {
+        const conformance = await checkConformance(source, shape, fixtureRows, fixtureLinks, declaredDestinations || []);
         if (conformance.pass) {
-          settings.installExtension({ hash: contentHash(source), shape, label, source, conformance, installedAt: Date.now() });
+          settings.installExtension({ hash: contentHash(source), shape, label, source, conformance, declaredDestinations: declaredDestinations || [], installedAt: Date.now() });
         }
         draw();
         return conformance;
@@ -561,7 +561,7 @@ async function loadDashboardScreen(id) {
   let error = null;
   if (entry) {
     try {
-      descriptor = await runRenderer(entry.source, community.api.read({}));
+      descriptor = await runRenderer(entry.source, community.api.read({}), entry.declaredDestinations || []);
     } catch (e) {
       error = e.message;
     }
@@ -783,7 +783,7 @@ async function activateLearnEfficientlyDefault() {
     const conformance = await checkConformance(LEARN_EFFICIENTLY_SOURCE, "ranker", [], []);
     if (!conformance.pass) return;
     const hash = contentHash(LEARN_EFFICIENTLY_SOURCE);
-    settings.installExtension({ hash, shape: "ranker", label: "Learn-efficiently ranker (demo)", source: LEARN_EFFICIENTLY_SOURCE, conformance, installedAt: Date.now() });
+    settings.installExtension({ hash, shape: "ranker", label: "Learn-efficiently ranker (demo)", source: LEARN_EFFICIENTLY_SOURCE, conformance, declaredDestinations: [], installedAt: Date.now() });
     settings.setActiveRanker(hash);
   } catch (e) {
     void e;
