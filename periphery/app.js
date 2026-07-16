@@ -40,7 +40,12 @@ import { renderAssistantScreen } from "./assistant-screen.js";
 import { renderKernelDesignerScreen } from "./kernel-designer-screen.js";
 import { renderSubmissionScreen } from "./submission-screen.js";
 import { loadAllAnchorMaps, buildCrossDocumentIndex } from "../api/submission.js";
-import { LEARN_EFFICIENTLY_SOURCE } from "./demo-extensions.js";
+import { LEARN_EFFICIENTLY_SOURCE, CONTESTABLE_DASHBOARD_SOURCE } from "./demo-extensions.js";
+import { registryRows, contractsByIdentity } from "../api/registry.js";
+import { renderRegistryScreen } from "./registry-screen.js";
+import { renderRegisterArtifactScreen } from "./register-artifact-screen.js";
+import { checkSkinConformance } from "../api/skin-conformance.js";
+import { SKINS } from "../api/skins.js";
 
 // The community registry. The founded EpiStack Competition Community (Phase B/C, its community card
 // at communities/epistack-competition/community-card.json) is the default; the two development
@@ -49,8 +54,13 @@ import { LEARN_EFFICIENTLY_SOURCE } from "./demo-extensions.js";
 // only fixtures.
 const COMMUNITIES = [
   { id: "epistack-competition", label: "EpiStack Competition Community", path: "../communities/epistack-competition/snapshot/epistack-competition.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/epistack-competition" },
-  { id: "knowledge-game", label: "Knowledge Game (this app's own governance kernel)", path: "fixtures/knowledge-game.snapshot.json" },
-  { id: "math", label: "EpiStack Math Kernel (upstream content, for contrast)", path: "fixtures/math.snapshot.json" },
+  { id: "the-registry", label: "The Registry (artifacts of the ecosystem, self-hosted)", path: "../communities/the-registry/snapshot/the-registry.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/the-registry", registry: true },
+  // the mirror (Phase KG-12 Step 5): the protocol's own repositories, joined as ordinary browsable
+  // communities like any other, snapshot by hash, fetched through the identical path. A promotion
+  // proposal read here (adopt something to shared) is an ordinary claim, argued in the open and
+  // decided by which communities choose to pin it, never a privileged act this app performs.
+  { id: "knowledge-game", label: "Knowledge-Game (this repository's own governance kernel, mirrored)", path: "fixtures/knowledge-game.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game", mirror: true },
+  { id: "math", label: "EpiStack (upstream protocol repository's math kernel, mirrored)", path: "fixtures/math.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/epistack", mirror: true },
 ];
 
 function parseHash() {
@@ -906,6 +916,142 @@ async function loadSubmissionScreen() {
   });
 }
 
+// the registry's browse and install surface (Phase KG-12 Step 3): a founded registry community reads
+// through the identical fetchCommunity path as any other community; this loader adds the extension
+// join (api/registry.js) and the per-kind re-run/install capability probes the screen renders exactly
+// as given, never on its own initiative.
+async function loadRegistryScreen(id) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  renderSyncState(community, meta.id);
+  renderChrome({ communityLabel: meta.label, view: "feed" });
+  const rows = registryRows(community);
+  const contractsById = contractsByIdentity(rows);
+
+  // known shipped extension sources this app can re-run checkConformance against live, keyed by their
+  // own content hash (the same hash the seed script cited as each row's artifact_hash).
+  const KNOWN_EXTENSIONS = [
+    { hash: contentHash(LEARN_EFFICIENTLY_SOURCE), source: LEARN_EFFICIENTLY_SOURCE, shape: "ranker" },
+    { hash: contentHash(CONTESTABLE_DASHBOARD_SOURCE), source: CONTESTABLE_DASHBOARD_SOURCE, shape: "renderer" },
+    { hash: contentHash(ASSISTANT_SOURCE), source: ASSISTANT_SOURCE, shape: "workflow" },
+  ];
+  const FIXTURE_ROWS = [
+    { identity: "a", kind: "measurement", statement: "s1", declared_grade: "asserted", earned_grade: "asserted", source_id: "S1" },
+    { identity: "b", kind: "measurement", statement: "s2", declared_grade: "checked", earned_grade: "checked", source_id: "S2" },
+  ];
+
+  function reRunFor(row) {
+    const ext = row.extensions || {};
+    if (row.kind === "extension" && ext.artifact_hash) {
+      const known = KNOWN_EXTENSIONS.find((k) => k.hash === ext.artifact_hash);
+      if (!known) return null;
+      return {
+        label: "Re-run conformance in this app",
+        run: async () => {
+          const fresh = await checkConformance(known.source, known.shape, FIXTURE_ROWS, [], []);
+          const cited = (row.checkingRecords[0] || {}).outcome === "confirms";
+          return { ok: fresh.pass === cited, detail: `this run: pass=${fresh.pass}${fresh.reason ? `, ${fresh.reason}` : ""}` };
+        },
+      };
+    }
+    if (row.kind === "skin" && ext.artifact_hash) {
+      const skin = SKINS.find((s) => contentHash(JSON.stringify(s.variants)) === ext.artifact_hash);
+      if (!skin) return null;
+      return {
+        label: "Re-run conformance in this app",
+        run: async () => {
+          const fresh = checkSkinConformance(skin);
+          const cited = (row.checkingRecords[0] || {}).outcome === "confirms";
+          return { ok: fresh.pass === cited, detail: `this run: pass=${fresh.pass}, ${fresh.checks.length} assertions` };
+        },
+      };
+    }
+    if (row.kind === "community" && ext.artifact_hash) {
+      return {
+        label: "Re-run conformance in this app",
+        run: async () => {
+          for (const c of COMMUNITIES) {
+            if (c.id === "the-registry") continue;
+            try {
+              const fresh = await fetchCommunity(c.path);
+              if (fresh.snapshotHash === ext.artifact_hash) {
+                return { ok: true, detail: `matches ${c.label}, hash ${fresh.snapshotHash.slice(0, 16)}... re-verified live` };
+              }
+            } catch (e) { /* this candidate refused; keep looking */ }
+          }
+          return { ok: false, detail: "no currently-fetchable community matches this citation's artifact hash; the citation may be stale" };
+        },
+      };
+    }
+    return null;
+  }
+
+  function installFor(row) {
+    const ext = row.extensions || {};
+    if (row.kind === "skin" && ext.artifact_hash) {
+      const skin = SKINS.find((s) => contentHash(JSON.stringify(s.variants)) === ext.artifact_hash);
+      if (!skin) return null;
+      return { label: `Use the "${skin.id}" skin`, run: () => { settings.setSkin(skin.id); applySkin(skin.id); } };
+    }
+    if (row.kind === "community") {
+      const target = COMMUNITIES.find((c) => c.id !== "the-registry" && ext.artifact_hash && c.id === "epistack-competition");
+      if (!target) return null;
+      return {
+        label: isPinned(target.id) ? "Already pinned for offline" : "Pin for offline",
+        run: async () => { if (!isPinned(target.id)) await pinCommunity(target); loadRegistryScreen(id); },
+      };
+    }
+    return null;
+  }
+
+  function noteFor(row) {
+    if (row.kind === "extension") return "Ships first-party with this app; see Menu > Extensions or Menu > Assistant.";
+    if (row.kind === "client") return "Not distributed from this screen; see the artifact's own repository for its source.";
+    if (row.kind === "component") return "An internal module of this app, not separately installable.";
+    if (row.kind === "contract-bundle") return "A contract, not an installable artifact.";
+    if (row.kind === "community" && !installFor(row)) return "See Menu > Communities to browse or pin this community.";
+    return null;
+  }
+
+  feedEl.setAttribute("aria-busy", "false");
+  renderRegistryScreen(feedEl, {
+    rows, contractsById, reRunFor, installFor, noteFor,
+    onRegister: () => setHash({ view: "register-artifact", community: id }),
+  });
+}
+
+async function loadRegisterArtifactScreen(id) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const rows = registryRows(community);
+  const contractRows = rows.filter((r) => r.kind === "contract-bundle");
+  feedEl.setAttribute("aria-busy", "false");
+  renderRegisterArtifactScreen(feedEl, {
+    community, contractRows, contributionTarget: meta.contributionTarget,
+    knownCommunities: COMMUNITIES.filter((c) => c.id !== "the-registry"),
+    onBack: () => setHash({ view: "feed", community: id }),
+  });
+}
+
 function loadCommunitiesScreen(activeId) {
   const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "false");
@@ -951,10 +1097,14 @@ function route({ community, claim, view, action, target }) {
     loadDesignerScreen();
   } else if (view === "submission") {
     loadSubmissionScreen();
+  } else if (view === "register-artifact") {
+    loadRegisterArtifactScreen(activeId);
   } else if (view === "contribute") {
     loadContributeScreen(activeId, action, target);
   } else {
-    loadCommunity(activeId, claim);
+    const meta = COMMUNITIES.find((c) => c.id === activeId) || COMMUNITIES[0];
+    if (meta.registry) loadRegistryScreen(meta.id);
+    else loadCommunity(activeId, claim);
   }
 }
 

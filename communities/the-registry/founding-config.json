@@ -1,0 +1,46 @@
+{
+  "kernel_id": "the-registry",
+  "home": "communities/the-registry",
+  "frame": {
+    "name": "The Registry",
+    "domain": "artifacts of the ecosystem itself: extensions, skins, components, clients, and communities",
+    "purpose": "a browsable community of artifacts typed by contracts and graded by conformance, self-hosting the ecosystem's own evolution machinery, expressible from inside the app by anyone, this app's own client entry included, graded by the identical pair, with no privileged placement"
+  },
+  "adopted_type_hashes": [],
+  "local_kinds": [
+    { "kind": "extension", "ceiling": "checked" },
+    { "kind": "skin", "ceiling": "checked" },
+    { "kind": "component", "ceiling": "checked" },
+    { "kind": "client", "ceiling": "checked" },
+    { "kind": "community", "ceiling": "checked" },
+    { "kind": "contract-bundle", "ceiling": "constitutive" }
+  ],
+  "sources": [
+    {
+      "source_id": "S-registry-oracles",
+      "source_class": "primary-measurement",
+      "description": "this deployment's own conformance oracles (build/check-extension-seam.mjs's ranking-separation fuzz, build/check-skins.mjs's per-skin assertions, and other sandbox-executable checks), re-run directly against the artifact each artifact-card claim names"
+    },
+    {
+      "source_id": "S-registry-ci-only",
+      "source_class": "institutional-report",
+      "description": "a conformance oracle that only executes in this repository's own CI (build/check-conformance-read.mjs and build/check-conformance-write.mjs, the independent-minimal-client pair), cited as recomputable in the repository, never as app-verified"
+    }
+  ],
+  "time_lock": { "setting": "light" },
+  "identity_thresholds": {
+    "propose": "any",
+    "contest-type": "supported",
+    "vouch": "corroborated"
+  },
+  "standing_economy": {
+    "time_lock_cost": null,
+    "decay_rate": null,
+    "sybil_resistant_weighting_curve": null
+  },
+  "corpus_content_license": "attribution-required",
+  "fetch_locations": [
+    "https://a-viable-fork.github.io/Knowledge-Game/communities/the-registry/snapshot/the-registry.snapshot.json"
+  ],
+  "contribution_target": "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/the-registry (in-repo for now; a pull request touching this path re-runs the gate via .github/workflows/ci.yml; a documented move-out obligation to a standalone sibling repository is ledgered, exactly as epistack-competition's own SK-21 is)"
+}

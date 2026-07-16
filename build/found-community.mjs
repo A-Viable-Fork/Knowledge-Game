@@ -153,11 +153,15 @@ const require = createRequire(import.meta.url);
 const { KINDS, SOURCES } = require("${relCorpus}/tables.js");
 const { STORE } = require("${relCorpus}/${id}-data.js");
 
+const CLAIM_NAMED_FIELDS = ["ref", "kind", "statement", "source_id", "contributor_id", "declared_grade", "checking_records", "closing_condition"];
+
 export function buildKernel() {
   const tables = { sourceTable: makeSourceTable(SOURCES), kindTable: makeKindTable(KINDS) };
   const refId = new Map();
   const claims = STORE.claims.map((spec) => {
-    const rec = claimRecord({ kind: spec.kind, statement: spec.statement, source_id: spec.source_id, contributor_id: spec.contributor_id, declared_grade: spec.declared_grade, checking_records: spec.checking_records, closing_condition: spec.closing_condition });
+    const extra = {};
+    for (const k of Object.keys(spec)) if (!CLAIM_NAMED_FIELDS.includes(k)) extra[k] = spec[k];
+    const rec = claimRecord({ kind: spec.kind, statement: spec.statement, source_id: spec.source_id, contributor_id: spec.contributor_id, declared_grade: spec.declared_grade, checking_records: spec.checking_records, closing_condition: spec.closing_condition, ...extra });
     refId.set(spec.ref, rec.identity);
     return { rec, spec };
   });
@@ -318,11 +322,15 @@ const require = createRequire(import.meta.url);
 const { KINDS, SOURCES } = require("../corpus/tables.js");
 const { STORE } = require("../corpus/${config.kernel_id}-data.js");
 
+const CLAIM_NAMED_FIELDS = ["ref", "kind", "statement", "source_id", "contributor_id", "declared_grade", "checking_records", "closing_condition"];
+
 export function buildKernel() {
   const tables = { sourceTable: makeSourceTable(SOURCES), kindTable: makeKindTable(KINDS) };
   const refId = new Map();
   const claims = STORE.claims.map((spec) => {
-    const rec = claimRecord({ kind: spec.kind, statement: spec.statement, source_id: spec.source_id, contributor_id: spec.contributor_id, declared_grade: spec.declared_grade, checking_records: spec.checking_records, closing_condition: spec.closing_condition });
+    const extra = {};
+    for (const k of Object.keys(spec)) if (!CLAIM_NAMED_FIELDS.includes(k)) extra[k] = spec[k];
+    const rec = claimRecord({ kind: spec.kind, statement: spec.statement, source_id: spec.source_id, contributor_id: spec.contributor_id, declared_grade: spec.declared_grade, checking_records: spec.checking_records, closing_condition: spec.closing_condition, ...extra });
     refId.set(spec.ref, rec.identity);
     return { rec, spec };
   });
@@ -408,6 +416,10 @@ export function emitPublishWalkthrough(config, snapshot) {
   const repoNameSuggestion = id;
   const fetchUrl = (config.fetch_locations || [])[0] || null;
   const bundlePath = `${home}-publish-bundle.tar.gz`;
+  // the walkthrough document's own displayed path: repo-relative, never this deployment's own
+  // absolute filesystem path (which would otherwise leak this checkout's own directory name, e.g.
+  // "Knowledge-Game", into every future community's operator-facing instructions).
+  const bundlePathDisplay = `${config.home}-publish-bundle.tar.gz`;
 
   // stage everything the standalone repository needs (the directory emitCommunityArtifacts already
   // made self-contained) into one archive, so "what to upload" is a single file, not a tree to
@@ -434,11 +446,11 @@ export function emitPublishWalkthrough(config, snapshot) {
     "",
     "## 2. Upload",
     "",
-    `- [ ] The emitted artifacts are staged as one downloadable bundle: \`${bundlePath}\``,
+    `- [ ] The emitted artifacts are staged as one downloadable bundle: \`${bundlePathDisplay}\` (relative to this repository's own root)`,
     "- [ ] Extract it into an empty local clone of the new repository, commit, and push to \`main\`:",
     "",
     "```",
-    `tar -xzf ${bundlePath} -C <path to your empty clone> --strip-components=1`,
+    `tar -xzf ${bundlePathDisplay} -C <path to your empty clone> --strip-components=1`,
     "cd <path to your empty clone>",
     "git add -A",
     'git commit -m "Found the community"',

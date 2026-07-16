@@ -1,0 +1,25 @@
+{
+  "kernel_id": "the-registry",
+  "governance_hash": "26fbdef0d1ec08c58018b7c0916a49de4b5eacb9fe3978ae67bc2c1eb7d2c5c4",
+  "governance_hash_computed_by": "this deployment, app-side (docs/coordination-layer-spec.md's own computation is specified, not yet built upstream)",
+  "member_set_commitment": null,
+  "snapshot_hash": "c015c6f605a1621871688a1eb10adf1e72afef0a88f499c91cc34d3ab2469619",
+  "fetch_locations": [
+    "https://a-viable-fork.github.io/Knowledge-Game/communities/the-registry/snapshot/the-registry.snapshot.json"
+  ],
+  "pinned_type_hashes": {},
+  "contribution_target": "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/the-registry (in-repo for now; a pull request touching this path re-runs the gate via .github/workflows/ci.yml; a documented move-out obligation to a standalone sibling repository is ledgered, exactly as epistack-competition's own SK-21 is)",
+  "protocol_identity": "epistack-v3",
+  "domain": "artifacts of the ecosystem itself: extensions, skins, components, clients, and communities",
+  "identity_thresholds": {
+    "propose": "any",
+    "contest-type": "supported",
+    "vouch": "corroborated"
+  },
+  "standing_economy": {
+    "time_lock_cost": null,
+    "decay_rate": null,
+    "sybil_resistant_weighting_curve": null
+  },
+  "corpus_content_license": "attribution-required"
+}

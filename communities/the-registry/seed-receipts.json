@@ -1,0 +1,93 @@
+[
+  {
+    "ref": "ranker-contract",
+    "kind": "contract-bundle",
+    "identity": "eac1faec037c4f56878d27fd1f4f6eabbf19e28d8536b1e82535233bc6b64c60",
+    "decision": "accepted",
+    "contribution_id": "d38ee49205d51576b69f5475c28c53922baa6e61fc6dbfa75d747f8bd8aaadc2"
+  },
+  {
+    "ref": "skin-contract",
+    "kind": "contract-bundle",
+    "identity": "72d2dcbed62e3e50166183a247fd75a2921f22824a06398283a86a1786a9e04d",
+    "decision": "accepted",
+    "contribution_id": "e20ec942ed9afe5656506bf06c7c25a44701860a3d8a8d10daf053f68c790e9f"
+  },
+  {
+    "ref": "client-contract",
+    "kind": "contract-bundle",
+    "identity": "fd2d7243b40118b246a76b61ee71d9c4ef7f5992c780e6653a74f53e79e2e380",
+    "decision": "accepted",
+    "contribution_id": "eb73ddd2b7332dcc099ed61699e52d8ecbfe0f24fc42e66ee39dea0347f5cbcb"
+  },
+  {
+    "ref": "learn-efficiently",
+    "kind": "extension",
+    "identity": "b65525523848e02524467750bbb2bc98a6a8c68226ec042c7435260a76a3e0b1",
+    "decision": "accepted",
+    "contribution_id": "1eb54e2e2258cb75052cb469313966cc46c75c4f6a64425697a415dbfc2ebeb2"
+  },
+  {
+    "ref": "contestable-dashboard",
+    "kind": "extension",
+    "identity": "498056b2e6b2f8a67e058ef60c949c5ad74c0f548015cf9e852ff0d8efe40917",
+    "decision": "accepted",
+    "contribution_id": "faf87f09e5510d07ee945299de33c87d985b21cf3ce6e0043660f33deab5fdbf"
+  },
+  {
+    "ref": "assistant",
+    "kind": "extension",
+    "identity": "cbdaa24b15c6040bd022e33e5477e0ecf3f5a5800931848031308999cb68ad5b",
+    "decision": "accepted",
+    "contribution_id": "cc89e8b83be23d066d5f45abbd65aaae3bac2d30f2f2500d421b072739e3b6f7"
+  },
+  {
+    "ref": "skin-ledger",
+    "kind": "skin",
+    "identity": "b3312d374680c701ab9f0dcce96f4c531bdf515ebc69faddf411ba9716d841dd",
+    "decision": "accepted",
+    "contribution_id": "aba84d4be2a5206a46b1a95d64b6b81ab7baa42fec4cf68a51dc306af9b139fb"
+  },
+  {
+    "ref": "skin-trellis",
+    "kind": "skin",
+    "identity": "93bfd7116250374a1910ea56b17c437e6fe1e684207307a26d14a64a1bc64882",
+    "decision": "accepted",
+    "contribution_id": "62e05120df7eba9e766dc067d4a4ce68de35f68b3f719959b5c4a34878b24acc"
+  },
+  {
+    "ref": "minimal-client",
+    "kind": "client",
+    "identity": "53a21beefb1b0f8085d2261efa0fe642f1a017b922e736441a9993e5f67abd92",
+    "decision": "accepted",
+    "contribution_id": "474e66bc4dd8cf0f0b0833491f4624ff316d62f2b0af6b56ca5754d6cfd1f696"
+  },
+  {
+    "ref": "knowledge-game",
+    "kind": "client",
+    "identity": "75b69fc6beae863f97cab1307ccd70f9ea1b91ba888d1752d54533c140b514ec",
+    "decision": "accepted",
+    "contribution_id": "82c82c26357e6b3f35ea8a5e8f93a1902cf3762bf0821b9b25289fb84129f11a"
+  },
+  {
+    "ref": "vault",
+    "kind": "component",
+    "identity": "c87ebd4537be20d88557eee90664d2ea100cef620439454c18582809cc1698f8",
+    "decision": "accepted",
+    "contribution_id": "81ca916c37d386548a4a6996ce4b1e695e60506c87faf7faaa5b70dfc5be63e2"
+  },
+  {
+    "ref": "membrane",
+    "kind": "component",
+    "identity": "15eab260d2fedd90423f9ed5bd78da9d7da7534bfe6de4fa68664171171f0cdc",
+    "decision": "accepted",
+    "contribution_id": "df3b2765ae37b689e516a12dbfc5a03bead8b068a29c508aaa06370ce6c5c938"
+  },
+  {
+    "ref": "epistack-competition",
+    "kind": "community",
+    "identity": "0196357d3f99e5d4d49e5d08ab8bfa21b0845dd100cd2d1762d545e32e4aa9ec",
+    "decision": "accepted",
+    "contribution_id": "dcc3bc3d13f9ea5f0795732694f2eddfadbd3512a4d21adca4daba3191e3a8db"
+  }
+]

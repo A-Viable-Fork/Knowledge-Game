@@ -92,10 +92,16 @@ jobs:
         run: node build/check-sync-policy.mjs
       - name: check-submission-surface
         run: node build/check-submission-surface.mjs
+      - name: check-the-registry
+        run: node build/check-the-registry.mjs
+      - name: check-registry
+        run: node build/check-registry.mjs
       - name: check-release
         run: node build/check-release.mjs
       - name: the founded community's own self-check (self-contained, no reference back into this repository)
         run: cd communities/epistack-competition && node build/check.mjs
+      - name: the founded registry's own self-check (self-contained, no reference back into this repository)
+        run: cd communities/the-registry && node build/check.mjs
       - name: fixtures are reproducible (regenerate and diff)
         run: |
           node build/emit-fixtures.mjs
