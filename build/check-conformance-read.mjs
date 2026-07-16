@@ -56,7 +56,7 @@ console.log("\n[1] both clients verify the same hash and derive the same groundi
 const independent = await independentClientRead(FIXTURE);
 const app = await appClientRead(FIXTURE);
 ok(independent.hash === app.hash, `both compute the same snapshot hash (${independent.hash.slice(0, 16)}...)`);
-ok(independent.rows.length === 20, `the independent client reads 20 claims (got ${independent.rows.length})`);
+ok(independent.rows.length === 27, `the independent client reads 27 claims (got ${independent.rows.length})`);
 ok(JSON.stringify(independent.rows) === JSON.stringify(app.rows), "the independent client's read is byte-identical (JSON-stable) to the app's data layer's read");
 
 console.log("\n[2] every claim's earned grade matches between the two, one comparison per claim");

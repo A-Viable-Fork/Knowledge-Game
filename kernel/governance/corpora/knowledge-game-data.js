@@ -12,6 +12,23 @@
 // Invariant: no grade is asserted by hand; every claim's declared_grade is at or below what its
 //   checking record actually earns, verified by the real gate in build/check-knowledge-game.mjs, not
 //   by this comment.
+// The entrance listing (claim-21 through claim-27): the org-root entrance page renders this app's own
+//   door from these grounded claims rather than from hand-written copy. Every listing claim carries a
+//   `role` field ("title", "tagline", "status", or "link") and an `entrance_surfaced: true` marker; both
+//   are ordinary extension fields (vendor/kernel/schema/records.mjs's own extensionsOf/finalize
+//   mechanism, the same one the-registry's contract-bundle claims already use for interface_identity
+//   etc.), never a new kind field the gate itself reads, moves no grade, and adds no rule. `title` and
+//   `tagline` are of kind "identity" (ceiling constitutive, this file's own local kind, documented in
+//   kernel/governance/kernel-config.json and kernel/governance/corpora/tables.js): a stipulation about
+//   this deployment's own name, adopted not evidenced, exactly as a contract-bundle claim's own
+//   ceiling-constitutive kind is grounded by adoption alone. `link` claims are the same kind, each
+//   carrying a `url` extension alongside its label statement. `status` claims are of kind "measurement"
+//   (this file's original kind, ceiling checked) with declared_grade "asserted" and no checking records
+//   of their own: they carry no independent evidence, only a `references_claim` extension naming the
+//   real governance claim ref that backs the capability they list (claim-9 for the unprivileged-client
+//   status, claim-1 for the ranking-cannot-move-standing status); the entrance renderer displays THAT
+//   claim's own computed standing, never the listing claim's bare "asserted" floor, so the front door is
+//   gated by the same mechanism it advertises and can never overclaim beyond what the kernel grounds.
 "use strict";
 
 const STORE = {
@@ -392,6 +409,82 @@ const STORE = {
           independence: "distinct-party"
         }
       ]
+    },
+    {
+      ref: "claim-21",
+      kind: "identity",
+      statement: "The Knowledge Game",
+      source_id: "S-kg-self-stipulated",
+      contributor_id: "P-knowledge-game",
+      declared_grade: "constitutive",
+      role: "title",
+      entrance_surfaced: true
+    },
+    {
+      ref: "claim-22",
+      kind: "identity",
+      statement: "the first app for the protocol: a feed whose algorithm answers to the reader",
+      source_id: "S-kg-self-stipulated",
+      contributor_id: "P-knowledge-game",
+      declared_grade: "constitutive",
+      role: "tagline",
+      entrance_surfaced: true,
+      revisable: true
+    },
+    {
+      ref: "claim-23",
+      kind: "identity",
+      statement: "Open the app",
+      source_id: "S-kg-self-stipulated",
+      contributor_id: "P-knowledge-game",
+      declared_grade: "constitutive",
+      role: "link",
+      entrance_surfaced: true,
+      url: "https://a-viable-fork.github.io/Knowledge-Game/app/"
+    },
+    {
+      ref: "claim-24",
+      kind: "identity",
+      statement: "Submit a claim",
+      source_id: "S-kg-self-stipulated",
+      contributor_id: "P-knowledge-game",
+      declared_grade: "constitutive",
+      role: "link",
+      entrance_surfaced: true,
+      url: "https://a-viable-fork.github.io/Knowledge-Game/app/#view=submission"
+    },
+    {
+      ref: "claim-25",
+      kind: "identity",
+      statement: "View the repository",
+      source_id: "S-kg-self-stipulated",
+      contributor_id: "P-knowledge-game",
+      declared_grade: "constitutive",
+      role: "link",
+      entrance_surfaced: true,
+      url: "https://github.com/A-Viable-Fork/Knowledge-Game"
+    },
+    {
+      ref: "claim-26",
+      kind: "measurement",
+      statement: "This app's listed status: unprivileged, holding no capability any client with the snapshot lacks.",
+      source_id: "S-kg-spec-v2",
+      contributor_id: "P-knowledge-game",
+      declared_grade: "asserted",
+      role: "status",
+      entrance_surfaced: true,
+      references_claim: "claim-9"
+    },
+    {
+      ref: "claim-27",
+      kind: "measurement",
+      statement: "This app's listed status: ranking cannot move canonical standing.",
+      source_id: "S-kg-spec-v2",
+      contributor_id: "P-knowledge-game",
+      declared_grade: "asserted",
+      role: "status",
+      entrance_surfaced: true,
+      references_claim: "claim-1"
     }
   ],
   links: []
