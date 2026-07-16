@@ -1,7 +1,16 @@
 /* Design register: calm, typographic, serious-playful. The grade mark is the visual protagonist
    of the card; nothing competes with it. Dark mode follows prefers-color-scheme; motion is disabled
    under prefers-reduced-motion. Grade color is a monotone scale over the lattice order and never the
-   sole channel: every grade badge also carries its grade word as text. */
+   sole channel: every grade badge also carries its grade word as text.
+
+   The skin contract (Phase KG-8): every custom property below is a token, never structure. A skin
+   is exactly this set of values, swapped at :root by periphery/skin-apply.js from api/skins.js's own
+   registry; no skin changes layout, spacing rhythm beyond --card-padding, or any behavior. This
+   block's own values ARE the "Ledger" skin's light variant, byte-for-byte identical to api/skins.js's
+   ledger.light entry, so a fresh profile (skin defaults to "ledger") renders correctly before any
+   JS has run. build/check-skins.mjs verifies every registered skin declares every token role here,
+   that the seven grade roles stay monotonic along their own declared axis, and that every
+   text-on-surface pairing meets a sensible contrast floor. */
 
 :root {
   --paper: #f7f5f0;
@@ -10,6 +19,8 @@
   --line: #d8d4c8;
   --card-bg: #ffffff;
   --focus: #2f6df0;
+  --danger: #b3392c;
+  --on-accent: #ffffff;
 
   /* the lattice-order color scale: bottom to settled, monotone in perceived strength */
   --grade-ungraded: #9a9a94;
@@ -22,6 +33,9 @@
 
   --radius: 14px;
   --motion: 180ms;
+  --card-padding: 1rem 1.1rem;
+  --focus-ring-shadow: 0 0 0 3px rgba(47, 109, 240, 0.25);
+  --font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,6 +46,7 @@
     --line: #33362c;
     --card-bg: #1b1e17;
     --focus: #7aa2ff;
+    --focus-ring-shadow: 0 0 0 3px rgba(122, 162, 255, 0.25);
   }
 }
 
@@ -42,7 +57,7 @@ html, body {
   padding: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-family);
   line-height: 1.45;
 }
 
@@ -81,7 +96,8 @@ html, body {
   .app-header { transition: none; }
 }
 .header-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-.active-community-name { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-mark { flex: none; border-radius: 30%; width: 1.35rem; height: 1.35rem; }
+.active-community-name { flex: 1; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .indicator-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .indicator-chip {
@@ -178,13 +194,13 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
   background: var(--card-bg);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 1rem 1.1rem;
+  padding: var(--card-padding);
   scroll-margin-top: 6rem;
   transition: box-shadow var(--motion) ease, border-color var(--motion) ease;
 }
 .card[data-target="true"] {
   border-color: var(--focus);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 25%, transparent);
+  box-shadow: var(--focus-ring-shadow);
 }
 @media (prefers-reduced-motion: reduce) {
   .card { transition: none; }
@@ -334,7 +350,34 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
   color: var(--ink);
   cursor: pointer;
 }
-.vault-actions .vault-delete { color: #b3392c; border-color: #b3392c; }
+.vault-actions .vault-delete { color: var(--danger); border-color: var(--danger); }
+
+/* The skin picker (Phase KG-8): live preview swatches read a skin's own real tokens directly. */
+.skin-picker { margin-top: 1rem; }
+.skin-options { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem; }
+.skin-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.8rem;
+}
+.skin-option-label { font-weight: 600; min-width: 4.5rem; }
+.skin-swatch-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid;
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
+}
+.skin-swatch-surface { width: 1rem; height: 1rem; border-radius: 50%; display: inline-block; }
+.skin-swatch-text { font-size: 0.8rem; font-weight: 700; }
+.skin-swatch-grades { display: flex; gap: 0.15rem; }
+.skin-swatch-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; display: inline-block; }
+.skin-swatch-accent { width: 1rem; height: 1rem; border-radius: 50%; display: inline-block; }
 
 /* Sync state (Phase KG-7: inline in the slim bar's header row, not its own block) */
 .sync-state {
@@ -398,7 +441,7 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
   border-radius: 999px;
   border: 1px solid var(--focus);
   background: var(--focus);
-  color: #fff;
+  color: var(--on-accent);
   cursor: pointer;
 }
 .contribute-target { font-style: italic; color: var(--ink-muted); }
@@ -476,7 +519,7 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
   border-radius: 999px;
   border: 1px solid var(--focus);
   background: var(--focus);
-  color: #fff;
+  color: var(--on-accent);
   cursor: pointer;
   margin-top: 0.6rem;
 }

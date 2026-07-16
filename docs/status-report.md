@@ -32,10 +32,12 @@ record. `docs/blast-radius.md` carries the full file-level detail; this is the c
 | claim-19 | `build/check-substrate.mjs` |
 | claim-20 | `build/check-extension-seam.mjs` |
 
-Two structural checks ground the workflow track itself rather than a numbered claim:
+Three structural checks ground the workflow track itself rather than a numbered claim:
 `build/check-references.mjs` (Stage 4: every governance reference resolves, all 20 claims are
-covered) and `build/check-parameter-surface.mjs` (the founding flow's parameter surface matches the
-vendored register).
+covered), `build/check-parameter-surface.mjs` (the founding flow's parameter surface matches the
+vendored register), and `build/check-skins.mjs` (Phase KG-8: every registered skin and variant is
+token-complete, grade-monotonic, and contrast-legible, and the grade word plus the actual/comment/
+virtual triad's distinguishing classes are structurally independent of which skin is active).
 
 ## 2. Built but manually governed (1 item)
 

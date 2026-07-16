@@ -68,6 +68,36 @@ B.
 this app's founding flow emits carries any reference to this app. Intended check: the neutrality
 check, a grep over every founding-flow-emitted artifact, landing with Phase B's publish step.
 
+## The skin contract (Phase KG-8)
+
+A skin is a token set under a contract, never structure: no skin changes layout, information
+architecture, or behavior, only the CSS custom-property values applied at the document root
+(`periphery/skin-apply.js`, the one place a skin touches the DOM). The registry (`api/skins.js`) is
+pure data; `build/check-skins.mjs` is the enforcing check, importing that same registry, never a
+parallel description of it. The contract, checked for every registered skin and every light/dark
+variant:
+
+- **Token completeness.** Every `TOKEN_ROLES` entry is declared; no skin may fall back on another
+  skin's value by omission.
+- **Grade-scale monotonicity.** The seven `GRADE_ROLES`, in ladder order, move CIE L* monotonically
+  along the variant's own declared `gradeDirection` ("increasing" or "decreasing"), within a
+  documented epsilon (1.0 L* unit) that honestly absorbs a real, imperceptible, pre-existing artifact
+  in this app's own original scale rather than silently repainting colors a token-extraction phase
+  is forbidden from changing.
+- **Color never carries the grade alone.** The textual grade word (`periphery/card.js`'s
+  `GRADE_WORDS`) always renders beside the color dot, structurally independent of which skin is
+  active; the dot itself is `aria-hidden`.
+- **Contrast floors.** Ink vs card-bg ≥4.5:1; ink-muted vs card-bg ≥3.0:1; each grade role vs
+  card-bg ≥1.3:1 (the decorative-dot floor, since the grade word is what carries the distinction);
+  on-accent vs focus ≥2.0:1.
+- **The actual/comment/virtual triad survives skinning.** Its distinguishing classes
+  (`badge-grade`, `badge-discussion`, `card-virtual`/`badge-virtual`, `data-comment`) live in
+  `card.js`'s and `style.css`'s own selectors; `style.css` never keys a selector to which skin is
+  active, so no skin can touch, hide, or merge them.
+- **Skin preference is vault-local.** `vault/vault.js`'s `getSkin`/`setSkin`; light/dark always
+  follows system `prefers-color-scheme` within whichever skin is chosen, never a fixed override.
+  Third-party skins are a future renderer-seam concern, not built here.
+
 ## Comment conventions
 
 Carried forward from the upstream design axioms this deployment inherits, unchanged: a module head
