@@ -59,5 +59,11 @@ export function computeShellFiles(root) {
   for (const dest of network.allowed_egress_destinations) visited.add(`app/${dest.path}`);
   // the shell's own static assets not reached by a script/import reference
   for (const extra of ["app/style.css", "app/manifest.webmanifest"]) visited.add(extra);
+  // the web manifest's own icon files (Phase KG-6a): real files, not data URIs, since the TWA
+  // toolchain's icon fetcher requires a fetchable src; parsed here since webmanifest is a leaf above
+  const webmanifest = JSON.parse(readFileSync(join(root, "app", "manifest.webmanifest"), "utf8"));
+  for (const icon of webmanifest.icons || []) {
+    if (icon.src && !/^https?:|^data:/.test(icon.src)) visited.add(`app/${icon.src}`);
+  }
   return [...visited].sort();
 }
