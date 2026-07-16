@@ -100,6 +100,8 @@ jobs:
         run: node build/check-accounts.mjs
       - name: check-rooms
         run: node build/check-rooms.mjs
+      - name: check-inbound-gate
+        run: node build/check-inbound-gate.mjs
       - name: check-release
         run: node build/check-release.mjs
       - name: the founded community's own self-check (self-contained, no reference back into this repository)

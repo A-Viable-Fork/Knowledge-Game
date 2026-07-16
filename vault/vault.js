@@ -39,6 +39,14 @@
 //   whole community, exactly as before this phase). Phase KG-14: getAccount()/setAccount(record)/
 //   deleteAccount() (the optional local keypair account; absence is null, the unauthenticated
 //   default a fresh install always starts in).
+//   Phase KG-6c additions, same off/empty-by-absence discipline: getInboundMode(communityId)/
+//   setInboundMode(communityId, mode) ("auto" or "review", per community; absence is "auto", the
+//   existing sync behavior, gate-open); getInboundBaseline(communityId)/setInboundBaseline
+//   (communityId, baseline) (review mode's own last-accepted working view, a lightweight ledger of
+//   {identity, kind, grade} plus the kind/source tables and governance hash captured when it was
+//   taken; absence is null, meaning review mode has never established a starting point here);
+//   getHeldUpdates(communityId)/setHeldUpdates(communityId, held) (declined incoming changes, each
+//   carrying the grade declined so a later motion can be told from a stale reoffer; absence is empty).
 // Invariant: a fresh profile constructs its off state rather than reading a configured default: no
 //   call ever writes a store on read, so a profile that has never called setObjective or
 //   setObservationEnabled has no key in storage at all, and every reader treats absence as off/empty
@@ -320,6 +328,46 @@ export function setAccount(record) {
 export function deleteAccount() {
   const store = readStore();
   delete store.account;
+  writeStore(store);
+}
+
+// Phase KG-6c: the inbound gate. getInboundMode(communityId) -> "auto" | "review", absence is
+// "auto" (gate-open, behaviorally identical to sync before this phase). getInboundBaseline
+// (communityId) -> {claims: [{identity, kind, grade}], kinds, sources, governanceHash} | null
+// (absence is null, meaning review mode has never captured a starting point for this community
+// yet); setInboundBaseline replaces it whole, never merges a stale field forward. getHeldUpdates
+// (communityId) -> [{identity, kind, statement, declinedGrade, declinedAt}] (absence is empty, the
+// same off-by-absence discipline every other vault field holds); setHeldUpdates replaces the list.
+export function getInboundMode(communityId) {
+  const store = readStore();
+  return (store.inboundModes && store.inboundModes[communityId]) || "auto";
+}
+export function setInboundMode(communityId, mode) {
+  const store = readStore();
+  store.inboundModes = store.inboundModes || {};
+  store.inboundModes[communityId] = mode;
+  writeStore(store);
+}
+
+export function getInboundBaseline(communityId) {
+  const store = readStore();
+  return (store.inboundBaselines && store.inboundBaselines[communityId]) || null;
+}
+export function setInboundBaseline(communityId, baseline) {
+  const store = readStore();
+  store.inboundBaselines = store.inboundBaselines || {};
+  store.inboundBaselines[communityId] = baseline;
+  writeStore(store);
+}
+
+export function getHeldUpdates(communityId) {
+  const store = readStore();
+  return (store.heldUpdates && store.heldUpdates[communityId]) || [];
+}
+export function setHeldUpdates(communityId, held) {
+  const store = readStore();
+  store.heldUpdates = store.heldUpdates || {};
+  store.heldUpdates[communityId] = held || [];
   writeStore(store);
 }
 
