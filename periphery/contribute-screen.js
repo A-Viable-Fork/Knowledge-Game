@@ -7,6 +7,11 @@
 //   targetRow is the card's row the action originated from (the comment being replied to or promoted,
 //   for "reply"/"promote"); contributionTarget is the community's declared PR destination (absent for
 //   a community that has not declared one).
+// Phase KG-6b: a gate-passed proposal (support/undercut/qualification/comment/reply/promote, never
+//   contest or fork) also offers "Queue to outbox" alongside export, when ctx.communityId is present
+//   (this app's own registered community id, distinct from the kernel's own id); this queues the same
+//   bundle locally (api/outbox.js) for later batched re-gate and push, rather than an immediate
+//   client-side download.
 // Invariant: an export button appears only once the gate has actually decided the proposal, and only
 //   when that decision passed structurally (gate-passed or gate-passed-with-disagreement); a declined
 //   draft shows why, never a bundle. Every receipt renders through periphery/gate-feedback.js's
@@ -19,6 +24,7 @@
 //   replies-to, never supports).
 "use strict";
 import { draftProposal, draftContest, draftFork, draftComment, draftPromoteToClaim, bundleProposal } from "../api/contribute.js";
+import { queueBundle } from "../api/outbox.js";
 import { renderLadder } from "./ladder.js";
 import { describeReceipt } from "./gate-feedback.js";
 
@@ -55,6 +61,22 @@ function downloadJSONBlob(filename, jsonText) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// the outbox action (Phase KG-6b), alongside export: queues the gate-passed bundle on this device,
+// to be re-gated and pushed in a batch later (periphery/outbox-screen.js). Requires ctx.communityId
+// (which of this app's own registered communities the draft is against); a screen reached without one
+// (there is none today) would simply omit this button.
+function renderQueueButton(proposal, receipt, extraSources, ctx, community) {
+  if (!ctx.communityId) return el("p", { class: "empty" }, "");
+  const btn = el("button", { type: "button", class: "queue-button" }, "Queue to outbox");
+  btn.addEventListener("click", () => {
+    const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
+    queueBundle(bundle, extraSources, ctx.communityId);
+    btn.disabled = true;
+    btn.textContent = "Queued";
+  });
+  return btn;
 }
 
 // collaborative gate feedback (spec Section 7, Phase KG-4): a refusal renders the path, never the
@@ -94,7 +116,7 @@ function renderProposalDraft(container, ctx) {
   function renderResult() {
     resultMount.innerHTML = "";
     if (!last) return;
-    const { proposal, receipt } = last;
+    const { proposal, receipt, extraSources } = last;
     resultMount.appendChild(renderReceipt(receipt));
     if (!PASSED.has(receipt.decision)) return;
     resultMount.appendChild(renderLadder("gate-passed"));
@@ -115,6 +137,7 @@ function renderProposalDraft(container, ctx) {
       resultMount.appendChild(instructions);
     });
     resultMount.appendChild(exportBtn);
+    resultMount.appendChild(renderQueueButton(proposal, receipt, extraSources, ctx, community));
   }
 
   function runDraft() {
@@ -160,7 +183,7 @@ function renderCommentDraft(container, ctx) {
   function renderResult() {
     resultMount.innerHTML = "";
     if (!last) return;
-    const { proposal, receipt } = last;
+    const { proposal, receipt, extraSources } = last;
     resultMount.appendChild(renderReceipt(receipt));
     if (!PASSED.has(receipt.decision)) return;
     resultMount.appendChild(renderLadder("gate-passed"));
@@ -171,6 +194,7 @@ function renderCommentDraft(container, ctx) {
       resultMount.appendChild(el("p", {}, `Contribution id: ${bundle.contribution_id}`));
     });
     resultMount.appendChild(exportBtn);
+    resultMount.appendChild(renderQueueButton(proposal, receipt, extraSources, ctx, community));
   }
 
   let last = null;
@@ -212,7 +236,7 @@ function renderPromoteDraft(container, ctx) {
   function renderResult() {
     resultMount.innerHTML = "";
     if (!last) return;
-    const { proposal, receipt } = last;
+    const { proposal, receipt, extraSources } = last;
     resultMount.appendChild(renderReceipt(receipt));
     if (!PASSED.has(receipt.decision)) return;
     resultMount.appendChild(renderLadder("gate-passed"));
@@ -223,6 +247,7 @@ function renderPromoteDraft(container, ctx) {
       resultMount.appendChild(el("p", {}, `Contribution id: ${bundle.contribution_id}`));
     });
     resultMount.appendChild(exportBtn);
+    resultMount.appendChild(renderQueueButton(proposal, receipt, extraSources, ctx, community));
   }
 
   function runDraft() {

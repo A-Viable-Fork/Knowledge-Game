@@ -17,11 +17,16 @@ import { kindsPresent, applyFilter } from "../api/filter.js";
 import { checkConformance, runRanker, runRenderer, contentHash } from "../api/extension.js";
 import { computeAlerts, refreshWatches } from "../api/alerts.js";
 import * as settings from "../api/settings.js";
+import { pinCommunity, unpinCommunity, isPinned, pinAge, listPins } from "../api/pins.js";
+import { listOutbox, removeFromOutbox, pushOutbox, sweepAdmitted } from "../api/outbox.js";
+import { virtualRowsFor, computeLensImpact } from "../api/virtual.js";
+import { shouldSync } from "../api/sync.js";
 import { renderCard } from "./card.js";
 import { renderObjectivePanel } from "./objective-panel.js";
 import { renderFilterBar } from "./filter-bar.js";
 import { renderAlertsPanel } from "./alerts-panel.js";
 import { renderVaultScreen, downloadJSON } from "./vault-screen.js";
+import { renderOutboxScreen } from "./outbox-screen.js";
 import { renderContributeScreen } from "./contribute-screen.js";
 import { renderExtensionScreen, renderDashboardScreen } from "./extension-screen.js";
 import { renderOnboardingScreen } from "./onboarding-screen.js";
@@ -57,21 +62,49 @@ function setHash(next) {
   location.hash = params.toString();
 }
 
+// pin age, labeled per the staleness discipline: never a bare number without units and context.
+function pinAgeLabel(ms) {
+  const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+  return days < 1 ? "pinned less than a day ago" : `pinned ${days} day${days === 1 ? "" : "s"} ago`;
+}
+
 function renderSwitcher(activeId) {
   const nav = document.getElementById("community-switcher");
   nav.innerHTML = "";
   for (const c of COMMUNITIES) {
+    const wrap = document.createElement("span");
+    wrap.className = "switcher-entry";
     const btn = document.createElement("button");
     btn.textContent = c.label;
     btn.setAttribute("aria-current", String(c.id === activeId));
     btn.addEventListener("click", () => setHash({ community: c.id, claim: null, view: "feed" }));
-    nav.appendChild(btn);
+    wrap.appendChild(btn);
+
+    const pinned = isPinned(c.id);
+    const pinBtn = document.createElement("button");
+    pinBtn.className = "pin-button";
+    pinBtn.setAttribute("aria-pressed", String(pinned));
+    pinBtn.textContent = pinned ? `Unpin (${pinAgeLabel(pinAge(c.id))})` : "Pin for offline";
+    pinBtn.addEventListener("click", async () => {
+      if (pinned) await unpinCommunity(c.id, c.path);
+      else await pinCommunity(c);
+      renderSwitcher(activeId);
+    });
+    wrap.appendChild(pinBtn);
+    nav.appendChild(wrap);
   }
   const vaultBtn = document.createElement("button");
   vaultBtn.textContent = "Vault";
   vaultBtn.className = "vault-nav-button";
   vaultBtn.addEventListener("click", () => setHash({ view: "vault" }));
   nav.appendChild(vaultBtn);
+
+  const outboxBtn = document.createElement("button");
+  const outboxCount = listOutbox().length;
+  outboxBtn.textContent = outboxCount ? `Outbox (${outboxCount})` : "Outbox";
+  outboxBtn.className = "outbox-nav-button";
+  outboxBtn.addEventListener("click", () => setHash({ view: "outbox" }));
+  nav.appendChild(outboxBtn);
 
   const extensionsBtn = document.createElement("button");
   extensionsBtn.textContent = "Extensions";
@@ -101,10 +134,11 @@ function sourcesMap(raw) {
   return new Map((raw.sources || []).map((s) => [s.source_id, s]));
 }
 
-// the visible sync state: which community, its snapshot hash prefix, when this load happened, and a
-// verified badge, since every load that reaches this point already passed api/community.js's hash
-// check (a failed one refuses to load and never reaches here at all).
-function renderSyncState(community) {
+// the visible sync state: which community, its snapshot hash prefix, when this load happened, a
+// verified badge (every load that reaches this point already passed api/community.js's hash check; a
+// failed one refuses to load and never reaches here at all), and (Phase KG-6b) the last-synced time
+// per community, labeled plainly, never a bare timestamp with no reference for how current it is.
+function renderSyncState(community, communityId) {
   const el = document.getElementById("sync-state");
   if (!el) return;
   el.innerHTML = "";
@@ -119,6 +153,29 @@ function renderSyncState(community) {
   el.appendChild(span(`snapshot: ${community.snapshotHash.slice(0, 12)}...`));
   el.appendChild(span(`loaded: ${loadedAt}`));
   el.appendChild(span("verified", "verified-badge"));
+  const lastSynced = settings.getLastSynced(communityId);
+  el.appendChild(span(lastSynced ? `last synced: ${new Date(lastSynced).toLocaleString()}` : "last synced: never", "last-synced"));
+}
+
+// the virtual lens (Phase KG-6b): off by default, a toggle rendered once per community load. On, it
+// shows the counterfactual standing impact of admitting every one of this community's own queued and
+// submitted outbox entries, computed on a copy (api/virtual.js's computeLensImpact) and never touching
+// the real community object; the impact map is handed to renderFeed as ctx.lensImpact, consumed only
+// by periphery/card.js's virtual-card rendering.
+function renderLensToggle(lensOn, onToggle) {
+  const mount = document.getElementById("virtual-lens-mount");
+  if (!mount) return;
+  mount.innerHTML = "";
+  const label = document.createElement("label");
+  label.className = "lens-toggle-label";
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.id = "lens-toggle";
+  if (lensOn) input.checked = true;
+  input.addEventListener("change", (e) => onToggle(e.target.checked));
+  label.appendChild(input);
+  label.appendChild(document.createTextNode(" Virtual lens: show counterfactual standing impact of my queued and submitted contributions"));
+  mount.appendChild(label);
 }
 
 // service worker registration and the install affordance. Neither blocks first render; a failure to
@@ -197,7 +254,7 @@ async function loadCommunity(id, deepLinkClaim) {
     feedEl.setAttribute("aria-busy", "false");
     return;
   }
-  renderSyncState(community);
+  renderSyncState(community, meta.id);
 
   const rows = community.api.read({});
   const reconciliations = community.api.reconciliations({});
@@ -205,6 +262,37 @@ async function loadCommunity(id, deepLinkClaim) {
   const sourcesById = sourcesMap(community.raw);
   const gapsByIdentity = new Map(community.api.gaps({}).map((g) => [g.identity, g]));
   const rowsByIdentity = new Map(rows.map((r) => [r.identity, r]));
+
+  // the outbox and the virtual layer (Phase KG-6b): sweep any of this community's own submitted
+  // entries whose proposed identity now reads as a real row (admitted for real, so it leaves the
+  // outbox), then auto-sync (re-gate and push every queued entry) only when the sync policy actually
+  // authorizes a "load"-triggered sync; sync-now (the outbox screen's own button) always runs
+  // regardless of policy, per api/sync.js's own shouldSync contract.
+  sweepAdmitted(meta.id, rows);
+  const isWifi = typeof navigator !== "undefined" && navigator.connection ? navigator.connection.type === "wifi" : undefined;
+  if (shouldSync(settings.getSyncPolicy(), "load", isWifi)) {
+    await pushOutbox(meta.path, meta.id);
+    settings.setLastSynced(meta.id, Date.now());
+    renderSyncState(community, meta.id);
+  }
+  let lensOn = false;
+  let lensImpact = null;
+  function outboxEntriesHere() {
+    return listOutbox().filter((e) => e.communityId === meta.id);
+  }
+  function recomputeLens() {
+    lensImpact = lensOn ? computeLensImpact(community, outboxEntriesHere()) : null;
+  }
+  function discardVirtual(virtualRow) {
+    removeFromOutbox(virtualRow.contributionId);
+    renderFeed();
+    renderSwitcher(meta.id);
+  }
+  renderLensToggle(lensOn, (checked) => {
+    lensOn = checked;
+    recomputeLens();
+    renderFeed();
+  });
 
   // standing-motion alerts: diff this load against the last-seen grade of every watched claim, then
   // refresh the stored snapshot so the NEXT load diffs against this one, not a stale reading.
@@ -280,11 +368,22 @@ async function loadCommunity(id, deepLinkClaim) {
       });
       card.dataset.identity = row.identity;
       card.dataset.kind = row.kind;
-      card.querySelector("details").addEventListener("toggle", (e) => {
-        if (e.target.open) settings.recordObservation({ type: "expand", identity: row.identity, kind: row.kind, at: Date.now() });
-      });
+      const details = card.querySelector("details");
+      if (details) {
+        details.addEventListener("toggle", (e) => {
+          if (e.target.open) settings.recordObservation({ type: "expand", identity: row.identity, kind: row.kind, at: Date.now() });
+        });
+      }
       feedEl.appendChild(card);
     });
+
+    // the virtual layer: this device's own queued/submitted/demoted contributions for this
+    // community, rendered ghosted after the actual feed, never mixed into the ranking order the real
+    // grounding produced.
+    for (const virtualRow of virtualRowsFor(outboxEntriesHere())) {
+      const card = renderCard(virtualRow, { lensImpact, onDiscardVirtual: discardVirtual });
+      feedEl.appendChild(card);
+    }
     feedEl.setAttribute("aria-busy", "false");
     observeDwell(feedEl);
 
@@ -348,6 +447,8 @@ async function loadContributeScreen(id, action, targetIdentity) {
   panelEl.innerHTML = "";
   filterBarEl.innerHTML = "";
   alertsPanelEl.innerHTML = "";
+  const lensMountEl = document.getElementById("virtual-lens-mount");
+  if (lensMountEl) lensMountEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "true");
 
@@ -363,7 +464,7 @@ async function loadContributeScreen(id, action, targetIdentity) {
   const targetRow = targetIdentity ? community.api.read({ identity: targetIdentity })[0] : null;
   feedEl.setAttribute("aria-busy", "false");
   renderContributeScreen(feedEl, {
-    community, action, targetRow, contributionTarget: meta.contributionTarget,
+    community, action, targetRow, contributionTarget: meta.contributionTarget, communityId: meta.id,
     onBack: () => setHash({ view: "feed", action: null, target: null }),
   });
   renderSwitcher(null);
@@ -379,6 +480,8 @@ function loadVaultScreen() {
   panelEl.innerHTML = "";
   filterBarEl.innerHTML = "";
   alertsPanelEl.innerHTML = "";
+  const lensMountEl = document.getElementById("virtual-lens-mount");
+  if (lensMountEl) lensMountEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "false");
   renderVaultScreen(feedEl, {
@@ -393,8 +496,55 @@ function loadVaultScreen() {
       settings.deleteVault();
       loadVaultScreen();
     },
+    pins: listPins(),
+    onUnpin: async (communityId) => {
+      const meta = COMMUNITIES.find((c) => c.id === communityId);
+      await unpinCommunity(communityId, meta ? meta.path : undefined);
+      loadVaultScreen();
+    },
+    syncPolicy: settings.getSyncPolicy(),
+    onSyncPolicyChange: (policy) => {
+      settings.setSyncPolicy(policy);
+      loadVaultScreen();
+    },
   });
   renderSwitcher(null);
+}
+
+function loadOutboxScreen() {
+  const feedEl = document.getElementById("feed");
+  const panelEl = document.getElementById("objective-panel-mount");
+  const filterBarEl = document.getElementById("filter-bar-mount");
+  const alertsPanelEl = document.getElementById("alerts-panel-mount");
+  const syncEl = document.getElementById("sync-state");
+  if (syncEl) syncEl.innerHTML = "";
+  panelEl.innerHTML = "";
+  filterBarEl.innerHTML = "";
+  alertsPanelEl.innerHTML = "";
+  const lensMountEl = document.getElementById("virtual-lens-mount");
+  if (lensMountEl) lensMountEl.innerHTML = "";
+  feedEl.innerHTML = "";
+  feedEl.setAttribute("aria-busy", "false");
+
+  async function draw() {
+    renderOutboxScreen(feedEl, {
+      entries: listOutbox(),
+      onPush: async () => {
+        for (const c of COMMUNITIES) {
+          await pushOutbox(c.path, c.id);
+          settings.setLastSynced(c.id, Date.now());
+        }
+        draw();
+      },
+      onDiscard: (contributionId) => {
+        removeFromOutbox(contributionId);
+        draw();
+      },
+      onBack: () => setHash({ view: "feed" }),
+    });
+    renderSwitcher(null);
+  }
+  draw();
 }
 
 async function loadExtensionScreen(id) {
@@ -407,6 +557,8 @@ async function loadExtensionScreen(id) {
   panelEl.innerHTML = "";
   filterBarEl.innerHTML = "";
   alertsPanelEl.innerHTML = "";
+  const lensMountEl = document.getElementById("virtual-lens-mount");
+  if (lensMountEl) lensMountEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "true");
 
@@ -455,6 +607,8 @@ async function loadDashboardScreen(id) {
   panelEl.innerHTML = "";
   filterBarEl.innerHTML = "";
   alertsPanelEl.innerHTML = "";
+  const lensMountEl = document.getElementById("virtual-lens-mount");
+  if (lensMountEl) lensMountEl.innerHTML = "";
   feedEl.innerHTML = "";
   feedEl.setAttribute("aria-busy", "true");
 
@@ -490,6 +644,8 @@ async function loadDashboardScreen(id) {
 function route({ community, claim, view, action, target }) {
   if (view === "vault") {
     loadVaultScreen();
+  } else if (view === "outbox") {
+    loadOutboxScreen();
   } else if (view === "extensions") {
     loadExtensionScreen(community || COMMUNITIES[0].id);
   } else if (view === "dashboard") {
@@ -530,6 +686,8 @@ function boot() {
     panelEl.innerHTML = "";
     filterBarEl.innerHTML = "";
     alertsPanelEl.innerHTML = "";
+  const lensMountEl = document.getElementById("virtual-lens-mount");
+  if (lensMountEl) lensMountEl.innerHTML = "";
     feedEl.innerHTML = "";
     renderSwitcher(null);
     renderOnboardingScreen(feedEl, {

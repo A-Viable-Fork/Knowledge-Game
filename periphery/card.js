@@ -6,12 +6,18 @@
 //   proposes nothing itself. Level 2 also carries Discussion (Phase KG-4): comments-on/replies-to
 //   threads attached to this row, rendered gradeless and visually distinct from a claim.
 // Contract: renderCard(row, ctx) -> HTMLElement. `row` is an api.read() row (identity, kind,
-//   statement, declared_grade, earned_grade) plus `whyThisCard` and `position` (its feed index).
+//   statement, declared_grade, earned_grade) plus `whyThisCard` and `position` (its feed index), OR
+//   (Phase KG-6b) a virtual row (api/virtual.js's virtualRowsFor): {identity, kind, statement,
+//   virtual: true, virtualState, contributionId, declined, receipt}, rendered ghosted, never as an
+//   actual graded claim. The card ontology is a triad from here: actual claims (graded, solid),
+//   comments (gradeless discussion), and virtuals (ghosted potentials, this device's own).
 //   `ctx` carries `sourcesById`, `rowsByIdentity`, `robustnessByIdentity`, `gapsByIdentity`,
 //   `kernelId`, `isDeepLinkTarget(identity)`, `isWatched(identity)` and `onToggleWatch(row)`
-//   (standing-motion alerts, Phase KG-4), and `onContribute(action, row)` (action includes "comment"
+//   (standing-motion alerts, Phase KG-4), `onContribute(action, row)` (action includes "comment"
 //   and "reply", target the row a new comment attaches to or replies to; "promote", target the
-//   comment being lifted into a claim draft).
+//   comment being lifted into a claim draft), and (Phase KG-6b, virtual rows only)
+//   `onDiscardVirtual(row)` and `lensImpact` (a Map from api/virtual.js's computeLensImpact,
+//   identity -> {from, to}, rendered only when the lens is on).
 // Invariant: a grade is rendered as a computed reading, labeled as such, never as truth, validation,
 //   or acceptance. Grade is encoded by lattice position with a color plus a textual grade word,
 //   color never carrying the distinction alone. No likes, no counters, no engagement chrome. A
@@ -19,8 +25,12 @@
 //   as discussion, not as a low grade), never appears in the Supports/Challenges lists above (those
 //   filter to link_kind "supports"/"contradicts"/"undercut", which a comment never carries by
 //   construction), and offers only Reply and Promote to claim at Level 3, never support/undercut/
-//   qualification/contest/fork.
+//   qualification/contest/fork. A virtual row never renders gradeBadge or renderLadder; it renders
+//   only periphery/virtual-states.js's own vocabulary, and its lens standing-impact reading (when the
+//   lens is on) always carries the snapshot age it was computed against, labeled plainly.
 "use strict";
+import { labelFor } from "./virtual-states.js";
+import { describeReceipt } from "./gate-feedback.js";
 
 const GRADE_WORDS = {
   ungraded: "ungraded",
@@ -162,7 +172,52 @@ function levelThree(row, ctx) {
   );
 }
 
+function virtualBadge(virtualState) {
+  return el(
+    "span",
+    { class: "badge badge-virtual", role: "img", "aria-label": `virtual, this device's own: ${labelFor(virtualState)}` },
+    labelFor(virtualState)
+  );
+}
+
+// staleness, always labeled: "as of your snapshot, N days old" (or "less than a day old"), never a
+// bare timestamp a reader would have to do arithmetic on to understand how current it is.
+function stalenessLabel(atMs) {
+  if (!atMs) return "no snapshot recorded yet";
+  const days = Math.floor((Date.now() - atMs) / (24 * 60 * 60 * 1000));
+  return days < 1 ? "as of your snapshot, less than a day old" : `as of your snapshot, ${days} day${days === 1 ? "" : "s"} old`;
+}
+
+function renderVirtualCard(row, ctx) {
+  const lens = ctx.lensImpact && ctx.lensImpact.get(row.identity);
+  const snapshotAt = (row.lastRegate && row.lastRegate.at) || row.queuedAt;
+  const feedback = row.declined && row.receipt ? describeReceipt(row.receipt) : null;
+  return el(
+    "article",
+    { class: "card card-virtual", "data-virtual": "true", id: `virtual-${row.contributionId}` },
+    el("div", { class: "card-top" }, kindBadge(row.kind), virtualBadge(row.virtualState)),
+    el("p", { class: "statement" }, row.statement),
+    el("p", { class: "virtual-staleness" }, stalenessLabel(snapshotAt)),
+    feedback
+      ? el(
+          "div",
+          { class: "virtual-feedback" },
+          el("p", {}, "Demoted back to draft: the last re-check against a fresh snapshot did not pass."),
+          feedback.missing.length ? el("ul", {}, ...feedback.missing.map((m) => el("li", {}, m))) : null,
+          feedback.wouldGround.length ? el("ul", { class: "would-ground" }, ...feedback.wouldGround.map((m) => el("li", {}, m))) : null
+        )
+      : null,
+    lens
+      ? el("p", { class: "lens-impact" }, `Lens (${stalenessLabel(snapshotAt)}): would move ${lens.from} -> ${lens.to} if admitted`)
+      : null,
+    ctx.onDiscardVirtual
+      ? el("button", { class: "contribute-action virtual-discard", type: "button", onclick: () => ctx.onDiscardVirtual(row) }, "Discard")
+      : null
+  );
+}
+
 export function renderCard(row, ctx) {
+  if (row.virtual) return renderVirtualCard(row, ctx);
   const isTarget = ctx.isDeepLinkTarget(row.identity);
   const isComment = row.kind === "comment";
   const card = el(

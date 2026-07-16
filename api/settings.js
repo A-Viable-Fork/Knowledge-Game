@@ -4,7 +4,8 @@
 //   recordObservation, exportVault, deleteVault, getFilter, setFilter, followedTopics,
 //   setFollowedTopics, onboardingSeen, setOnboardingSeen, getWatches, setWatches, getExtensions,
 //   installExtension, uninstallExtension, getActiveRanker, setActiveRanker, getActiveRenderer,
-//   setActiveRenderer: thin pass-throughs to vault/vault.js.
+//   setActiveRenderer, getPins, setPin, removePin, getOutbox, setOutbox, getSyncPolicy,
+//   setSyncPolicy, getLastSynced, setLastSynced: thin pass-throughs to vault/vault.js.
 // Invariant: this module holds no logic and no rule of its own; it is a naming surface. The vault's
 //   own invariants (off means off, absence is off/empty, no other file touches storage) live in
 //   vault/vault.js and are unchanged by being reached through here.
@@ -34,3 +35,12 @@ export const getActiveRanker = vault.getActiveRanker;
 export const setActiveRanker = vault.setActiveRanker;
 export const getActiveRenderer = vault.getActiveRenderer;
 export const setActiveRenderer = vault.setActiveRenderer;
+export const getPins = vault.getPins;
+export const setPin = vault.setPin;
+export const removePin = vault.removePin;
+export const getOutbox = vault.getOutbox;
+export const setOutbox = vault.setOutbox;
+export const getSyncPolicy = vault.getSyncPolicy;
+export const setSyncPolicy = vault.setSyncPolicy;
+export const getLastSynced = vault.getLastSynced;
+export const setLastSynced = vault.setLastSynced;

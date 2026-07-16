@@ -7,7 +7,12 @@
 //   (vendor/api/contribution.js) once the gate has decided. Phase KG-4 adds draftComment (the only
 //   path this module offers to build a comments-on/replies-to link; it exposes no way to build a
 //   comment-to-support link at all) and draftPromoteToClaim (lifts a comment's text into a new
-//   claim, linked back from the comment via comments-on, a non-support role).
+//   claim, linked back from the comment via comments-on, a non-support role). Phase KG-6b: each
+//   draft*'s successful (gate-run) return also carries extraSources, the citation source object
+//   actually used in that decision if any, empty otherwise; the outbox (api/outbox.js) stores this
+//   alongside a queued bundle so re-gating against a later, fresh snapshot can reconstruct the
+//   identical source table a resubmission would need, without inventing a citation the draft never
+//   made.
 // Contract: draftProposal(community, draft) -> { proposal: {entries, links}, receipt }. community is
 //   what api/community.js's fetchCommunity() returns (needs .raw = {state, sources, kinds}). draft =
 //   { statement, kind, contributorId?, declaredGrade?, citation?, action: "new"|"support"|"undercut"|
@@ -111,7 +116,7 @@ export function draftProposal(community, draft) {
   }
   const receipt = decide(contribution, view, {});
   receipt.proposed_identity = claim.identity;
-  return { proposal: { entries: [claim], links }, receipt };
+  return { proposal: { entries: [claim], links }, receipt, extraSources: citeSource ? [citeSource] : [] };
 }
 
 // draftComment: the only path this module offers to build a comments-on/replies-to link. Always
@@ -157,7 +162,7 @@ export function draftComment(community, draft) {
   }
   const receipt = decide(contribution, view, {});
   receipt.proposed_identity = comment.identity;
-  return { proposal: { entries: [comment], links: [link] }, receipt };
+  return { proposal: { entries: [comment], links: [link] }, receipt, extraSources: citeSource ? [citeSource] : [] };
 }
 
 // draftPromoteToClaim: lifts an existing comment's text into a new, ordinarily-graded claim, linked
@@ -200,7 +205,7 @@ export function draftPromoteToClaim(community, draft) {
   }
   const receipt = decide(contribution, view, {});
   receipt.proposed_identity = claim.identity;
-  return { proposal: { entries: [claim], links: [link] }, receipt };
+  return { proposal: { entries: [claim], links: [link] }, receipt, extraSources: citeSource ? [citeSource] : [] };
 }
 
 // the type-hash of an existing row's kind, looked up from the community's own kind table (never

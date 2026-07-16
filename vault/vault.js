@@ -12,7 +12,16 @@
 //   getExtensions()/installExtension(entry)/uninstallExtension(hash) (the extension registry: hash,
 //   shape, label, and the conformance receipt recorded at install time); getActiveRanker()/
 //   setActiveRanker(hash) and getActiveRenderer()/setActiveRenderer(hash) (which installed extension,
-//   if any, the feed currently runs; uninstalling an active extension clears it).
+//   if any, the feed currently runs; uninstalling an active extension clears it). Phase KG-6b
+//   additions, same off/empty-by-absence discipline: getPins()/setPin(entry)/removePin(communityId)
+//   (which communities are pinned for offline reading, at what snapshot hash, when; the pinned bytes
+//   themselves live in Cache Storage, api/pins.js's concern, never here); getOutbox()/setOutbox(list)
+//   (queued and submitted contribution bundles awaiting admission, each carrying its own snapshot hash
+//   and queued-at time; api/outbox.js's concern to interpret, this module only holds the array);
+//   getSyncPolicy()/setSyncPolicy(policy) ("manual", "wifi-only", or "automatic"; absence is "manual",
+//   the most conservative reading, since offline is this app's honestly-stated default state and
+//   online sync is a verb the reader chooses, never an assumption); getLastSynced(communityId)/
+//   setLastSynced(communityId, at) (the visible last-synced timestamp per community, absence is null).
 // Invariant: a fresh profile constructs its off state rather than reading a configured default: no
 //   call ever writes a store on read, so a profile that has never called setObjective or
 //   setObservationEnabled has no key in storage at all, and every reader treats absence as off/empty
@@ -147,6 +156,50 @@ export function setActiveRenderer(hash) {
   const store = readStore();
   if (hash) store.activeRenderer = hash;
   else delete store.activeRenderer;
+  writeStore(store);
+}
+
+export function getPins() {
+  return readStore().pins || [];
+}
+export function setPin(entry) {
+  const store = readStore();
+  store.pins = (store.pins || []).filter((p) => p.communityId !== entry.communityId);
+  store.pins.push(entry);
+  writeStore(store);
+}
+export function removePin(communityId) {
+  const store = readStore();
+  store.pins = (store.pins || []).filter((p) => p.communityId !== communityId);
+  writeStore(store);
+}
+
+export function getOutbox() {
+  return readStore().outbox || [];
+}
+export function setOutbox(entries) {
+  const store = readStore();
+  store.outbox = entries || [];
+  writeStore(store);
+}
+
+export function getSyncPolicy() {
+  return readStore().syncPolicy || "manual";
+}
+export function setSyncPolicy(policy) {
+  const store = readStore();
+  store.syncPolicy = policy;
+  writeStore(store);
+}
+
+export function getLastSynced(communityId) {
+  const store = readStore();
+  return (store.lastSynced && store.lastSynced[communityId]) || null;
+}
+export function setLastSynced(communityId, at) {
+  const store = readStore();
+  store.lastSynced = store.lastSynced || {};
+  store.lastSynced[communityId] = at;
   writeStore(store);
 }
 

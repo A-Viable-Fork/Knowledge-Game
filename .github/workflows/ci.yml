@@ -78,6 +78,12 @@ jobs:
         run: node build/check-references.mjs
       - name: check-parameter-surface
         run: node build/check-parameter-surface.mjs
+      - name: check-virtual-isolation
+        run: node build/check-virtual-isolation.mjs
+      - name: check-outbox
+        run: node build/check-outbox.mjs
+      - name: check-sync-policy
+        run: node build/check-sync-policy.mjs
       - name: check-release
         run: node build/check-release.mjs
       - name: the founded community's own self-check (self-contained, no reference back into this repository)

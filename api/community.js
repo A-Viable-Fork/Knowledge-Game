@@ -1,9 +1,12 @@
 // Role: the community loader. Fetches a snapshot, verifies its hash against canonical content
 //   before anything else touches it, and constructs the vendored on-device provider and client
 //   contract over it. This is the one place the periphery's read path crosses the membrane.
-// Contract: fetchCommunity(url) -> { api, kernelId, snapshotHash, url }. api is the object
-//   createClientApi returns (propose, read, robustness, gaps, characterizedGaps, reconciliations,
-//   providerKind). Browser-safe ESM; imports only vendor/ and itself.
+// Contract: fetchCommunity(url) -> { api, kernelId, snapshotHash, url, raw, response }. api is the
+//   object createClientApi returns (propose, read, robustness, gaps, characterizedGaps,
+//   reconciliations, providerKind). response is a clone of the raw fetch Response taken before its
+//   body is consumed (Phase KG-6b: api/pins.js caches this clone; null wherever Response.clone is
+//   unavailable, e.g. this repository's own check scripts' fetch stubs, which carry no other reader
+//   and so need no clone). Browser-safe ESM; imports only vendor/ and itself.
 // Invariant: a snapshot whose recomputed hash does not match its declared snapshot_hash is refused,
 //   never rendered with a warning. No grounding is computed here; every grade the periphery ever
 //   shows comes from the real gate, through the vendored local provider, over this verified content.
@@ -25,6 +28,7 @@ import { createClientApi } from "../vendor/api/client-api.mjs";
 export async function fetchCommunity(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`fetchCommunity: ${url} responded ${res.status}`);
+  const response = typeof res.clone === "function" ? res.clone() : null;
   const parsed = await res.json();
   if (!parsed || typeof parsed.snapshot_hash !== "string") {
     throw new Error(`fetchCommunity: ${url} carries no snapshot_hash; refusing to load`);
@@ -40,5 +44,5 @@ export async function fetchCommunity(url) {
   }
   const provider = createLocalProvider(parsed);
   const api = createClientApi(provider);
-  return { api, kernelId: parsed.kernel_id, snapshotHash: parsed.snapshot_hash, url, raw: parsed };
+  return { api, kernelId: parsed.kernel_id, snapshotHash: parsed.snapshot_hash, url, raw: parsed, response };
 }
