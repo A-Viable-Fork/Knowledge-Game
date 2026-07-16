@@ -623,6 +623,24 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
 .registry-rerun-ok { color: var(--grade-checked, inherit); }
 .registry-rerun-fail { color: var(--grade-ungraded, inherit); }
 .registry-note { font-size: 0.8rem; color: var(--ink-muted); margin-top: 0.4rem; }
+.account-screen { padding: 0.4rem 0.2rem 2rem; max-width: 640px; margin: 0 auto; }
+.account-screen label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; margin: 0.5rem 0; }
+.account-screen input, .account-screen textarea { font: inherit; padding: 0.4rem 0.5rem; border: 1px solid var(--line); border-radius: calc(var(--radius) * 0.5); background: var(--card-bg); color: var(--ink); }
+.export-warning, .delete-warning { font-size: 0.82rem; color: var(--danger); margin: 0.5rem 0 0.3rem; }
+.presentation-menu { margin: 0.8rem 0; }
+.presentation-overview-row { font-size: 0.85rem; margin: 0.3rem 0; }
+.presentation-option { display: block; font-size: 0.85rem; margin: 0.4rem 0; }
+.presentation-reason { color: var(--ink-muted); font-size: 0.8rem; }
+.presentation-chip { display: inline-block; margin: 0.5rem 0; }
+.signing-panel { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.8rem; margin-top: 0.6rem; }
+.signing-note { font-size: 0.8rem; color: var(--ink-muted); }
+.sign-button { font: inherit; font-size: 0.85rem; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--line); background: var(--card-bg); color: var(--ink); cursor: pointer; margin-top: 0.4rem; }
+.signing-status { font-size: 0.82rem; margin-top: 0.4rem; }
+.verify-tool { margin: 1rem 0; }
+.verify-result.verify-ok { color: var(--grade-checked, inherit); }
+.verify-result.verify-fail { color: var(--danger); }
+.account-boundary-notices { margin-top: 1rem; }
+.boundary-notice { font-size: 0.82rem; color: var(--ink-muted); border-left: 3px solid var(--focus); padding: 0.35rem 0.6rem; margin: 0.4rem 0; }
 .registry-register-button { font: inherit; font-size: 0.85rem; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--focus); background: var(--card-bg); color: var(--ink); cursor: pointer; margin-bottom: 1rem; }
 .register-artifact-screen { padding: 0.4rem 0.2rem 2rem; max-width: 640px; margin: 0 auto; }
 .register-form { display: flex; flex-direction: column; gap: 0.7rem; margin: 0.8rem 0; }

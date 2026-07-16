@@ -96,6 +96,8 @@ jobs:
         run: node build/check-the-registry.mjs
       - name: check-registry
         run: node build/check-registry.mjs
+      - name: check-accounts
+        run: node build/check-accounts.mjs
       - name: check-release
         run: node build/check-release.mjs
       - name: the founded community's own self-check (self-contained, no reference back into this repository)

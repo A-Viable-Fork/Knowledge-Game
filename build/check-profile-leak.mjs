@@ -3,7 +3,8 @@
 //   (api/contribute.js, vendor/api/contribution.js) across fuzzed inputs, and asserts no canary ever
 //   appears in any serialized bundle; separately, a static scan proves the bundle-building modules
 //   import nothing from vault/ or api/settings.js, so there is no code path for vault data to reach a
-//   bundle regardless of what the vault holds.
+//   bundle regardless of what the vault holds. Phase KG-14 extends the same canary discipline to the
+//   optional account's own private key.
 // Contract: `node build/check-profile-leak.mjs` exits non-zero on any violation, naming it.
 // Invariant: the static scan is the structural guarantee (no import edge exists); the canary run is
 //   the empirical one (no coincidental string leak through any transformation), and both are required,
@@ -42,8 +43,11 @@ vault.setObservationEnabled(true);
 vault.recordObservation({ type: "dwell", identity: CANARY, kind: "measurement", at: Date.now(), note: CANARY });
 vault.setAssistantProviderConfig("canary-provider", { endpoint: "https://example.invalid/v1/chat/completions", apiKey: KEY_CANARY, model: "canary-model" }); // Phase KG-9b: the assistant's BYOK credential, planted as its own canary
 vault.addAssistantModel("canary-provider", "canary-added-model");
+const PRIVATE_KEY_CANARY = "CANARY-private-key-d-value-do-not-leak-5e6f7a8b";
+vault.setAccount({ accountId: "canary-account-id", publicKeyJwk: { kty: "EC", crv: "P-256", x: "canary-x", y: "canary-y" }, privateKeyJwk: { kty: "EC", crv: "P-256", x: "canary-x", y: "canary-y", d: PRIVATE_KEY_CANARY }, displayName: "canary reader", createdAt: Date.now() }); // Phase KG-14: the account's own private key, planted as its own canary
 ok(JSON.stringify(vault.exportAll()).includes(CANARY), "sanity: the canary is actually present in the vault's own export (the seed worked)");
 ok(JSON.stringify(vault.exportAll()).includes(KEY_CANARY), "sanity: the key canary is actually present in the vault's own export (exportable like every other vault field)");
+ok(JSON.stringify(vault.exportAll()).includes(PRIVATE_KEY_CANARY), "sanity: the private-key canary is actually present in the vault's own export (exportable like every other vault field, at the reader's own hand)");
 
 console.log("\n[3] fuzzing the draft and bundle path; no canary reaches any bundle");
 const { fetchCommunity } = await import(join(ROOT, "api", "community.js"));
@@ -92,6 +96,22 @@ console.log("\n[5] the key canary specifically: static scan plus a fuzz across e
     const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
     const bundleText = JSON.stringify(bundle);
     ok(!bundleText.includes(KEY_CANARY) || statement === KEY_CANARY, `statement "${statement.slice(0, 20)}...": the key canary appears in the bundle only when it was the drafter's own literal input, never from the vault`);
+  }
+}
+
+console.log("\n[6] the private-key canary specifically (Phase KG-14): static scan plus a fuzz across every statement, the key never reaches a bundle");
+{
+  for (const file of ["api/account.js", "api/signatures.js"]) {
+    const src = readFileSync(join(ROOT, file), "utf8");
+    const specs = [...src.matchAll(/import\s+[^"']*["']([^"']+)["']/g)].map((m) => m[1]);
+    ok(!specs.some((s) => /contribute\.js|contribution\.js/.test(s)), `${file} imports ${JSON.stringify(specs)}, none reaching the draft or bundle path`);
+  }
+  for (const statement of [...FUZZ_STATEMENTS, PRIVATE_KEY_CANARY]) {
+    const { proposal, receipt } = draftProposal(community, { statement, kind: "measurement", contributorId: "fuzz-tester" });
+    if (!proposal) continue;
+    const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
+    const bundleText = JSON.stringify(bundle);
+    ok(!bundleText.includes(PRIVATE_KEY_CANARY) || statement === PRIVATE_KEY_CANARY, `statement "${statement.slice(0, 20)}...": the private-key canary appears in the bundle only when it was the drafter's own literal input, never from the vault`);
   }
 }
 

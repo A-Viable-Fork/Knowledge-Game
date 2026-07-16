@@ -44,6 +44,8 @@ import { LEARN_EFFICIENTLY_SOURCE, CONTESTABLE_DASHBOARD_SOURCE } from "./demo-e
 import { registryRows, contractsByIdentity } from "../api/registry.js";
 import { renderRegistryScreen } from "./registry-screen.js";
 import { renderRegisterArtifactScreen } from "./register-artifact-screen.js";
+import { createAccount, exportAccount, importAccount } from "../api/account.js";
+import { renderAccountScreen } from "./account-screen.js";
 import { checkSkinConformance } from "../api/skin-conformance.js";
 import { SKINS } from "../api/skins.js";
 
@@ -522,6 +524,30 @@ function loadVaultScreen() {
       settings.setSkin(skinId);
       applySkin(skinId);
       loadVaultScreen();
+    },
+  });
+}
+
+function loadAccountScreen() {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "false");
+  renderChrome({ view: "menu" });
+  renderAccountScreen(feedEl, {
+    account: settings.getAccount(),
+    onCreate: async (displayName) => {
+      const account = await createAccount(displayName);
+      settings.setAccount(account);
+      loadAccountScreen();
+    },
+    onExport: (account) => downloadJSON(`knowledge-game-account-${account.accountId.slice(0, 12)}.json`, exportAccount(account)),
+    onImport: async (jsonText) => {
+      const account = importAccount(jsonText);
+      settings.setAccount(account);
+      loadAccountScreen();
+    },
+    onDelete: () => {
+      settings.deleteAccount();
+      loadAccountScreen();
     },
   });
 }
@@ -1083,6 +1109,8 @@ function route({ community, claim, view, action, target }) {
     loadFilterScreen(activeId);
   } else if (view === "alerts") {
     loadAlertsScreen(activeId);
+  } else if (view === "account") {
+    loadAccountScreen();
   } else if (view === "vault") {
     loadVaultScreen();
   } else if (view === "outbox") {

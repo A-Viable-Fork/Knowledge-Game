@@ -36,7 +36,9 @@
 //   vault-persisted, never fetched live). Phase KG-11: getSubmissionScope(communityId)/
 //   setSubmissionScope(communityId, identities|null) (the submission threshold's own default feed
 //   scope, a claim-identity allowlist distinct from the kind-based filter; absence is null, the
-//   whole community, exactly as before this phase).
+//   whole community, exactly as before this phase). Phase KG-14: getAccount()/setAccount(record)/
+//   deleteAccount() (the optional local keypair account; absence is null, the unauthenticated
+//   default a fresh install always starts in).
 // Invariant: a fresh profile constructs its off state rather than reading a configured default: no
 //   call ever writes a store on read, so a profile that has never called setObjective or
 //   setObservationEnabled has no key in storage at all, and every reader treats absence as off/empty
@@ -298,6 +300,26 @@ export function removeAssistantModel(providerId, modelId) {
   existing.addedModels = (existing.addedModels || []).filter((m) => m !== modelId);
   providers[providerId] = existing;
   store.assistantProviders = providers;
+  writeStore(store);
+}
+
+// Phase KG-14: the optional account. A keypair the app generates locally (api/account.js's own
+// concern; this module only holds what that generation produces), never shipped, never synced,
+// absent by default like every other vault field. getAccount() -> {accountId, publicKeyJwk,
+// privateKeyJwk, displayName, createdAt} | null. setAccount(record) replaces the whole record (an
+// import overwrites, it never merges a stale field forward). deleteAccount() is irrevocable: the
+// private key is gone from this device the moment this call returns, with no soft-delete or trash.
+export function getAccount() {
+  return readStore().account || null;
+}
+export function setAccount(record) {
+  const store = readStore();
+  store.account = record;
+  writeStore(store);
+}
+export function deleteAccount() {
+  const store = readStore();
+  delete store.account;
   writeStore(store);
 }
 

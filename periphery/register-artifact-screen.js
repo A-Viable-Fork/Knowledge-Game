@@ -20,6 +20,7 @@ import { contentHash } from "../api/extension.js";
 import { renderLadder } from "./ladder.js";
 import { describeReceipt } from "./gate-feedback.js";
 import { downloadJSON } from "./vault-screen.js";
+import { renderSigningPanel } from "./signing-panel.js";
 
 const KINDS = ["extension", "skin", "component", "client", "community"];
 const SHAPES = ["ranker", "renderer", "workflow"];
@@ -181,6 +182,9 @@ export function renderRegisterArtifactScreen(container, ctx) {
             : el("p", { class: "empty" }, "This registry has not declared a contribution target.")
         )
       );
+      const signingMount = el("div", {});
+      resultMount.appendChild(signingMount);
+      renderSigningPanel(signingMount, { bundle });
     });
     resultMount.appendChild(exportBtn);
   }
