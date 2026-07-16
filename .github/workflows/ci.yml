@@ -70,6 +70,10 @@ jobs:
         run: node build/check-discussion.mjs
       - name: check-extension-seam
         run: node build/check-extension-seam.mjs
+      - name: check-skins
+        run: node build/check-skins.mjs
+      - name: check-assistant
+        run: node build/check-assistant.mjs
       - name: check-gate-feedback
         run: node build/check-gate-feedback.mjs
       - name: check-card-hashes
