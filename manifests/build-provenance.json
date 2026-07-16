@@ -1,13 +1,13 @@
 {
   "_purpose": "Build provenance. source_commit and artifact_hash are populated by a future build step, not by hand; they are null until that step exists.",
-  "source_commit": "2865400da90e8e7deb013a26bbc3f381d592957e",
+  "source_commit": "dc81203b6bbf01e2205705133d017c71415e6e84",
   "upstream_pin": {
     "repo": "A-Viable-Fork/epistack",
     "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
     "provisional": true
   },
   "build_command": ".github/workflows/ci.yml: no build tooling exists (no bundler, no transpiler); the deployed artifact is the checked-out working tree itself, served as vanilla ESM static files, after every build/check-*.mjs passes and app/fixtures/ is confirmed reproducible by regenerating and diffing against the committed content.",
-  "artifact_hash": "8ce4631cd1f815492c5f0c8a29282274ed188e8447a226571b217f316ed0e4b2",
+  "artifact_hash": "d506dce825ce29af5a26b2fe29aef886f51a078b7cbdb98771496549797648b7",
   "artifact_hash_note": "artifact_hash is a sha256 over the sorted JSON of file_hashes, itself a sha256 per file over every file `git ls-files --cached --others --exclude-standard` lists (the deployed tree, since no build step compiles source into output), excluding this manifest itself. Recomputed and compared by build/check-release.mjs.",
   "protocol_identity": "v3",
   "provider_contract": "vendor/api/client-api.mjs",
@@ -20,7 +20,7 @@
     "android/.gitignore": "0174d1f8f41f3789606773629d3998dca2c14bb8dd3db80864f8ce646ca0cfcf",
     "android/README.md": "5fc1d5209d392d24c6b44a19adbde53726a27b963bf00103921335d6be17e76c",
     "android/assetlinks.json": "3f5cb5e961561bec64595a3b2e3ba59604fd6ae69d0f17d40009f95b1a123799",
-    "android/generate-project.mjs": "afdb7559ddc02abfddaff3ded36f34e89d5284d82d1258a5242523ed696dcf2b",
+    "android/generate-project.mjs": "b426aea4051c0549300bde5e0212df2fb47a52538ec071dde85ca46ea1999029",
     "android/package-lock.json": "ef463c2a7b06f9ebfc0c9fbe5db5aa27f48a11571e9f72fa95e9ea7216086ce5",
     "android/package.json": "2003421212850ff2548eb4bcd2e761cc56d87df178552fb7202d65966c0c9db7",
     "android/test-keystore/README.md": "2947104ba4063810fba0344b607694966718c23fb37f5d7c2a5887f3a8462759",
@@ -216,7 +216,7 @@
     "trellis/parameters-register.md": "d1d785ecc5c9751e68131ca59f26ec1d2f2e1dbd3c22f89aa437dcad9331967b",
     "trellis/sorry-ledger.md": "a282381b61b2d01873e367e180154c543579497725e33d323b15fcc098e7acff",
     "trellis/stage-manifest.json": "beadc0a1c30b02d712979408cdcb042714ad3d65a26ad3211d6dde15d3354bf9",
-    "trellis/status-ledger.md": "ef123d0c44de0efa687f7ffb6a47b71eecb10d157b08591ede017af5b4815e9c",
+    "trellis/status-ledger.md": "a03ad02838b23a65e427e32e33aacfe3d4dc328436310467966de25c4d1b722b",
     "upstream/lock.json": "875431336de4e126300f9f42730e07bd81f050332c98c3e8166e0e9b2023f498",
     "vault/README.md": "4fecc95e8001c0b201e44021e1ea668e6df9d429147903d3eaab5638d9e3f7c9",
     "vault/vault.js": "7ce9885e799455fa1926f30579f505e203f6f46065d737839860b01598c9538e",
