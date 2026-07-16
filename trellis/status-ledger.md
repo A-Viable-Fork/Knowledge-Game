@@ -343,6 +343,12 @@ distinguishing classes (`badge-grade`, `badge-discussion`, `card-virtual`/`badge
 (`app/style.css` carries zero `data-skin` selectors; a skin only ever swaps `:root` custom-property
 values), so no skin can erase color-alone-forbidden or triad distinctness.
 
+**android-test-3, completed: the wrapper rebuilt against the KG-8 shell.** The Android TWA wrapper
+regenerates and rebuilds at `appVersionCode` 3, `appVersionName` 0.3.0-test, against the KG-8 shell
+(the grapevine mark, the maskable icon set, theme color `#5a3c46`, background `#faf2e7`);
+`assetlinks.json` is unchanged (same signing key, same certificate fingerprint), so the operator's
+origin-root file, if already placed, stays valid.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is
