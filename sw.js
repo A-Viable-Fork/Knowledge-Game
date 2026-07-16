@@ -34,7 +34,10 @@ const PRECACHE_URLS = [
   "api/extension.js",
   "api/feed.js",
   "api/filter.js",
+  "api/governance-hash.js",
+  "api/kernel-designer.js",
   "api/outbox.js",
+  "api/parameter-surface.js",
   "api/pins.js",
   "api/ranking.js",
   "api/settings.js",
@@ -61,6 +64,7 @@ const PRECACHE_URLS = [
   "periphery/extension-screen.js",
   "periphery/filter-bar.js",
   "periphery/gate-feedback.js",
+  "periphery/kernel-designer-screen.js",
   "periphery/ladder.js",
   "periphery/menu-screen.js",
   "periphery/objective-panel.js",
@@ -91,6 +95,7 @@ const PRECACHE_URLS = [
   "vendor/kernel/store/apply.mjs",
   "vendor/kernel/store/decay.mjs",
   "vendor/kernel/store/state.mjs",
+  "vendor/scaffolder/kernel-config.schema.json",
 ];
 
 self.addEventListener("install", (event) => {

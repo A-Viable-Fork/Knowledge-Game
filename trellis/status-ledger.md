@@ -404,6 +404,46 @@ undeclared URL; planting a key canary and routing it through `bundleProposal` fa
 formalize task's own result directly into `queueBundle`, bypassing the draft screen, failed
 `check-assistant.mjs`'s import-graph and direct-call assertions; all three reverted, green.
 
+**Phase KG-10, completed: the kernel designer.** Re-pinned upstream to current main (`b97c2ad`,
+bringing #120's corpus-content-license register amendment into scope); none of the 52 vendored files
+changed, confirmed before and after the bump. The founding flow's type and parameter steps become an
+in-app kernel designer (`periphery/kernel-designer-screen.js`, its computation core `api/kernel-
+designer.js`): three adopt-then-modify presets (open commons, gift-licensed and permissive; attested
+evidence, attribution-required with identity thresholds for contest and vouch, inactive; stake-gated,
+share-alike with thresholds and stake fields across every action, all inactive); a kind designer
+authoring or forking type bundles with plain-language guidance for every lattice grade and source
+class, each authored kind hashing live through the real vendored type-hash primitive; a live preview
+recomputing a bundled sample corpus's real earned grades through the identical vendored provider/
+client-api path (never a hand-illustrated grade), including a deliberate crossing-arrival claim that
+floors at `asserted` until a matching local kind is authored or adopted, demonstrated interactively;
+a license picker (five named terms, one guidance sentence each, enforcement stated as legal-and-
+normative) closing SK-23, discharged in `trellis/sorry-ledger.md` with a correction to its own
+premise (the vendored scaffolder schema never gained the field and was never going to; the field
+lives outside `scaffoldConfig` exactly like `identity_thresholds` and `standing_economy`, so `build/
+check-parameter-surface.mjs`'s free-tier list is unchanged); a finish screen showing the completed
+parameter record's governance-hash, downloading the founding config for the founder to hand off to
+the existing, unmodified CLI generate/publish/walkthrough, unchanged. `api/governance-hash.js` and
+`api/parameter-surface.js` are new: the governance-hash and parameter-surface classification logic
+moved out of `build/` (which now re-exports both) so the in-app designer and the CLI founding flow
+share one implementation, never two that could drift. New check: `build/check-designer.mjs` proves
+every preset round-trips through the real, unmodified vendored scaffolder; the live preview is
+deterministic across independent calls and over a fuzzed set of draft kind tables, including the
+crossing arrival's real floor-then-unfloor behavior; the designer screen computes no grade of its own
+(no import of any grade-deriving kernel module, every displayed grade traced to `recomputeSample
+Preview`'s own return value); inactive fields serialize into the downloadable config and are read by
+nothing that evaluates them (`build/check-seams.mjs`'s existing static scan now passes cleanly
+against the designer screen too, since its property reads on `identity_thresholds`/`standing_economy`
+are destructured into local bindings first, the same pattern `api/governance-hash.js` already uses,
+rather than excluded by filename); and every guidance string covers the real vocabulary it claims to
+explain (every lattice grade, every substrate source class, every license option), read from the
+vendored kernel and schema, never a hand-copied list. Deliberate-break coverage: hand-assigning a
+sample row's own `earned_grade` before display failed `check-designer.mjs`'s byte-comparison
+assertion by name; adding an editable `founder_vanity_url` field to `scaffoldConfig` that the
+vendored schema does not declare failed `check-parameter-surface.mjs`, naming the field exactly;
+wiring `identity_thresholds.propose` into a real conditional in the finish screen failed both
+`build/check-seams.mjs`'s own static scan and `check-designer.mjs`'s designer-specific re-invocation
+of it; all three reverted, green.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

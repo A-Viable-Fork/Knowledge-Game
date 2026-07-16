@@ -1,9 +1,10 @@
 // Role: the Menu page (Phase KG-7, the interface pass). Everything not always-visible chrome lives
 //   here, one tap away: the objective vector editor, the filter page, alerts, vault, extensions, the
-//   contestable dashboard, the assistant (Phase KG-9).
+//   contestable dashboard, the assistant (Phase KG-9), the kernel designer (Phase KG-10).
 // Contract: renderMenuScreen(container, { hasAlerts, onNavigate }). onNavigate(view) is called with
-//   one of "objective"/"filters"/"alerts"/"vault"/"outbox"/"extensions"/"dashboard"/"assistant".
-//   hasAlerts shows an unread dot next to Alerts when the standing-motion gap report has content.
+//   one of "objective"/"filters"/"alerts"/"vault"/"outbox"/"extensions"/"dashboard"/"assistant"/
+//   "designer". hasAlerts shows an unread dot next to Alerts when the standing-motion gap report has
+//   content.
 // Invariant: renders only a navigation list; no logic of its own beyond presentation.
 "use strict";
 
@@ -30,6 +31,7 @@ const ITEMS = [
   { view: "extensions", label: "Extensions" },
   { view: "assistant", label: "Assistant" },
   { view: "dashboard", label: "Dashboard" },
+  { view: "designer", label: "Found a community" },
 ];
 
 export function renderMenuScreen(container, { hasAlerts, onNavigate }) {
