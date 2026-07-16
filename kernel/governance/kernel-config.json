@@ -1,12 +1,23 @@
 {
   "kernel_id": "knowledge-game",
   "adopted_type_hashes": ["measurement"],
-  "local_kinds": [],
+  "local_kinds": [
+    {
+      "kind": "identity",
+      "ceiling": "constitutive",
+      "_note": "added for the entrance listing claims (title, tagline, link): a stipulation about this deployment's own name and location, adopted not evidenced, exactly as the-registry's contract-bundle kind is. Recorded here for documentation; corpora/tables.js was hand-synced to match rather than regenerated, since re-running scaffolder/new-kernel.mjs against this kernel's config would overwrite kernel/governance/corpora/knowledge-game-data.js's own 20 hand-grounded claims with an empty skeleton."
+    }
+  ],
   "sources": [
     {
       "source_id": "S-kg-spec-v2",
       "source_class": "institutional-report",
       "description": "knowledge-game-spec-v2.md (this deployment's own specification, Sections 2, 5, and 9) and kernel/governance/stage-0.md, the asserting source for every governance claim this kernel carries about the app's own behavior"
+    },
+    {
+      "source_id": "S-kg-self-stipulated",
+      "source_class": "institutional-report",
+      "description": "this deployment's own stipulated identity (name, tagline, and canonical locations): adopted by the operator, not measured, the same honest floor a constitutive-ceiling kind's own claim ever carries"
     }
   ],
   "time_lock": { "setting": "light" }

@@ -37,7 +37,7 @@ const STORE = {
       contributor_id: "P-registry-founder",
       declared_grade: "constitutive",
       interface_identity: "168fc90468b126d214038b5961580f3ce29462b6f35e97a852d24f52185472b7",
-      required_oracle: "4264605de9ada34dc528633d5596da458d4de5da3ccfdbd522aecb9f4e031887:536409d594f11f4a0cf2a1be6318d7c1811a0439bc4ad1ebfe38716e43443a23",
+      required_oracle: "08dfcb4b70ee7b3f17f587387a87b6894d7b127abf416fbd4bea9b7bd66d0b6b:536409d594f11f4a0cf2a1be6318d7c1811a0439bc4ad1ebfe38716e43443a23",
       ceiling_statement: "Passing this pair warrants byte-identical reads and identical admission behavior against the published artifacts at time of test; it does not warrant the client is trustworthy, maintained, or free of unrelated defects."
     },
     {

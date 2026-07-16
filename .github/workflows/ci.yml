@@ -32,6 +32,8 @@ jobs:
         run: node build/check-stages.mjs
       - name: check-knowledge-game
         run: node build/check-knowledge-game.mjs
+      - name: check-entrance-listing
+        run: node build/check-entrance-listing.mjs
       - name: check-imports
         run: node build/check-imports.mjs
       - name: check-egress

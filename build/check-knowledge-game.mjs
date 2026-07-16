@@ -3,10 +3,13 @@
 //   upstream's own math kernel set ("check-math was evolved to assert this stage-two floor state",
 //   kernel-workflow-guide.md). Verifies every adopted kind's pinned hash still matches the shared
 //   subtree, the source and kind tables build, the gate accepts the contribution, and that every one
-//   of the 20 governance claims now computes to "checked" from a real checking record: grounding is
-//   complete as of Phase KG-4 (claim-20, the first entered through the app's own contribution path,
-//   grounded by build/check-extension-seam.mjs). No grade is asserted by this script; every one is
-//   read from the real gate's own computed state.
+//   of the original 20 governance claims (claim-1 through claim-20) still computes to "checked" from a
+//   real checking record: grounding is complete as of Phase KG-4 (claim-20, the first entered through
+//   the app's own contribution path, grounded by build/check-extension-seam.mjs). The entrance-listing
+//   claims (claim-21 through claim-27, the entrance-listing amendment) are a separate honest floor,
+//   asserted here only at the boundary (their own kind's ceiling, never above it); their role and
+//   reference validity is build/check-entrance-listing.mjs's own concern. No grade is asserted by this
+//   script; every one is read from the real gate's own computed state.
 // Contract: `node build/check-knowledge-game.mjs` exits non-zero on any failure, naming the claim.
 "use strict";
 import { createRequire } from "node:module";
@@ -42,13 +45,16 @@ try {
   ok(false, `the kernel fails to build: ${e.message}`);
 }
 if (built) {
-  ok(built.state.entries.length === 20, `the kernel carries 20 governance claims (got ${built.state.entries.length})`);
+  ok(built.state.entries.length === 27, `the kernel carries 27 governance claims: the original 20 plus the 7-claim entrance listing (got ${built.state.entries.length})`);
   ok(built.receipt.decision === "accepted", `the contribution is accepted by the real gate (got ${built.receipt.decision})`);
 }
 
-console.log("\n[3] every claim computes to 'checked', read from the real gate's state (grounding complete as of Phase KG-4)");
+const ORIGINAL_REFS = new Set(Array.from({ length: 20 }, (_, i) => `claim-${i + 1}`));
+
+console.log("\n[3] every one of the original 20 claims still computes to 'checked', read from the real gate's state (grounding complete as of Phase KG-4)");
 if (built) {
   for (const { rec, spec } of built.claims) {
+    if (!ORIGINAL_REFS.has(spec.ref)) continue;
     const derived = built.view.earnedByIdentity.get(rec.identity);
     const earned = derived ? derived.earned : "ungraded";
     ok(earned === "checked", `${spec.ref} (${rec.identity.slice(0, 12)}...) earns 'checked': ${spec.statement.slice(0, 60)}...`);
@@ -56,8 +62,18 @@ if (built) {
   }
 }
 
+console.log("\n[4] every entrance-listing claim (claim-21 through claim-27) declares nothing above what it earns");
+if (built) {
+  for (const { rec, spec } of built.claims) {
+    if (ORIGINAL_REFS.has(spec.ref)) continue;
+    const derived = built.view.earnedByIdentity.get(rec.identity);
+    const earned = derived ? derived.earned : "ungraded";
+    ok(spec.declared_grade === earned, `${spec.ref} (role ${spec.role}) declared_grade ('${spec.declared_grade}') equals its earned grade ('${earned}')`);
+  }
+}
+
 console.log("\n" + H);
-if (fails === 0) console.log("verified: the kernel is coherent, the gate accepts all 20 claims, and every one of them computes checked from a real checking record.");
+if (fails === 0) console.log("verified: the kernel is coherent, the gate accepts all 27 claims, the original 20 all compute checked from a real checking record, and the 7 entrance-listing claims declare nothing above what they earn.");
 console.log(fails === 0 ? "check-knowledge-game: OK" : `check-knowledge-game: ${fails} FAILURE(S)`);
 console.log(H);
 process.exit(fails === 0 ? 0 : 1);
