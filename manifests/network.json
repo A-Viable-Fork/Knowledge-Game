@@ -3,8 +3,8 @@
   "allowed_egress_destinations": [
     {
       "path": "../communities/epistack-competition/snapshot/epistack-competition.snapshot.json",
-      "snapshot_hash": "88a8ceeb2f60aae52d89df3728062536225dd3f7023c3c0f7eef777ffef8020f",
-      "description": "The founded EpiStack Competition Community, this deployment's default community: 19 claims (thirteen checked, the mechanical protocol claims plus the first admitted contribution; six asserted, the submission's own evaluative theses, awaiting semantic acceptance), now adopting three shared kinds (measurement, forum, comment as of the Phase KG-4 re-pin)."
+      "snapshot_hash": "e3765fe04093fa1b1f9ca81eb909628f8ff519c28f7ea75a0e76faf3b8a34037",
+      "description": "The founded EpiStack Competition Community, this deployment's default community: 57 claims (25 checked, the mechanical protocol claims plus the submission-decomposition's mechanical register plus the first admitted contribution; 21 constitutive, the submission-decomposition's own vocabulary-kernel definitions carried in by depends-on links and constitutive-register anchor spans alike; 11 asserted, the submission's own evaluative theses across both the founding claims and the decomposed documents, awaiting semantic acceptance), now adopting four shared kinds (measurement, forum, comment, declaration as of the Phase KG-11 submission-decomposition merge)."
     },
     {
       "path": "fixtures/knowledge-game.snapshot.json",
@@ -15,6 +15,24 @@
       "path": "fixtures/math.snapshot.json",
       "snapshot_hash": "688fba0f08a873f1f1c9d04756f573ef8ac0078f588bb6558701cf7bf4906e52",
       "description": "Upstream's math kernel, an EpiStack content corpus for contrast, emitted directly from the pinned submodule."
+    }
+  ],
+  "_allowed_document_destinations_purpose": "Phase KG-11: the submission reading surface's document fetches, a distinct destination category from allowed_egress_destinations above (those go through api/community.js's fetchCommunity; these go through api/submission.js's loadDocument, verified against content_hash rather than snapshot_hash). build/check-submission-surface.mjs asserts no request succeeds to a destination outside this list.",
+  "allowed_document_destinations": [
+    {
+      "path": "https://raw.githubusercontent.com/A-Viable-Fork/epistack/b97c2ad178bce92c81b180cd13bcbcfc6ce2f83b/docs/submission-overview.md",
+      "content_hash": "95bb16e7de651ab1d53651b1bbde8d463b1d4023528f57d41de8bf06af428874",
+      "description": "The submission surface's first reading-sequence document, fetched from the pinned upstream commit and verified against its own anchor map's content_hash before rendering."
+    },
+    {
+      "path": "https://raw.githubusercontent.com/A-Viable-Fork/epistack/b97c2ad178bce92c81b180cd13bcbcfc6ce2f83b/docs/the-climb-of-synthesis.md",
+      "content_hash": "b497b8c38f032c679a9cd12405a683b979b313f33e60658088267d60d451d6ab",
+      "description": "The submission surface's second reading-sequence document, fetched and verified the same way."
+    },
+    {
+      "path": "https://raw.githubusercontent.com/A-Viable-Fork/epistack/b97c2ad178bce92c81b180cd13bcbcfc6ce2f83b/docs/the-asymmetric-weapon.md",
+      "content_hash": "20c57396738351a0c773fbb1c2f722548408b94b6f3e12291cdd329514f1b167",
+      "description": "The submission surface's third reading-sequence document (the seam section), fetched and verified the same way."
     }
   ],
   "telemetry_policy": "none",

@@ -445,6 +445,7 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
   cursor: pointer;
 }
 .contribute-target { font-style: italic; color: var(--ink-muted); }
+.admission-latency-note { font-size: 0.82rem; color: var(--ink-muted); }
 .contribute-result { max-width: 640px; margin: 0 auto; }
 .gate-receipt { font-size: 0.85rem; }
 .gate-receipt .findings { color: var(--ink-muted); font-size: 0.78rem; }
@@ -591,3 +592,26 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
 .designer-preview-moved { background: color-mix(in srgb, var(--focus) 10%, transparent); }
 .designer-preview-crossing { color: var(--ink-muted); font-style: italic; }
 .designer-preview-caption { font-size: 0.75rem; color: var(--ink-muted); margin-top: 0.4rem; }
+
+/* Submission reading surface (Phase KG-11) */
+.submission-screen { max-width: 780px; margin: 0 auto; padding: 0.4rem 1.1rem 3rem; }
+.submission-progress { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 1.2rem; }
+.submission-progress-dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--line); display: inline-block; }
+.submission-progress-dot.submission-progress-current { background: var(--focus); }
+.submission-progress-dot.submission-progress-done { background: var(--ink-muted); }
+.submission-progress-label { margin-left: 0.5rem; font-size: 0.78rem; color: var(--ink-muted); }
+.submission-document-body { font-family: Georgia, "Iowan Old Style", serif; font-size: 1.05rem; line-height: 1.7; max-width: 68ch; margin: 0 auto; }
+.submission-document-body h2, .submission-document-body h3 { font-family: inherit; margin-top: 1.6em; }
+.submission-document-body p { margin: 1em 0; }
+.submission-span { cursor: pointer; border-bottom: 1px dotted var(--ink-muted); padding-bottom: 0.05em; }
+.submission-span:hover, .submission-span:focus { background: color-mix(in srgb, var(--focus) 10%, transparent); outline: none; }
+.submission-span-constitutive { border-bottom-style: solid; }
+.submission-glyph { display: inline-flex; align-items: center; margin-left: 0.2em; font-size: 0.7em; vertical-align: middle; }
+.submission-glyph-adopted { color: var(--grade-constitutive); font-weight: 600; }
+.submission-nav { display: flex; justify-content: space-between; margin-top: 2rem; max-width: 68ch; margin-left: auto; margin-right: auto; }
+.submission-error { color: var(--grade-asserted); }
+.submission-card-overlay { border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; margin-top: 1rem; background: var(--card-bg); max-width: 68ch; margin-left: auto; margin-right: auto; }
+.submission-blast-radius, .submission-card-missing { font-size: 0.85rem; color: var(--ink-muted); }
+.submission-walk-button { display: block; margin: 0.4rem 0; font: inherit; font-size: 0.85rem; }
+.submission-threshold { max-width: 68ch; margin: 2.5rem auto 0; border-top: 1px solid var(--line); padding-top: 1.5rem; }
+.submission-enter-button { font: inherit; padding: 0.6rem 1.2rem; border-radius: 999px; border: 1px solid var(--focus); background: var(--focus); color: var(--on-accent); cursor: pointer; }

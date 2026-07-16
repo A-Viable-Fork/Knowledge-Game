@@ -1,0 +1,96 @@
+{
+  "document": "docs/submission-overview.md",
+  "content_hash": "95bb16e7de651ab1d53651b1bbde8d463b1d4023528f57d41de8bf06af428874",
+  "spans": [
+    {
+      "ref": "so.c1.eval",
+      "register": "evaluative",
+      "anchor": {
+        "start": 724,
+        "end": 888,
+        "quote_key": "Reports, reviews, and AI summaries concentrate r"
+      },
+      "claim": "30df50345de93e56a982416279b77ca1d03e016667efd92aed9f48e8c3f96fd0"
+    },
+    {
+      "ref": "so.c1.mech",
+      "register": "mechanical",
+      "anchor": {
+        "start": 934,
+        "end": 1055,
+        "quote_key": "every claim independently typed, hashed, and gra"
+      },
+      "claim": "2f996857519b33d89c21ea463f88869564599edafbcd250b20bea44cef8881a2"
+    },
+    {
+      "ref": "so.c1.eggs",
+      "register": "mechanical",
+      "anchor": {
+        "start": 1095,
+        "end": 1365,
+        "quote_key": "nutritional epidemiology, walked claim by claim "
+      },
+      "claim": "86c34b97d7275aa870b0a3b02ef8bca1dfe8dd099c1664dfe2a4fb06bb39ec59"
+    },
+    {
+      "ref": "so.c2.mech",
+      "register": "mechanical",
+      "anchor": {
+        "start": 1688,
+        "end": 1803,
+        "quote_key": "the gate recomputes a claim's standing from its "
+      },
+      "claim": "a153eacb13921c3ac75f172788371845e78a6fa74bbca4e2146a2fad418dc928"
+    },
+    {
+      "ref": "so.c2.const",
+      "register": "constitutive",
+      "anchor": {
+        "start": 1805,
+        "end": 1924,
+        "quote_key": "Knowledge, in this protocol's working definition"
+      },
+      "claim": "64eabac25b13e4fedc4791c79c728b52f1b781207a71b05c2888a63ec6ed0673"
+    },
+    {
+      "ref": "so.c6.mech",
+      "register": "mechanical",
+      "anchor": {
+        "start": 3869,
+        "end": 3936,
+        "quote_key": "a market layer that references grades and provab"
+      },
+      "claim": "fd883eb15619101b1725148c026f087cdacb9bf567b6b9ba4b4f116bb26f7fbd"
+    },
+    {
+      "ref": "so.c6.eval",
+      "register": "evaluative",
+      "anchor": {
+        "start": 4244,
+        "end": 4319,
+        "quote_key": "penalties trigger on provable fault only, never "
+      },
+      "claim": "48f21e9751f9a3b6601b50a8c0ea758bdf53c7a0c87864a1dddda7e2e95a4f98"
+    },
+    {
+      "ref": "so.proto.cross",
+      "register": "mechanical",
+      "anchor": {
+        "start": 4840,
+        "end": 4995,
+        "quote_key": "an imported claim arrives untyped at the floor a"
+      },
+      "claim": "a216292247261772a265dc6340a689e7cf07e9a8adef67ef4fbf50106d005732"
+    },
+    {
+      "ref": "so.proto.exhibits",
+      "register": "mechanical",
+      "anchor": {
+        "start": 5167,
+        "end": 5354,
+        "quote_key": "working corpora for the competition's three case"
+      },
+      "claim": "68a16b883ea3c23e1dd7339a09ea75b2346c07e1ab64acb14d327d5f96e710de"
+    }
+  ]
+}

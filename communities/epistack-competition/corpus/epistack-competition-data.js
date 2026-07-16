@@ -305,10 +305,390 @@ const STORE = {
           independence: "distinct-party"
         }
       ]
+    },
+    {
+      ref: "claim-20",
+      kind: "declaration",
+      statement: "synthesis: a single reasoner's integrated answer, reading everything and tying each claim to its source, but still one viewpoint's reach.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-21",
+      kind: "declaration",
+      statement: "typed claim graph: claims labeled by what kind of thing they are and connected to what they rest on, with one rule doing the work.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-22",
+      kind: "declaration",
+      statement: "grounding rule: a claim is as grounded as its weakest necessary support, recomputable by any party trusting no one.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-23",
+      kind: "declaration",
+      statement: "gate: the sole write path, admitting a contribution only if it holds together with what is already there and rechecking every declared grade on every change.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-24",
+      kind: "declaration",
+      statement: "forum: the contested region of the ordering, tiered from raw through structured, where claims are weighed rather than verified.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-25",
+      kind: "declaration",
+      statement: "characterized gap: an open claim carrying its location, its bounds, and the instance that would close it, so an open line is a located object.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-26",
+      kind: "declaration",
+      statement: "standing: a claim's grounded grade in the ordering, computed from the structure rather than granted by an authority.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-27",
+      kind: "declaration",
+      statement: "producer: anything that emits claims into the kernel, whether a person, an organization, a model, or a pipeline of these.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-28",
+      kind: "declaration",
+      statement: "crossing: a claim moving from one kernel into another, arriving as the untyped type and losing its local attenuation.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-29",
+      kind: "declaration",
+      statement: "untyped type: the one type every schema shares, holding foreign imports and locally untyped claims alike, not a floor, so nothing grounds through it.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-30",
+      kind: "declaration",
+      statement: "type hash: the deterministic, meaning-sensitive fingerprint of a type bundle, so two kernels that perform the same attenuation pin the same hash.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-31",
+      kind: "declaration",
+      statement: "knowledge kernel: a fixed core of typed claims, a gate that checks them, and shared subtrees others fork, opening two markets over one grounding.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-32",
+      kind: "declaration",
+      statement: "typing: subjecting a claim to a type's attenuation, driving its dependence on its author down and staking the agent's standing on the claim holding.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-33",
+      kind: "declaration",
+      statement: "declared grade: the grade a claim advertises for itself, admitted only when at or below the earned grade.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-34",
+      kind: "declaration",
+      statement: "earned grade: the grade a claim actually achieves given what it rests on, computed from the graph alone by the grounding rule.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-35",
+      kind: "declaration",
+      statement: "structural attenuation: the kernel's half, driving trust in the producer to zero with respect to structure so a claim's grade recomputes from its cited support by arithmetic anyone can check.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "supported"
+    },
+    {
+      ref: "claim-36",
+      kind: "declaration",
+      statement: "semantic attenuation: the community's function, judging whether the cited support is true of the world (whether a measurement happened, a checker exists, claimed independence is real), which the kernel makes checkable rather than performs.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "supported"
+    },
+    {
+      ref: "claim-37",
+      kind: "declaration",
+      statement: "view: the presentation of a claim fitted to a reader, register, and purpose, separated from the trust that makes the claim hold.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-38",
+      kind: "declaration",
+      statement: "agent: any entity that makes claims and models other claim-makers, a person, an organization, a model, or a pipeline of these.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-39",
+      kind: "declaration",
+      statement: "measurement: a floor type where attenuation approaches a floor without reaching zero, so one measurement is testimony and many independent ones are knowledge.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-40",
+      kind: "declaration",
+      statement: "knowledge: the invariant left as the model is attenuated, knower-independent warranted standing rather than truth.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-41",
+      kind: "measurement",
+      statement: "In the typed claim graph every claim is independently typed, hashed, and graded from its own support, so a failure is isolable to the claim that failed.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-gate.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-42",
+      kind: "measurement",
+      statement: "In the eggs corpus, nutritional epidemiology walked through the gate sorts into claims that ground to their floors, contested weighings held at the forum tier, and characterized gaps each carrying its closing study.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-eggs.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-43",
+      kind: "measurement",
+      statement: "The gate recomputes a claim's standing from its support structure, and who proposed it never enters the computation.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-gate.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-44",
+      kind: "measurement",
+      statement: "An imported claim arrives untyped at the floor and re-earns under local judgment, so shared meaning is exactly shared hash and nothing composes by accident.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-crossing.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" },
+        { checker_id: "build/check-type-hash.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-45",
+      kind: "measurement",
+      statement: "The repository carries working corpora for the three cases, a mathematics kernel, and a vocabulary kernel that defines the submission's own terms as graded claims.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-lhc.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" },
+        { checker_id: "build/check-eggs.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" },
+        { checker_id: "build/check-covid.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" },
+        { checker_id: "build/check-math.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" },
+        { checker_id: "build/check-vocabulary.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-46",
+      kind: "measurement",
+      statement: "Standing moves only through typing acts, so a market layer references grades and provably cannot move them.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-fork-contest.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-47",
+      kind: "forum",
+      statement: "A synthesis concentrates reasoning into a document, so when any part of it is wrong the whole document and everyone who trusted it are wrong together.",
+      source_id: "S-epistack-submission-argument",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "asserted"
+    },
+    {
+      ref: "claim-48",
+      kind: "forum",
+      statement: "The one financial constraint fixed at protocol level is that penalties trigger on provable fault only, never on being wrong or unpopular.",
+      source_id: "S-epistack-submission-argument",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "asserted"
+    },
+    {
+      ref: "claim-49",
+      kind: "measurement",
+      statement: "A declared grade above what the published structure delivers is caught deterministically, as GM-ABOVE, by anyone recomputing.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-gate.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-50",
+      kind: "forum",
+      statement: "Recomputation cannot catch attestation fraud, because the gate checks structure and not correspondence to the world, so a perfect forgery that no one re-checks stands.",
+      source_id: "S-epistack-submission-argument",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "asserted"
+    },
+    {
+      ref: "claim-51",
+      kind: "forum",
+      statement: "Any mechanism that performed semantic attenuation at the claim level would be a semantic judge inside the kernel, which is a reintroduced trusted producer, a fixed Goodhart target, and a centralized fraud surface.",
+      source_id: "S-epistack-submission-argument",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "asserted"
+    },
+    {
+      ref: "claim-52",
+      kind: "measurement",
+      statement: "The gate admits a contribution only if it holds together with what is already there, and rechecks every declared grade on every change.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-gate.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-53",
+      kind: "measurement",
+      statement: "Input that arrives untyped is admitted and sits at the floor, grounding nothing, until someone types it and owns the typing.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-crossing.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-54",
+      kind: "measurement",
+      statement: "The gate checks a claim's structure, never its agent's identity or nature, so a person, an organization, a model, or a pipeline are checked exactly the same way.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-gate.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-55",
+      kind: "measurement",
+      statement: "In the LHC case, making the shared assumption an explicit node reprices the apparent convergence as one assumption wearing several coats.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-lhc.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" },
+        { checker_id: "build/check-demo.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-56",
+      kind: "measurement",
+      statement: "In the eggs case, swapping the presupposed frame swaps the verdict while every measurement underneath keeps its grade.",
+      source_id: "S-epistack-protocol-spec",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "supported",
+      checking_records: [
+        { checker_id: "build/check-eggs.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" },
+        { checker_id: "build/check-demo.mjs", method_class: "direct-measurement", method: "test-execution evidence: the named oracle runs green in this repository", checked_at_state: "ST0", outcome: "confirms", independence: "distinct-party" }
+      ]
+    },
+    {
+      ref: "claim-57",
+      kind: "forum",
+      statement: "From inside a single synthesis you cannot tell which parts are the world and which are the viewer, because the viewer is woven through every sentence.",
+      source_id: "S-epistack-submission-argument",
+      contributor_id: "P-submission-transcription",
+      declared_grade: "asserted"
     }
   ],
   links: [
-    { link_kind: "supports", from: "claim-19", to: "claim-10", support_group: "g:claim-10/claim-19", source_id: "S-epistack-protocol-spec", contributor_id: "P-epistack-competition-contributor-1", declared_grade: "corroborated" }
+    { link_kind: "supports", from: "claim-19", to: "claim-10", support_group: "g:claim-10/claim-19", source_id: "S-epistack-protocol-spec", contributor_id: "P-epistack-competition-contributor-1", declared_grade: "corroborated" },
+    { link_kind: "depends-on", from: "claim-47", to: "claim-20", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-41", to: "claim-21", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-41", to: "claim-22", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-42", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-42", to: "claim-24", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-42", to: "claim-25", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-43", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-43", to: "claim-26", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-43", to: "claim-27", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-44", to: "claim-28", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-44", to: "claim-29", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-44", to: "claim-30", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-45", to: "claim-31", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-46", to: "claim-26", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-46", to: "claim-32", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-48", to: "claim-26", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-49", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-49", to: "claim-33", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-49", to: "claim-34", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-50", to: "claim-35", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-50", to: "claim-36", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-51", to: "claim-36", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-51", to: "claim-35", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-57", to: "claim-20", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-57", to: "claim-37", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-52", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-52", to: "claim-33", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-53", to: "claim-29", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-53", to: "claim-32", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-54", to: "claim-27", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-54", to: "claim-38", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-55", to: "claim-39", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-56", to: "claim-24", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" }
   ]
 };
 

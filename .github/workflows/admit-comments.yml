@@ -1,0 +1,45 @@
+name: admit-comments
+
+# Phase KG-11 Step 4: the epistack-competition community's own admission-policy enforcement. Runs
+# communities/epistack-competition/build/admit-inbox.mjs on a schedule, which admits a staged comment-
+# kind bundle only when founding-config.json's admission_policy.comment_admission is set to
+# "auto-during-window" and now falls inside the declared window (decideAdmission is the one
+# enforcement point; see communities/epistack-competition/build/admission.mjs). Every other kind, and
+# every bundle when the mode is "manual" (the default), is left untouched in inbox/, waiting on the
+# maintainers' own pull request exactly as before this phase existed.
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: admit-comments
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: sweep the inbox
+        run: node communities/epistack-competition/build/admit-inbox.mjs
+      - name: commit and push if anything was admitted
+        run: |
+          if [ -n "$(git status --porcelain communities/epistack-competition)" ]; then
+            git config user.name "epistack-competition admission sweep"
+            git config user.email "actions@users.noreply.github.com"
+            git add communities/epistack-competition
+            git commit -m "admit-comments: automatic comment admission during the declared judging window"
+            git push
+          else
+            echo "nothing admitted this run"
+          fi
