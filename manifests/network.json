@@ -20,6 +20,21 @@
       "path": "fixtures/math.snapshot.json",
       "snapshot_hash": "688fba0f08a873f1f1c9d04756f573ef8ac0078f588bb6558701cf7bf4906e52",
       "description": "The mirror (Phase KG-12 Step 5): upstream EpiStack's own math kernel, the one legacy corpus in the pinned submodule that already exports a kernel-native buildKernel(), emitted directly from that submodule and joined as an ordinary browsable community. Its own repository (https://github.com/A-Viable-Fork/epistack) is the contribution target for any claim about it; a promotion proposal read here is an ordinary claim, argued in the open, never a privileged act this app performs on the protocol's behalf."
+    },
+    {
+      "path": "fixtures/lhc.snapshot.json",
+      "snapshot_hash": "57f39d36005af8ede3f1d8e5fb656c8a16a10c456b8c22d56e70ca9a5e49ac47",
+      "description": "The three rooms (Phase KG-13): the LHC room, the competition's clean case, emitted directly from upstream/epistack's own unmodified build/lhc-build.mjs at the re-pinned commit 6b3cbfcd5a63b126a5ac6740a1feb2f9e92d80f4. 25 claims, 28 links. Its own repository (https://github.com/A-Viable-Fork/epistack/tree/main/corpora/lhc) is the contribution target; the corpus lives there, never in this app."
+    },
+    {
+      "path": "fixtures/eggs.snapshot.json",
+      "snapshot_hash": "d1ecdbefbd3f4837df1390a5328dc2aa84769e07e264ceb47e21b6f67a1adc08",
+      "description": "The three rooms (Phase KG-13): the eggs room, the competition's corrupted-field case, at the re-pinned commit 6b3cbfcd5a63b126a5ac6740a1feb2f9e92d80f4. Merged from the three domain stores (nutrition, environment, economics) build/eggs-build.mjs builds over their one shared table (corpora/eggs/tables.js); the cross-domain composite weighing layer is not part of this snapshot, since local-provider.mjs's snapshot shape has no representation for a citation-graded composite claim (build/emit-rooms.mjs's own header documents this honestly). 61 claims, 23 links. Its own repository (https://github.com/A-Viable-Fork/epistack/tree/main/corpora/eggs) is the contribution target."
+    },
+    {
+      "path": "fixtures/covid.snapshot.json",
+      "snapshot_hash": "be908d8f7c769ad77346803996e94d8083fb13500339b196ca50607956ac7ff5",
+      "description": "The three rooms (Phase KG-13): the covid room, the competition's adversarial case, emitted directly from upstream/epistack's own unmodified build/covid-build.mjs at the re-pinned commit 6b3cbfcd5a63b126a5ac6740a1feb2f9e92d80f4. 106 claims, 104 links. Its own repository (https://github.com/A-Viable-Fork/epistack/tree/main/corpora/covid) is the contribution target."
     }
   ],
   "_allowed_document_destinations_purpose": "Phase KG-11: the submission reading surface's document fetches, a distinct destination category from allowed_egress_destinations above (those go through api/community.js's fetchCommunity; these go through api/submission.js's loadDocument, verified against content_hash rather than snapshot_hash). build/check-submission-surface.mjs asserts no request succeeds to a destination outside this list.",

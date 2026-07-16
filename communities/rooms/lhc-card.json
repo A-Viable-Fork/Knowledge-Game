@@ -1,0 +1,17 @@
+{
+  "kernel_id": "lhc",
+  "governance_hash": "2fde344a7e9aa2f0b78065a04b05fbd89e08f6d7a023a038f7457aef42de8315",
+  "governance_hash_computed_by": "this deployment, app-side, over a minimal parameter record: no founding flow has been run for this room (it is a pre-existing epistack corpus, mirrored, not founded), so identity_thresholds and standing_economy are both empty and the same hash results for every room in this set",
+  "member_set_commitment": null,
+  "snapshot_hash": "57f39d36005af8ede3f1d8e5fb656c8a16a10c456b8c22d56e70ca9a5e49ac47",
+  "fetch_locations": [
+    "https://a-viable-fork.github.io/Knowledge-Game/app/fixtures/lhc.snapshot.json"
+  ],
+  "pinned_type_hashes": {},
+  "contribution_target": "https://github.com/A-Viable-Fork/epistack/tree/6b3cbfcd5a63b126a5ac6740a1feb2f9e92d80f4/corpora/lhc (a contest or correction on a room claim is a pull request there, re-run through epistack's own gate)",
+  "protocol_identity": "epistack-v3",
+  "domain": "The LHC Room (black holes, the clean resolvable case)",
+  "identity_thresholds": {},
+  "standing_economy": {},
+  "corpus_content_license": "attribution-required"
+}
