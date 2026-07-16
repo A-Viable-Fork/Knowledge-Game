@@ -1,18 +1,18 @@
 {
   "_purpose": "Build provenance. source_commit and artifact_hash are populated by a future build step, not by hand; they are null until that step exists.",
-  "source_commit": "7d591621595b0630a96afd72fb50b053fbbf607b",
+  "source_commit": "ab574d254e4902bbecbfa75e16f36be509f474eb",
   "upstream_pin": {
     "repo": "A-Viable-Fork/epistack",
     "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
     "provisional": true
   },
   "build_command": ".github/workflows/ci.yml: no build tooling exists (no bundler, no transpiler); the deployed artifact is the checked-out working tree itself, served as vanilla ESM static files, after every build/check-*.mjs passes and app/fixtures/ is confirmed reproducible by regenerating and diffing against the committed content.",
-  "artifact_hash": "4426fa6e993a87bb00c81444d55222fac70f12cc983b4b1ac955af147fe1e1ce",
+  "artifact_hash": "2df6a3943311eee55e5357d14161e30b63b0d3af5d62f25cf7c68edf67756b23",
   "artifact_hash_note": "artifact_hash is a sha256 over the sorted JSON of file_hashes, itself a sha256 per file over every file `git ls-files --cached --others --exclude-standard` lists (the deployed tree, since no build step compiles source into output), excluding this manifest itself. Recomputed and compared by build/check-release.mjs.",
   "protocol_identity": "v3",
   "provider_contract": "vendor/api/client-api.mjs",
   "file_hashes": {
-    ".github/workflows/android-release.yml": "48573bc6647f2bbb92dd8fd99777707fcfb73c514462e7c07337430bbf9a996d",
+    ".github/workflows/android-release.yml": "35dd69277baf3ad851f309e77391185df054609af08e03d26f3d62268a3d4219",
     ".github/workflows/ci.yml": "89274fc11b93692c68a28150a87e09ab34300ea237b7671b36c67509c8a74ad3",
     ".gitmodules": "48df8791f20d30fdb7fd035f96b674945364d08001f1383f0ca5f997e92227a2",
     "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
