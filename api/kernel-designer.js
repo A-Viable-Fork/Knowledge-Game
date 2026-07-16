@@ -33,9 +33,12 @@
 "use strict";
 import { POSITIONS } from "../vendor/kernel/schema/confidence.mjs";
 import { hashTypeBundle } from "../vendor/kernel/schema/type-hash.mjs";
+import { hashBytes } from "../vendor/kernel/schema/canonical.mjs";
+import { sha256Hex } from "../vendor/kernel/schema/sha256.mjs";
 import { claimRecord, linkRecord } from "../vendor/kernel/schema/records.mjs";
 import { createLocalProvider } from "../vendor/api/providers/local-provider.mjs";
 import { createClientApi } from "../vendor/api/client-api.mjs";
+import { checkConformance } from "./extension.js";
 
 // the shared subtree's own bundles (vendor/corpora/_shared/common-types.js), duplicated here as a
 // plain-data mirror since that file is a CommonJS module (module.exports, no named ESM export) and
@@ -52,6 +55,32 @@ export function forkKindFromShared(kindName) {
 
 export function hashLocalKind(kindDef) {
   return hashTypeBundle({ kind: kindDef.kind, ceiling: kindDef.ceiling, compatibility_rule_id: null, atlas_refs: [] });
+}
+
+// Phase KG-12: contract-type authoring. A contract composes three references (interface_identity, a
+// spec document's hash; required_oracle, an artifact reference by hash; ceiling_statement, plain
+// language); it never embeds executable code itself, so authoring is exactly hashing whatever text the
+// founder pastes as each reference, never running it. hashOracleArtifact reuses the identical
+// sha256Hex api/extension.js's own contentHash calls, so a contract's required_oracle hash and an
+// installed extension's own pinned hash are the same primitive, comparable by equality.
+export function hashInterfaceSpec(specText) {
+  return hashBytes(specText || "");
+}
+export function hashOracleArtifact(sourceText) {
+  return sha256Hex(sourceText || "");
+}
+
+// the live dry-run: for a sandbox-executable oracle (a candidate's own extensionMain source), runs
+// the identical conformance check the extension seam's own install path runs, over a small bundled
+// fixture, so a founder sees a real pass/fail before ever shipping the contract. Never runs a CI-only
+// oracle (there is nothing here to execute); the caller decides which case applies from the source
+// text's own shape.
+const CONTRACT_DRY_RUN_FIXTURE_ROWS = [
+  { identity: "a", kind: "measurement", statement: "s1", declared_grade: "asserted", earned_grade: "asserted", source_id: "S1" },
+  { identity: "b", kind: "measurement", statement: "s2", declared_grade: "checked", earned_grade: "checked", source_id: "S2" },
+];
+export async function dryRunContractOracle(sourceText, shape) {
+  return checkConformance(sourceText, shape, CONTRACT_DRY_RUN_FIXTURE_ROWS, [], []);
 }
 
 // ---- guidance: plain language over real semantics, one to two sentences, accurate to the spec ----

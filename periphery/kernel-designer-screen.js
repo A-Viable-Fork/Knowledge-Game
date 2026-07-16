@@ -17,6 +17,7 @@
 import {
   PRESETS, GRADE_GUIDANCE, SOURCE_CLASS_GUIDANCE, LICENSE_OPTIONS, LICENSE_ENFORCEMENT_NOTE,
   forkKindFromShared, hashLocalKind, recomputeSamplePreview,
+  hashInterfaceSpec, hashOracleArtifact, dryRunContractOracle,
 } from "../api/kernel-designer.js";
 import { governanceHash } from "../api/governance-hash.js";
 import { KERNEL_CONFIG_FIXED_FIELDS } from "../api/parameter-surface.js";
@@ -258,6 +259,92 @@ function renderInactiveFields(draft, onChange) {
   );
 }
 
+// Phase KG-12 Step 1: contract-type authoring. Composes references only (interface_identity,
+// required_oracle, ceiling_statement), never embedded code; the founder pastes the spec text and the
+// oracle's own source, both hashed live in the browser as they type, and a sandbox-executable oracle
+// (its pasted text defining extensionMain) can be dry-run right here against a small bundled fixture,
+// through the identical checkConformance the extension seam's own install path runs. Draft contracts
+// are never written to any store; "Export contract drafts" downloads them as JSON for the operator's
+// own subsequent seeding step, the same download-and-hand-off discipline renderFinish already uses.
+function renderContractDesigner(container, draft, onChange) {
+  draft.contract_drafts = draft.contract_drafts || [];
+  const listMount = el("div", { class: "designer-contract-list" });
+
+  function renderOne(cd, index) {
+    const dryRunMount = el("div", { class: "designer-contract-dryrun" });
+    const looksExecutable = /function\s+extensionMain\s*\(/.test(cd.required_oracle_text || "");
+    const shapeSelect = el(
+      "select",
+      { onchange: (e) => { cd.dry_run_shape = e.target.value; } },
+      ...["ranker", "renderer", "workflow"].map((s) => el("option", { value: s, selected: s === (cd.dry_run_shape || "ranker") ? "" : undefined }, s))
+    );
+    const dryRunBtn = el("button", {
+      type: "button",
+      onclick: async () => {
+        dryRunMount.innerHTML = "";
+        dryRunMount.appendChild(el("p", {}, "Running..."));
+        const result = await dryRunContractOracle(cd.required_oracle_text, cd.dry_run_shape || "ranker");
+        dryRunMount.innerHTML = "";
+        dryRunMount.appendChild(el("p", { class: result.pass ? "designer-dryrun-pass" : "designer-dryrun-fail" }, `Dry-run: ${result.pass ? "pass" : `refused (${result.reason})`}`));
+      },
+    }, "Dry-run against the bundled fixture");
+
+    return el(
+      "div",
+      { class: "designer-contract-row" },
+      el("label", {}, "Label", el("input", {
+        type: "text", value: cd.label, placeholder: "the ranker contract",
+        oninput: (e) => { cd.label = e.target.value; },
+      })),
+      el("label", {}, "Interface spec (hashed live as you type)", el("textarea", {
+        rows: "2", value: cd.interface_spec_text,
+        oninput: (e) => { cd.interface_spec_text = e.target.value; cd.interface_identity = hashInterfaceSpec(e.target.value); renderList(); },
+      })),
+      el("p", { class: "designer-hash" }, `interface_identity: ${(cd.interface_identity || "").slice(0, 16)}...`),
+      el("label", {}, "Required oracle (paste its source; hashed live)", el("textarea", {
+        rows: "2", value: cd.required_oracle_text,
+        oninput: (e) => { cd.required_oracle_text = e.target.value; cd.required_oracle = hashOracleArtifact(e.target.value); renderList(); },
+      })),
+      el("p", { class: "designer-hash" }, `required_oracle: ${(cd.required_oracle || "").slice(0, 16)}...`),
+      el("label", {}, "Ceiling statement (what passing this oracle warrants, and no more)", el("textarea", {
+        rows: "2", value: cd.ceiling_statement,
+        oninput: (e) => { cd.ceiling_statement = e.target.value; },
+      })),
+      looksExecutable
+        ? el("div", { class: "designer-contract-dryrun-controls" }, el("label", {}, "Dry-run shape", shapeSelect), dryRunBtn, dryRunMount)
+        : el("p", { class: "designer-guidance" }, "This oracle's text does not look like a sandbox-executable candidate (no extensionMain found); it will render as CI-only, recomputable in the repository, never app-verified."),
+      el("button", { type: "button", onclick: () => { draft.contract_drafts.splice(index, 1); renderList(); } }, "Remove this contract draft")
+    );
+  }
+
+  function renderList() {
+    listMount.innerHTML = "";
+    draft.contract_drafts.forEach((cd, i) => listMount.appendChild(renderOne(cd, i)));
+  }
+  renderList();
+
+  function downloadContractDrafts() {
+    const out = draft.contract_drafts.map((cd) => ({ label: cd.label, interface_identity: cd.interface_identity, required_oracle: cd.required_oracle, ceiling_statement: cd.ceiling_statement }));
+    const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "contract-drafts.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  const section = el(
+    "div",
+    { class: "designer-contract-designer" },
+    el("h3", {}, "Contract types"),
+    el("p", {}, "A contract composes references only: an interface's spec hash, an oracle's own hash, and a ceiling statement. It never embeds executable code; a sandbox-executable oracle can be dry-run right here."),
+    listMount,
+    el("button", { type: "button", onclick: () => { draft.contract_drafts.push({ label: "", interface_spec_text: "", interface_identity: hashInterfaceSpec(""), required_oracle_text: "", required_oracle: hashOracleArtifact(""), ceiling_statement: "", dry_run_shape: "ranker" }); renderList(); } }, "Author a contract draft"),
+    draft.contract_drafts.length ? el("button", { type: "button", onclick: downloadContractDrafts }, "Export contract drafts") : null
+  );
+  container.appendChild(section);
+}
+
 function renderFixedRegisterNote() {
   return el(
     "div",
@@ -325,6 +412,7 @@ export function renderKernelDesignerScreen(container, ctx) {
     function refreshLeft() {
       leftColumn.innerHTML = "";
       renderKindDesigner(leftColumn, draft, onChange);
+      renderContractDesigner(leftColumn, draft, onChange);
       leftColumn.appendChild(renderLicensePicker(draft, onChange));
       leftColumn.appendChild(renderInactiveFields(draft, onChange));
       leftColumn.appendChild(renderFixedRegisterNote());

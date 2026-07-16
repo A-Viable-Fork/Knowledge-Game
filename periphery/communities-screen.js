@@ -1,9 +1,13 @@
 // Role: the Communities page (Phase KG-7, the interface pass). The switcher, pins, and each
 //   community's own sync state, moved off the slim bar onto its own page reached from the bottom nav.
+//   Phase KG-12 Step 5 (the mirror): a community carrying contributionTarget shows it plainly (where
+//   its own claims, and any promotion proposal about it, actually go); one carrying `mirror: true` is
+//   a protocol repository joined as an ordinary browsable community, never privileged, and the page
+//   renders the convention note once, above the list, rather than once per card.
 // Contract: renderCommunitiesScreen(container, { communities, activeId, isPinned, pinAgeLabel,
 //   lastSyncedLabel, onSelect, onTogglePin }). communities is the app's own registered list
-//   ({id, label}); onSelect(id) switches the active community and returns to the feed;
-//   onTogglePin(community) pins or unpins.
+//   ({id, label, contributionTarget?, mirror?}); onSelect(id) switches the active community and
+//   returns to the feed; onTogglePin(community) pins or unpins.
 // Invariant: renders only what it is given; no storage or network access of its own.
 "use strict";
 
@@ -23,11 +27,19 @@ function el(tag, attrs, ...children) {
 
 export function renderCommunitiesScreen(container, { communities, activeId, isPinned, pinAgeLabel, lastSyncedLabel, onSelect, onTogglePin }) {
   container.innerHTML = "";
+  const hasMirror = communities.some((c) => c.mirror);
   container.appendChild(
     el(
       "section",
       { class: "communities-screen", "aria-label": "Communities" },
       el("h2", {}, "Communities"),
+      hasMirror
+        ? el(
+            "p",
+            { class: "mirror-convention-note" },
+            "The mirror: the protocol's own repositories join this list as ordinary communities, snapshot by hash like any other. A promotion proposal about one (adopt something to shared) is an ordinary claim, argued in the open and decided by which communities choose to pin it, never a privileged act this app performs."
+          )
+        : null,
       el(
         "ul",
         { class: "communities-list" },
@@ -40,7 +52,8 @@ export function renderCommunitiesScreen(container, { communities, activeId, isPi
               "div",
               {},
               el("button", { type: "button", "aria-current": String(c.id === activeId), onclick: () => onSelect(c.id) }, c.label),
-              el("p", { class: "empty" }, `last synced: ${lastSyncedLabel(c.id)}`)
+              el("p", { class: "empty" }, `last synced: ${lastSyncedLabel(c.id)}`),
+              c.contributionTarget ? el("p", { class: "community-contribution-target" }, `contributions: ${c.contributionTarget}`) : null
             ),
             el(
               "button",

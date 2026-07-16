@@ -122,6 +122,8 @@ a:focus-visible {
 /* Communities page (Phase KG-7): the switcher, pins, and per-community sync, moved off the slim bar. */
 .communities-screen { max-width: 640px; margin: 0 auto; padding: 1rem 1.1rem; }
 .communities-screen h2 { font-size: 1rem; }
+.mirror-convention-note { font-size: 0.82rem; color: var(--ink-muted); border-left: 3px solid var(--focus); padding: 0.4rem 0.7rem; margin: 0.6rem 0; }
+.community-contribution-target { font-size: 0.75rem; color: var(--ink-muted); word-break: break-all; }
 .communities-list { list-style: none; padding: 0; margin: 0.6rem 0; display: flex; flex-direction: column; gap: 0.6rem; }
 .communities-list li { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.8rem; flex-wrap: wrap; }
 .communities-list button[aria-current="true"] { color: var(--ink); border-color: var(--focus); font-weight: 600; }
@@ -597,6 +599,41 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
 .designer-hash { font-family: monospace; font-size: 0.75rem; word-break: break-all; }
 .designer-kind-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.4rem; }
 .designer-license-picker, .designer-fixed-register, .designer-finish { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.8rem; margin: 0.8rem 0; }
+.designer-contract-designer { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.8rem; margin: 0.8rem 0; }
+.designer-contract-row { border-left: 3px solid var(--focus); padding: 0.5rem 0.7rem; margin: 0.6rem 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.designer-contract-row label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.82rem; }
+.designer-contract-row textarea, .designer-contract-row input { font: inherit; padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: calc(var(--radius) * 0.5); background: var(--card-bg); color: var(--ink); }
+.designer-contract-dryrun-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.designer-dryrun-pass { color: var(--grade-checked, inherit); }
+.designer-dryrun-fail { color: var(--grade-ungraded, inherit); }
+.registry-screen { padding: 0.4rem 0.2rem 2rem; }
+.registry-intro { color: var(--ink-muted); font-size: 0.85rem; margin-bottom: 1rem; }
+.registry-kind-section { margin-bottom: 1.4rem; }
+.registry-card-list { list-style: none; padding: 0; margin: 0.5rem 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.registry-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.85rem; background: var(--card-bg); }
+.registry-card h4 { margin: 0 0 0.3rem; }
+.registry-meta { font-size: 0.8rem; color: var(--ink-muted); margin: 0.15rem 0; font-family: monospace; }
+.registry-ceiling { font-size: 0.82rem; font-style: italic; color: var(--ink-muted); margin: 0.3rem 0; }
+.registry-citation { font-size: 0.82rem; margin: 0.4rem 0; }
+.registry-citation-method { word-break: break-word; }
+.registry-no-citation { font-size: 0.82rem; color: var(--danger); margin: 0.4rem 0; }
+.registry-ci-only { font-size: 0.8rem; color: var(--ink-muted); }
+.registry-rerun-button, .registry-install-button { font: inherit; font-size: 0.82rem; padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid var(--line); background: var(--card-bg); color: var(--ink); cursor: pointer; margin: 0.3rem 0.4rem 0.1rem 0; }
+.registry-rerun-result { font-size: 0.8rem; margin: 0.2rem 0; }
+.registry-rerun-ok { color: var(--grade-checked, inherit); }
+.registry-rerun-fail { color: var(--grade-ungraded, inherit); }
+.registry-note { font-size: 0.8rem; color: var(--ink-muted); margin-top: 0.4rem; }
+.registry-register-button { font: inherit; font-size: 0.85rem; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--focus); background: var(--card-bg); color: var(--ink); cursor: pointer; margin-bottom: 1rem; }
+.register-artifact-screen { padding: 0.4rem 0.2rem 2rem; max-width: 640px; margin: 0 auto; }
+.register-form { display: flex; flex-direction: column; gap: 0.7rem; margin: 0.8rem 0; }
+.register-form label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; }
+.register-form input, .register-form select, .register-form textarea { font: inherit; padding: 0.4rem 0.5rem; border: 1px solid var(--line); border-radius: calc(var(--radius) * 0.5); background: var(--card-bg); color: var(--ink); }
+.register-source { min-height: 6rem; font-family: monospace; font-size: 0.8rem; }
+.register-kind-fields, .register-oracle-mount { display: flex; flex-direction: column; gap: 0.5rem; }
+.register-guidance { font-size: 0.8rem; color: var(--ink-muted); }
+.register-run-oracle { align-self: flex-start; font: inherit; font-size: 0.82rem; padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid var(--line); background: var(--card-bg); color: var(--ink); cursor: pointer; }
+.register-oracle-status { font-size: 0.82rem; }
+.register-intro { color: var(--ink-muted); font-size: 0.85rem; }
 .designer-license-option { display: block; margin-bottom: 0.5rem; font-size: 0.85rem; }
 .designer-license-enforcement { color: var(--ink-muted); font-size: 0.8rem; margin-top: 0.5rem; }
 .designer-preview-panel { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.8rem; position: sticky; top: 0.6rem; }
