@@ -397,7 +397,12 @@ any store except through the ordinary draft path, structurally and by a runtime 
 adversarial, bundle-shaped input. Claim 20's own checking record is amended to describe the new
 contract and gains a second, independent record naming `build/check-assistant.mjs` as its own worked
 example; rebuilt through the real gate, the claim's content-derived identity is unchanged and its
-earned grade still recomputes checked.
+earned grade still recomputes checked. Deliberate-break coverage: forcing `ASSISTANT_SOURCE` to fetch
+a hardcoded destination outside its declared list failed `check-assistant.mjs` naming the exact
+undeclared URL; planting a key canary and routing it through `bundleProposal` failed
+`check-profile-leak.mjs` on both its static import-graph scan and its runtime fuzz; wiring the
+formalize task's own result directly into `queueBundle`, bypassing the draft screen, failed
+`check-assistant.mjs`'s import-graph and direct-call assertions; all three reverted, green.
 
 ## Specified, not built
 
