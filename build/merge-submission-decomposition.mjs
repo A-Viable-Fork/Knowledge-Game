@@ -62,6 +62,14 @@ for (const l of allLinks) {
   if (!decompIdentities.has(l.to_identity)) neededVocabIdentities.add(l.to_identity);
   if (!decompIdentities.has(l.from_identity)) neededVocabIdentities.add(l.from_identity);
 }
+// a constitutive-register anchor span references a vocabulary claim directly, with no depends-on
+// link at all (the span itself is the whole bond); every anchor map's constitutive spans must be
+// scanned too, or a claim referenced only that way is silently missing from the merged store.
+for (const anchorMap of anchors) {
+  for (const span of anchorMap.spans) {
+    if (span.register === "constitutive" && !decompIdentities.has(span.claim)) neededVocabIdentities.add(span.claim);
+  }
+}
 
 const GRADE_OF = { c: "constitutive", s: "supported" };
 const vocabClaims = [];

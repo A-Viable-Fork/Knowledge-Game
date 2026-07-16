@@ -29,7 +29,10 @@
 //   assistant extension's BYOK credential; absence is null, the assistant's inert-offline state);
 //   getAssistantEndpoint()/setAssistantEndpoint({url, model}) (the user-configured, provider-agnostic
 //   inference destination; absence is null, same inert state, since there is no hardcoded default
-//   endpoint anywhere in this deployment).
+//   endpoint anywhere in this deployment). Phase KG-11: getSubmissionScope(communityId)/
+//   setSubmissionScope(communityId, identities|null) (the submission threshold's own default feed
+//   scope, a claim-identity allowlist distinct from the kind-based filter; absence is null, the
+//   whole community, exactly as before this phase).
 // Invariant: a fresh profile constructs its off state rather than reading a configured default: no
 //   call ever writes a store on read, so a profile that has never called setObjective or
 //   setObservationEnabled has no key in storage at all, and every reader treats absence as off/empty
@@ -99,6 +102,22 @@ export function setFilter(communityId, excludedKinds) {
   const store = readStore();
   store.filters = store.filters || {};
   store.filters[communityId] = (excludedKinds || []).slice();
+  writeStore(store);
+}
+
+// the submission surface's threshold scope (Phase KG-11): a per-community list of claim identities
+// the reader just crossed the threshold from, so the feed can default to showing only those
+// (never a kind exclusion; composes with the existing filter as a further restriction). Absent
+// (null) means no scope is active, the whole community shows exactly as before.
+export function getSubmissionScope(communityId) {
+  const store = readStore();
+  return (store.submissionScopes && store.submissionScopes[communityId]) || null;
+}
+export function setSubmissionScope(communityId, identities) {
+  const store = readStore();
+  store.submissionScopes = store.submissionScopes || {};
+  if (identities) store.submissionScopes[communityId] = identities.slice();
+  else delete store.submissionScopes[communityId];
   writeStore(store);
 }
 

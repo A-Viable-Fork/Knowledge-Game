@@ -27,6 +27,12 @@
 //   snapshot-only and not persisted, never folded into the ladder. The comment form offers no grade
 //   selector (a comment is always ungraded) and no action selector (it can build only comments-on or
 //   replies-to, never supports).
+// Phase KG-11: the comment/reply form renders one honest latency line (describeCommentAdmission),
+//   read from the fetched community's own admission_policy.comment_admission (carried on the snapshot
+//   by communities/epistack-competition/build/regenerate-snapshot.mjs, never a second network call):
+//   manual (the default) says a comment awaits the maintainers; auto-during-window inside its declared
+//   window says admission is automatic at the next scheduled sweep. Every other kind is always manual
+//   and this line never renders on their forms.
 "use strict";
 import { draftProposal, draftContest, draftFork, draftComment, draftPromoteToClaim, bundleProposal } from "../api/contribute.js";
 import { queueBundle } from "../api/outbox.js";
@@ -183,6 +189,27 @@ function renderProposalDraft(container, ctx) {
   container.appendChild(resultMount);
 }
 
+// honest latency messaging (Phase KG-11 Step 4): the community's own admission_policy.comment_admission,
+// carried on the fetched snapshot (communities/epistack-competition/build/regenerate-snapshot.mjs),
+// read here to tell a commenter what actually happens next, never a guess. Every other kind is always
+// manual and never mentions this at all (the message renders only on the comment/reply form).
+function describeCommentAdmission(admissionPolicy, nowMs) {
+  const policy = admissionPolicy && admissionPolicy.comment_admission;
+  if (!policy || policy.mode !== "auto-during-window") {
+    return "Comments await the maintainers' own review, same as every contribution, until admitted through a pull request.";
+  }
+  const window = policy.window;
+  if (!window || !window.starts_at || !window.ends_at) {
+    return "Comments await the maintainers' own review, same as every contribution, until admitted through a pull request.";
+  }
+  const starts = Date.parse(window.starts_at);
+  const ends = Date.parse(window.ends_at);
+  if (Number.isFinite(starts) && Number.isFinite(ends) && nowMs >= starts && nowMs <= ends) {
+    return `Comments are admitted automatically during the judging window (through ${window.ends_at}), at the next scheduled sweep, usually within the hour.`;
+  }
+  return `Auto-admission is enabled for the judging window (${window.starts_at} to ${window.ends_at}); outside that window, comments await the maintainers' own review, same as every contribution.`;
+}
+
 // comment / reply: no action selector, no kind selector, no grade selector. action === "reply" means
 // targetRow is the comment being replied to (replies-to); action === "comment" means targetRow is
 // whatever the comment attaches to (comments-on, any record).
@@ -225,6 +252,7 @@ function renderCommentDraft(container, ctx) {
     "form",
     { class: "contribute-form", onsubmit: (e) => { e.preventDefault(); runDraft(); } },
     el("p", { class: "contribute-target" }, action === "reply" ? `Replying to: ${targetRow.statement}` : `Commenting on: ${targetRow.statement}`),
+    el("p", { class: "admission-latency-note" }, describeCommentAdmission(community.raw.admission_policy, Date.now())),
     el("label", {}, "Comment", el("textarea", { required: true, oninput: (e) => (statement = e.target.value) })),
     el("label", {}, "Citation (optional)", el("input", { type: "text", oninput: (e) => (citation = e.target.value) })),
     el("label", {}, "Contributor id", el("input", { type: "text", value: contributorId, oninput: (e) => (contributorId = e.target.value) })),

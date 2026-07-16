@@ -6,13 +6,15 @@
     "domain": "the EpiStack protocol and its competition submission",
     "purpose": "a community kernel grounding the protocol's own mechanical guarantees against the pinned reference implementation's own check suite, and holding the submission's evaluative theses bare, at their honest floor, awaiting semantic acceptance by the judges and participants who alone can give it"
   },
-  "adopted_type_hashes": [
-    "measurement",
-    "forum",
-    "comment",
-    "declaration"
-  ],
+  "adopted_type_hashes": ["measurement", "forum", "comment", "declaration"],
   "local_kinds": [],
+  "admission_policy": {
+    "comment_admission": {
+      "mode": "manual",
+      "window": null,
+      "_note": "the operator's only admission switch (Phase KG-11 Step 4): 'manual' leaves every bundle, comment or otherwise, waiting on the maintainers' own pull-request review; 'auto-during-window' additionally admits a comment-kind bundle automatically while now falls inside window.starts_at/ends_at, because a comment is ungraded, never-citable discussion (KG-4), never epistemic content. Claims, supports, contests, and every other kind are always manual, in every mode; communities/epistack-competition/build/admission.mjs's decideAdmission is the one enforcement point."
+    }
+  },
   "sources": [
     {
       "source_id": "S-epistack-protocol-spec",
@@ -30,9 +32,7 @@
       "description": "upstream's own vocabulary kernel (corpora/vocabulary/vocabulary.js), the submission's terms as declaration claims each grounding by adoption in the document that defines it"
     }
   ],
-  "time_lock": {
-    "setting": "light"
-  },
+  "time_lock": { "setting": "light" },
   "identity_thresholds": {
     "propose": "any",
     "contest-type": "supported",

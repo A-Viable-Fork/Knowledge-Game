@@ -468,6 +468,14 @@ const STORE = {
     },
     {
       ref: "claim-40",
+      kind: "declaration",
+      statement: "knowledge: the invariant left as the model is attenuated, knower-independent warranted standing rather than truth.",
+      source_id: "S-epistack-vocabulary",
+      contributor_id: "P-epistack-vocabulary",
+      declared_grade: "constitutive"
+    },
+    {
+      ref: "claim-41",
       kind: "measurement",
       statement: "In the typed claim graph every claim is independently typed, hashed, and graded from its own support, so a failure is isolable to the claim that failed.",
       source_id: "S-epistack-protocol-spec",
@@ -478,7 +486,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-41",
+      ref: "claim-42",
       kind: "measurement",
       statement: "In the eggs corpus, nutritional epidemiology walked through the gate sorts into claims that ground to their floors, contested weighings held at the forum tier, and characterized gaps each carrying its closing study.",
       source_id: "S-epistack-protocol-spec",
@@ -489,7 +497,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-42",
+      ref: "claim-43",
       kind: "measurement",
       statement: "The gate recomputes a claim's standing from its support structure, and who proposed it never enters the computation.",
       source_id: "S-epistack-protocol-spec",
@@ -500,7 +508,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-43",
+      ref: "claim-44",
       kind: "measurement",
       statement: "An imported claim arrives untyped at the floor and re-earns under local judgment, so shared meaning is exactly shared hash and nothing composes by accident.",
       source_id: "S-epistack-protocol-spec",
@@ -512,7 +520,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-44",
+      ref: "claim-45",
       kind: "measurement",
       statement: "The repository carries working corpora for the three cases, a mathematics kernel, and a vocabulary kernel that defines the submission's own terms as graded claims.",
       source_id: "S-epistack-protocol-spec",
@@ -527,7 +535,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-45",
+      ref: "claim-46",
       kind: "measurement",
       statement: "Standing moves only through typing acts, so a market layer references grades and provably cannot move them.",
       source_id: "S-epistack-protocol-spec",
@@ -538,7 +546,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-46",
+      ref: "claim-47",
       kind: "forum",
       statement: "A synthesis concentrates reasoning into a document, so when any part of it is wrong the whole document and everyone who trusted it are wrong together.",
       source_id: "S-epistack-submission-argument",
@@ -546,7 +554,7 @@ const STORE = {
       declared_grade: "asserted"
     },
     {
-      ref: "claim-47",
+      ref: "claim-48",
       kind: "forum",
       statement: "The one financial constraint fixed at protocol level is that penalties trigger on provable fault only, never on being wrong or unpopular.",
       source_id: "S-epistack-submission-argument",
@@ -554,7 +562,7 @@ const STORE = {
       declared_grade: "asserted"
     },
     {
-      ref: "claim-48",
+      ref: "claim-49",
       kind: "measurement",
       statement: "A declared grade above what the published structure delivers is caught deterministically, as GM-ABOVE, by anyone recomputing.",
       source_id: "S-epistack-protocol-spec",
@@ -565,7 +573,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-49",
+      ref: "claim-50",
       kind: "forum",
       statement: "Recomputation cannot catch attestation fraud, because the gate checks structure and not correspondence to the world, so a perfect forgery that no one re-checks stands.",
       source_id: "S-epistack-submission-argument",
@@ -573,7 +581,7 @@ const STORE = {
       declared_grade: "asserted"
     },
     {
-      ref: "claim-50",
+      ref: "claim-51",
       kind: "forum",
       statement: "Any mechanism that performed semantic attenuation at the claim level would be a semantic judge inside the kernel, which is a reintroduced trusted producer, a fixed Goodhart target, and a centralized fraud surface.",
       source_id: "S-epistack-submission-argument",
@@ -581,7 +589,7 @@ const STORE = {
       declared_grade: "asserted"
     },
     {
-      ref: "claim-51",
+      ref: "claim-52",
       kind: "measurement",
       statement: "The gate admits a contribution only if it holds together with what is already there, and rechecks every declared grade on every change.",
       source_id: "S-epistack-protocol-spec",
@@ -592,7 +600,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-52",
+      ref: "claim-53",
       kind: "measurement",
       statement: "Input that arrives untyped is admitted and sits at the floor, grounding nothing, until someone types it and owns the typing.",
       source_id: "S-epistack-protocol-spec",
@@ -603,7 +611,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-53",
+      ref: "claim-54",
       kind: "measurement",
       statement: "The gate checks a claim's structure, never its agent's identity or nature, so a person, an organization, a model, or a pipeline are checked exactly the same way.",
       source_id: "S-epistack-protocol-spec",
@@ -614,7 +622,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-54",
+      ref: "claim-55",
       kind: "measurement",
       statement: "In the LHC case, making the shared assumption an explicit node reprices the apparent convergence as one assumption wearing several coats.",
       source_id: "S-epistack-protocol-spec",
@@ -626,7 +634,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-55",
+      ref: "claim-56",
       kind: "measurement",
       statement: "In the eggs case, swapping the presupposed frame swaps the verdict while every measurement underneath keeps its grade.",
       source_id: "S-epistack-protocol-spec",
@@ -638,7 +646,7 @@ const STORE = {
       ]
     },
     {
-      ref: "claim-56",
+      ref: "claim-57",
       kind: "forum",
       statement: "From inside a single synthesis you cannot tell which parts are the world and which are the viewer, because the viewer is woven through every sentence.",
       source_id: "S-epistack-submission-argument",
@@ -648,39 +656,39 @@ const STORE = {
   ],
   links: [
     { link_kind: "supports", from: "claim-19", to: "claim-10", support_group: "g:claim-10/claim-19", source_id: "S-epistack-protocol-spec", contributor_id: "P-epistack-competition-contributor-1", declared_grade: "corroborated" },
-    { link_kind: "depends-on", from: "claim-46", to: "claim-20", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-40", to: "claim-21", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-40", to: "claim-22", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-41", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-41", to: "claim-24", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-41", to: "claim-25", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-47", to: "claim-20", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-41", to: "claim-21", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-41", to: "claim-22", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
     { link_kind: "depends-on", from: "claim-42", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-42", to: "claim-26", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-42", to: "claim-27", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-43", to: "claim-28", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-43", to: "claim-29", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-43", to: "claim-30", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-44", to: "claim-31", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-45", to: "claim-26", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-45", to: "claim-32", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-47", to: "claim-26", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-48", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-48", to: "claim-33", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-48", to: "claim-34", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-49", to: "claim-35", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-49", to: "claim-36", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-50", to: "claim-36", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-42", to: "claim-24", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-42", to: "claim-25", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-43", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-43", to: "claim-26", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-43", to: "claim-27", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-44", to: "claim-28", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-44", to: "claim-29", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-44", to: "claim-30", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-45", to: "claim-31", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-46", to: "claim-26", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-46", to: "claim-32", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-48", to: "claim-26", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-49", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-49", to: "claim-33", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-49", to: "claim-34", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
     { link_kind: "depends-on", from: "claim-50", to: "claim-35", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-56", to: "claim-20", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-56", to: "claim-37", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-51", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-51", to: "claim-33", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-52", to: "claim-29", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-52", to: "claim-32", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-53", to: "claim-27", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-53", to: "claim-38", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-54", to: "claim-39", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
-    { link_kind: "depends-on", from: "claim-55", to: "claim-24", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" }
+    { link_kind: "depends-on", from: "claim-50", to: "claim-36", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-51", to: "claim-36", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-51", to: "claim-35", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-57", to: "claim-20", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-57", to: "claim-37", source_id: "S-epistack-submission-argument", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-52", to: "claim-23", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-52", to: "claim-33", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-53", to: "claim-29", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-53", to: "claim-32", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-54", to: "claim-27", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-54", to: "claim-38", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-55", to: "claim-39", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" },
+    { link_kind: "depends-on", from: "claim-56", to: "claim-24", source_id: "S-epistack-protocol-spec", contributor_id: "P-submission-transcription", declared_grade: "asserted" }
   ]
 };
 

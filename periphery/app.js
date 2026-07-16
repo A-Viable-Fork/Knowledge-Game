@@ -38,6 +38,8 @@ import { renderMenuScreen } from "./menu-screen.js";
 import { renderCommunitiesScreen } from "./communities-screen.js";
 import { renderAssistantScreen } from "./assistant-screen.js";
 import { renderKernelDesignerScreen } from "./kernel-designer-screen.js";
+import { renderSubmissionScreen } from "./submission-screen.js";
+import { loadAllAnchorMaps, buildCrossDocumentIndex } from "../api/submission.js";
 import { LEARN_EFFICIENTLY_SOURCE } from "./demo-extensions.js";
 
 // The community registry. The founded EpiStack Competition Community (Phase B/C, its community card
@@ -352,11 +354,34 @@ async function loadCommunity(id, deepLinkClaim) {
   let weights = settings.getObjective();
   const observationOn = settings.observationEnabled();
   let excludedKinds = settings.getFilter(meta.id);
+  let submissionScope = settings.getSubmissionScope(meta.id);
 
   async function renderFeed() {
     const extra = { reconciliations, observation: { enabled: observationOn, log: settings.observationLog() } };
-    const { visible, hidden } = applyFilter(rows, excludedKinds, community.raw.kinds);
+    const { visible: kindVisible, hidden: kindHidden } = applyFilter(rows, excludedKinds, community.raw.kinds);
+    // the submission threshold's own default scope (Phase KG-11): a further restriction to exactly
+    // the claim identities the reader just read, composed on top of the ordinary kind filter, never
+    // replacing it; its own hidden count folds into the same chip the kind filter already renders.
+    const scopeSet = submissionScope ? new Set(submissionScope) : null;
+    const visible = scopeSet ? kindVisible.filter((r) => scopeSet.has(r.identity)) : kindVisible;
+    const scopeHiddenCount = scopeSet ? kindVisible.length - visible.length : 0;
+    const hidden = scopeHiddenCount > 0 ? [...kindHidden, { kind: "outside this submission", count: scopeHiddenCount }] : kindHidden;
     renderChrome({ communityLabel: meta.label, weights, hidden, view: "feed" });
+    if (scopeSet) {
+      const chipsEl = document.getElementById("indicator-chips");
+      if (chipsEl) {
+        const showAllBtn = document.createElement("button");
+        showAllBtn.type = "button";
+        showAllBtn.className = "indicator-chip";
+        showAllBtn.textContent = "show whole community";
+        showAllBtn.addEventListener("click", () => {
+          settings.setSubmissionScope(meta.id, null);
+          submissionScope = null;
+          renderFeed();
+        });
+        chipsEl.appendChild(showAllBtn);
+      }
+    }
     const activeRankerHash = settings.getActiveRanker();
     const activeRankerEntry = activeRankerHash ? (settings.getExtensions() || []).find((e) => e.hash === activeRankerHash && e.shape === "ranker") : null;
     let ordered;
@@ -791,6 +816,66 @@ function loadDesignerScreen() {
   renderKernelDesignerScreen(feedEl, { onBack: () => setHash({ view: "menu" }) });
 }
 
+// the submission reading surface (Phase KG-11): always reads the competition community regardless
+// of which community is currently active, since the reading sequence is anchored against that
+// community's own merged claims.
+async function loadSubmissionScreen() {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
+  // honest offline behavior: the documents themselves are never precached (they live only at the
+  // pinned upstream commit, never copied into this repository), so this surface is online-only by
+  // construction; say so plainly rather than attempting a fetch that can only fail.
+  const online = typeof navigator === "undefined" ? true : navigator.onLine !== false;
+  if (!online) {
+    feedEl.innerHTML = "";
+    const notice = document.createElement("p");
+    notice.className = "submission-error";
+    notice.textContent = "Offline. The submission surface fetches its documents live from the pinned upstream commit and cannot render them offline; try again once connected.";
+    feedEl.appendChild(notice);
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const meta = COMMUNITIES.find((c) => c.id === "epistack-competition");
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const rows = community.api.read({});
+  const rowsByIdentity = new Map(rows.map((r) => [r.identity, r]));
+  const sourcesById = sourcesMap(community.raw);
+  const { byTarget, byFrom } = linksMaps(community.raw);
+  const gapsByIdentity = new Map(community.api.gaps({}).map((g) => [g.identity, g]));
+
+  let anchorMapsById;
+  try {
+    anchorMapsById = await loadAllAnchorMaps();
+  } catch (e) {
+    feedEl.textContent = `Refused to load the anchor maps: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const crossDocIndex = buildCrossDocumentIndex(anchorMapsById);
+  feedEl.setAttribute("aria-busy", "false");
+
+  renderSubmissionScreen(feedEl, {
+    community, rowsByIdentity, sourcesById, linksByTarget: byTarget, linksByFrom: byFrom, gapsByIdentity, crossDocIndex,
+    onContribute: (action, targetRow) => setHash({ view: "contribute", action, target: targetRow.identity, community: meta.id }),
+    onEnterCommunity: () => {
+      const scope = new Set();
+      for (const anchorMap of Object.values(anchorMapsById)) {
+        for (const span of anchorMap.spans) scope.add(span.claim);
+      }
+      settings.setSubmissionScope(meta.id, [...scope]);
+      setHash({ view: "feed", community: meta.id });
+    },
+  });
+}
+
 function loadCommunitiesScreen(activeId) {
   const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "false");
@@ -834,6 +919,8 @@ function route({ community, claim, view, action, target }) {
     loadDashboardScreen(activeId);
   } else if (view === "designer") {
     loadDesignerScreen();
+  } else if (view === "submission") {
+    loadSubmissionScreen();
   } else if (view === "contribute") {
     loadContributeScreen(activeId, action, target);
   } else {

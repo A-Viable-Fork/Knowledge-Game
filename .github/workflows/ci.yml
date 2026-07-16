@@ -90,6 +90,8 @@ jobs:
         run: node build/check-outbox.mjs
       - name: check-sync-policy
         run: node build/check-sync-policy.mjs
+      - name: check-submission-surface
+        run: node build/check-submission-surface.mjs
       - name: check-release
         run: node build/check-release.mjs
       - name: the founded community's own self-check (self-contained, no reference back into this repository)
