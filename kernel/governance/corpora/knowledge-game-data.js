@@ -378,7 +378,15 @@ const STORE = {
         {
           checker_id: "build/check-extension-seam.mjs",
           method_class: "direct-measurement",
-          method: "test-execution evidence (Phase KG-4): a candidate that mutates a grade-bearing field, drops a row, or introduces an unknown identity fails install-time conformance naming the violation; a candidate attempting fetch or referencing document is blocked by the sandbox itself (denied network, and a worker's global scope has no document at all), never merely trusted not to try; both shipped demonstration extensions pass under their declared shape, and the first-party ranker installs through the identical public conformance path a third-party candidate uses",
+          method: "test-execution evidence (Phase KG-4; egress contract amended Phase KG-9): a candidate that mutates a grade-bearing field, drops a row, or introduces an unknown identity fails install-time conformance naming the violation; a candidate referencing document is blocked by the sandbox itself (a worker's global scope has no document at all), never merely trusted not to try; network access is capability-scoped as of Phase KG-9, a candidate declaring no destinations reaches nothing even against a real reachable local server, one declaring exact destinations reaches exactly those and nothing else (proven against a real local server, both the allowed and the refused call), a wildcard declaration fails conformance before the candidate ever runs, and install renders the declared destinations and requires consent; both shipped demonstration extensions still declare no destinations and still pass, and the first-party ranker installs through the identical public conformance path a third-party candidate uses",
+          checked_at_state: "ST0",
+          outcome: "confirms",
+          independence: "distinct-party"
+        },
+        {
+          checker_id: "build/check-assistant.mjs",
+          method_class: "direct-measurement",
+          method: "test-execution evidence (Phase KG-9): the shipped assistant extension, the worked example the capability-scoped seam exists for, declares exactly one destination at every real call site; under a real reachable local server its calls reach only that destination, a call to any other path on the identical server is refused by name; with no key or endpoint configured it renders its inert setup state and calls nothing (static assertion, consistent with this repository's no-DOM-in-Node discipline for periphery modules); its output cannot reach any store except through the ordinary draft path, proven both by import-graph structure (no import of vault, settings, or the outbox) and by a runtime fuzz showing its parsing layer never touches storage and never fabricates a bundle-shaped object even when fed adversarial, bundle-shaped input",
           checked_at_state: "ST0",
           outcome: "confirms",
           independence: "distinct-party"
