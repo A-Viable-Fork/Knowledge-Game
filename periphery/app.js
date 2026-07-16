@@ -17,7 +17,7 @@ import { orderByObjective, explainPosition, objectiveChipLabel, COMPONENTS } fro
 import { epistemicCost, epistemicCostSummary } from "../api/epistemic-cost.js";
 import { kindsPresent, applyFilter, filterChipLabel } from "../api/filter.js";
 import { checkConformance, runRanker, runRenderer, runWorkflow, contentHash } from "../api/extension.js";
-import { assemblePromptPack, buildFormalizeMessages, buildExplainMessages, parseFormalizeOutput, parseExplainOutput, ASSISTANT_SOURCE } from "../api/assistant.js";
+import { assemblePromptPack, buildFormalizeMessages, buildExplainMessages, parseFormalizeOutput, parseExplainOutput, ASSISTANT_SOURCE, PROVIDER_PRESETS, assistantChipLabel } from "../api/assistant.js";
 import { computeAlerts, refreshWatches } from "../api/alerts.js";
 import * as settings from "../api/settings.js";
 import { pinCommunity, unpinCommunity, isPinned, pinAge, listPins } from "../api/pins.js";
@@ -123,6 +123,19 @@ function renderChrome({ communityLabel, weights, hidden, view }) {
       filterBtn.textContent = filterLabel;
       filterBtn.addEventListener("click", () => setHash({ view: "filters" }));
       chipsEl.appendChild(filterBtn);
+    }
+    // Phase KG-9b: the objective-chip discipline applied to the assistant. Renders on every screen,
+    // a pure function of settings alone, so the reader always sees which producer they are talking to.
+    const activeProviderId = settings.getAssistantActiveProvider();
+    const activeProviderConfig = activeProviderId ? settings.getAssistantProviderConfig(activeProviderId) : null;
+    const assistantLabel = activeProviderConfig ? assistantChipLabel(activeProviderId, activeProviderConfig.model, PROVIDER_PRESETS) : null;
+    if (assistantLabel) {
+      const assistantBtn = document.createElement("button");
+      assistantBtn.type = "button";
+      assistantBtn.className = "indicator-chip";
+      assistantBtn.textContent = assistantLabel;
+      assistantBtn.addEventListener("click", () => setHash({ view: "assistant" }));
+      chipsEl.appendChild(assistantBtn);
     }
   }
   const dot = document.getElementById("menu-unread-dot");
@@ -755,9 +768,19 @@ function loadMenuScreen() {
   });
 }
 
-// the assistant screen (Phase KG-9): onFormalize/onExplain are the only two places this app ever
-// calls settings.getApiKey()/getAssistantEndpoint() and hands them to runWorkflow, alongside the
-// endpoint itself as the sandbox's one declared destination; nothing else in this module reads them.
+// the assistant screen (Phase KG-9b: per-provider presets, model dropdown, add-model). onFormalize/
+// onExplain are the only two places this app ever reads a configured provider's endpoint/key/model
+// (via settings.getAssistantProviderConfig) and hands them to runWorkflow, alongside that provider's
+// own endpoint as the sandbox's one declared destination; nothing else in this module reads them.
+function activeProviderConfig() {
+  const providerId = settings.getAssistantActiveProvider();
+  if (!providerId) return null;
+  const config = settings.getAssistantProviderConfig(providerId);
+  if (!config) return null;
+  const preset = PROVIDER_PRESETS.find((p) => p.id === providerId);
+  return { providerId, preset, ...config };
+}
+
 async function loadAssistantScreen(id) {
   const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "true");
@@ -775,34 +798,41 @@ async function loadAssistantScreen(id) {
   feedEl.setAttribute("aria-busy", "false");
 
   const online = typeof navigator === "undefined" ? true : navigator.onLine !== false;
+  const active = activeProviderConfig();
 
   renderAssistantScreen(feedEl, {
     community,
-    apiKey: settings.getApiKey(),
-    endpoint: settings.getAssistantEndpoint(),
+    presets: PROVIDER_PRESETS,
+    active,
+    activeProviderId: settings.getAssistantActiveProvider(),
+    getProviderConfig: (providerId) => settings.getAssistantProviderConfig(providerId),
     online,
     contributionTarget: meta.contributionTarget,
     communityId: meta.id,
-    onSaveEndpoint: (endpoint) => { settings.setAssistantEndpoint(endpoint); loadAssistantScreen(id); },
-    onSaveApiKey: (key) => { settings.setApiKey(key); loadAssistantScreen(id); },
+    onSaveProvider: (providerId, config) => {
+      settings.setAssistantProviderConfig(providerId, config);
+      settings.setAssistantActiveProvider(providerId);
+      loadAssistantScreen(id);
+    },
+    onSelectActiveProvider: (providerId) => { settings.setAssistantActiveProvider(providerId); loadAssistantScreen(id); },
+    onAddModel: (providerId, modelId) => { settings.addAssistantModel(providerId, modelId); loadAssistantScreen(id); },
+    onRemoveModel: (providerId, modelId) => { settings.removeAssistantModel(providerId, modelId); loadAssistantScreen(id); },
     onFormalize: async (informalText, contextClaim) => {
-      const endpoint = settings.getAssistantEndpoint();
-      const apiKey = settings.getApiKey();
+      const cfg = activeProviderConfig();
       const promptPack = assemblePromptPack(community);
       const messages = buildFormalizeMessages(promptPack, informalText, contextClaim);
-      const out = await runWorkflow(ASSISTANT_SOURCE, { endpoint: endpoint.url, apiKey, model: endpoint.model, messages }, [endpoint.url]);
+      const out = await runWorkflow(ASSISTANT_SOURCE, { endpoint: cfg.endpoint, apiKey: cfg.apiKey, model: cfg.model, messages, shape: cfg.preset.shape }, [cfg.endpoint]);
       return parseFormalizeOutput(out.content, !!contextClaim);
     },
     onExplain: async (claim) => {
-      const endpoint = settings.getAssistantEndpoint();
-      const apiKey = settings.getApiKey();
+      const cfg = activeProviderConfig();
       const links = community.raw.state.links || [];
       const rowsByIdentity = new Map(community.api.read({}).map((r) => [r.identity, r]));
       const supports = links.filter((l) => l.link_kind === "supports" && l.to_identity === claim.identity).map((l) => rowsByIdentity.get(l.from_identity)).filter(Boolean);
       const challenges = links.filter((l) => (l.link_kind === "contradicts" || l.link_kind === "undercut") && l.to_identity === claim.identity).map((l) => ({ link_kind: l.link_kind, statement: (rowsByIdentity.get(l.from_identity) || {}).statement || "" }));
       const promptPack = assemblePromptPack(community);
       const messages = buildExplainMessages(promptPack, claim, supports, challenges);
-      const out = await runWorkflow(ASSISTANT_SOURCE, { endpoint: endpoint.url, apiKey, model: endpoint.model, messages }, [endpoint.url]);
+      const out = await runWorkflow(ASSISTANT_SOURCE, { endpoint: cfg.endpoint, apiKey: cfg.apiKey, model: cfg.model, messages, shape: cfg.preset.shape }, [cfg.endpoint]);
       return parseExplainOutput(out.content);
     },
     onBack: () => setHash({ view: "menu" }),

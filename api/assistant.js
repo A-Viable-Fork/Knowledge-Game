@@ -7,15 +7,25 @@
 //   invented one, so the model addresses the system in the system's own terms. Two tasks: formalize
 //   (informal text, optionally alongside an existing claim the user picked as context, in ->
 //   {statement, kind, action, note} out) and explain (an existing claim's own support-chain slice in
-//   -> {answer} out). Provider-agnostic: any OpenAI-compatible chat-completions endpoint, the
-//   endpoint and model both user-configured settings, never a hardcode.
+//   -> {answer} out). Provider-agnostic at the shape level (Phase KG-9b): two request shapes exist,
+//   openai-chat (OpenAI itself, DeepSeek, and any OpenAI-compatible custom base) and anthropic-
+//   messages (Anthropic's own messages endpoint); a preset names an endpoint, a shape, and a starter
+//   model list, never vendor-specific code, so a future vendor speaking an existing shape is a new
+//   preset, not new logic.
 // Contract: assemblePromptPack(community) -> string. buildFormalizeMessages(promptPack, informalText,
 //   contextClaim|null) -> messages array. buildExplainMessages(promptPack, claim, supports, challenges)
 //   -> messages array. parseFormalizeOutput(rawContent, hadContext) -> {statement, kind, action, note}
 //   (defensive: a non-JSON reply degrades to a plain "new" claim carrying the raw text verbatim,
 //   never thrown away). parseExplainOutput(rawContent) -> {answer} (never structured; the raw reply
 //   is the answer). ASSISTANT_SOURCE: the sandboxed extensionMain source string, the one place a real
-//   network call happens, always exactly one destination (the caller's own configured endpoint).
+//   network call happens, always exactly one destination (the caller's own configured endpoint) per
+//   configured provider; input.shape selects the request/response mapping, never the endpoint alone
+//   (Phase KG-9b: a call whose shape does not match what the endpoint actually speaks fails loudly,
+//   naming the missing field it expected, rather than silently mis-mapping content). PROVIDER_PRESETS:
+//   the shipped preset table, each {id, name, endpoint, shape, keyHeaderForm, starterModels,
+//   corsStatus, corsNote}; corsStatus is "verified-browser-direct" or "relay-required", live-tested
+//   from a real browser context during this phase's own build (see the report), never asserted from
+//   documentation alone.
 // Invariant: this module never imports vault/ or api/settings.js (the caller reads the key and
 //   endpoint and passes them into runWorkflow's input; this module never reads storage itself) and
 //   never imports api/contribute.js or vendor/api/contribution.js (nothing here can construct or
@@ -122,13 +132,85 @@ export function parseExplainOutput(rawContent) {
   return { answer: String(rawContent || "") };
 }
 
+// Phase KG-9b: the objective-chip discipline applied to the assistant. The reader always sees which
+// producer they are talking to, everywhere in the app, not only on the assistant screen itself; a
+// pure function of settings alone (providerId, model), same shape as api/ranking.js's own
+// objectiveChipLabel. Null (renders no chip) when no provider is configured yet.
+export function assistantChipLabel(providerId, model, presets) {
+  if (!providerId || !model) return null;
+  const preset = (presets || PROVIDER_PRESETS).find((p) => p.id === providerId);
+  return `${preset ? preset.name : providerId}: ${model}`;
+}
+
+// Phase KG-9b: the shipped provider presets. Two shapes exist (openai-chat, anthropic-messages);
+// a preset is a shape plus an endpoint plus a starter model list, never vendor-specific code. corsStatus
+// is empirically tested (see the KG-9b report), not asserted from documentation: "verified-browser-direct"
+// means a real browser context reached the endpoint and received a genuine HTTP response (even an
+// error status counts, since the point is that CORS itself did not block the request); "relay-required"
+// means the identical live test came back "Failed to fetch" at the network layer, the browser's own
+// signal that the endpoint does not permit a direct in-page call, so the endpoint field must be pointed
+// at a CORS-permitting gateway or relay instead.
+export const PROVIDER_PRESETS = [
+  {
+    id: "anthropic",
+    name: "Anthropic",
+    endpoint: "https://api.anthropic.com/v1/messages",
+    shape: "anthropic-messages",
+    keyHeaderForm: "x-api-key header, plus anthropic-version and the direct-browser-access opt-in header",
+    starterModels: ["claude-sonnet-5", "claude-opus-4-8", "claude-haiku-4-5-20251001"],
+    corsStatus: "verified-browser-direct",
+    corsNote: "live-tested from a real browser context with the anthropic-dangerous-direct-browser-access header: the browser receives a genuine response (a 401 with an invalid test key, proving CORS itself did not block the call). The identical call without that header failed at the network layer, confirming the header is required, not decorative.",
+  },
+  {
+    id: "deepseek",
+    name: "DeepSeek",
+    endpoint: "https://api.deepseek.com/chat/completions",
+    shape: "openai-chat",
+    keyHeaderForm: "Authorization: Bearer header",
+    starterModels: ["deepseek-chat", "deepseek-reasoner"],
+    corsStatus: "relay-required",
+    corsNote: "live-tested from a real browser context: the call failed at the network layer (no response reached the page), the browser's own signal that this endpoint does not send permissive CORS headers. Point the endpoint field at a CORS-permitting gateway or relay to use this preset browser-direct.",
+  },
+  {
+    id: "custom",
+    name: "Custom (OpenAI-compatible)",
+    endpoint: "",
+    shape: "openai-chat",
+    keyHeaderForm: "Authorization: Bearer header",
+    starterModels: ["gpt-4o-mini"],
+    corsStatus: "relay-required",
+    corsNote: "the generic base preset for any OpenAI-compatible chat-completions endpoint (the shipped default before this phase). OpenAI's own endpoint was live-tested from a real browser context and failed at the network layer the same way DeepSeek's did; treat any custom OpenAI-compatible endpoint as relay-required unless you have tested otherwise. The endpoint field accepts a gateway or relay URL.",
+  },
+];
+
 // the one place a real network call happens. Declines to act (no fetch) on any input lacking a real
 // task descriptor (endpoint/apiKey/model/messages), so the generic install-time conformance probe
-// (an empty {} input) passes without ever attempting a call. A rejecting HTTP status is surfaced as a
-// thrown error naming it, never swallowed into a fabricated success.
+// (an empty {} input) passes without ever attempting a call. input.shape selects the request/response
+// mapping ("openai-chat" is the default when absent, preserving the pre-KG-9b call shape). A rejecting
+// HTTP status, or a response missing the field the selected shape expects (a shape/endpoint mismatch),
+// is surfaced as a thrown error naming what was expected, never swallowed into a fabricated success or
+// silently mis-mapped from the other shape's field.
 export const ASSISTANT_SOURCE = [
   "function extensionMain(input) {",
   "  if (!input || !input.endpoint || !input.apiKey || !input.model || !input.messages) return { idle: true };",
+  '  var shape = input.shape || "openai-chat";',
+  '  if (shape === "anthropic-messages") {',
+  '    var systemMsg = input.messages.filter(function (m) { return m.role === "system"; }).map(function (m) { return m.content; }).join("\\n\\n");',
+  '    var turns = input.messages.filter(function (m) { return m.role !== "system"; });',
+  "    return fetch(input.endpoint, {",
+  '      method: "POST",',
+  '      headers: { "Content-Type": "application/json", "x-api-key": input.apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },',
+  "      body: JSON.stringify({ model: input.model, max_tokens: 1024, system: systemMsg, messages: turns }),",
+  "    }).then(function (res) {",
+  "      return res.json().then(function (data) {",
+  '        if (!res.ok) { throw new Error("assistant endpoint returned " + res.status + ": " + JSON.stringify(data).slice(0, 300)); }',
+  "        var block = data && data.content && data.content[0];",
+  '        var content = block && block.type === "text" ? block.text : null;',
+  '        if (typeof content !== "string") { throw new Error("assistant endpoint response missing content[0].text (anthropic-messages shape expected); refusing to mis-map a differently-shaped response"); }',
+  "        return { content: content };",
+  "      });",
+  "    });",
+  "  }",
   "  return fetch(input.endpoint, {",
   '    method: "POST",',
   '    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + input.apiKey },',
@@ -137,7 +219,7 @@ export const ASSISTANT_SOURCE = [
   "    return res.json().then(function (data) {",
   '      if (!res.ok) { throw new Error("assistant endpoint returned " + res.status + ": " + JSON.stringify(data).slice(0, 300)); }',
   "      var content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;",
-  '      if (typeof content !== "string") { throw new Error("assistant endpoint response missing choices[0].message.content"); }',
+  '      if (typeof content !== "string") { throw new Error("assistant endpoint response missing choices[0].message.content (openai-chat shape expected); refusing to mis-map a differently-shaped response"); }',
   "      return { content: content };",
   "    });",
   "  });",

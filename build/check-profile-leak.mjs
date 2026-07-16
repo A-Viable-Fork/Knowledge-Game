@@ -40,8 +40,8 @@ const KEY_CANARY = "sk-CANARY-do-not-leak-1a2b3c4d";
 vault.setObjective({ "learn-efficiently": 3 });
 vault.setObservationEnabled(true);
 vault.recordObservation({ type: "dwell", identity: CANARY, kind: "measurement", at: Date.now(), note: CANARY });
-vault.setApiKey(KEY_CANARY); // Phase KG-9: the assistant's BYOK credential, planted as its own canary
-vault.setAssistantEndpoint({ url: "https://example.invalid/v1/chat/completions", model: "canary-model" });
+vault.setAssistantProviderConfig("canary-provider", { endpoint: "https://example.invalid/v1/chat/completions", apiKey: KEY_CANARY, model: "canary-model" }); // Phase KG-9b: the assistant's BYOK credential, planted as its own canary
+vault.addAssistantModel("canary-provider", "canary-added-model");
 ok(JSON.stringify(vault.exportAll()).includes(CANARY), "sanity: the canary is actually present in the vault's own export (the seed worked)");
 ok(JSON.stringify(vault.exportAll()).includes(KEY_CANARY), "sanity: the key canary is actually present in the vault's own export (exportable like every other vault field)");
 

@@ -25,11 +25,15 @@
 //   Phase KG-8: getSkin()/setSkin(skinId) (which registered skin id, api/skins.js's own SKINS array;
 //   absence is "trellis", the skin built around the app's own new mark, shipped as default once the
 //   mark exists to ship around; "ledger", this app's original look, stays one tap away on the vault
-//   screen's own picker for anyone who prefers it). Phase KG-9: getApiKey()/setApiKey(key) (the
-//   assistant extension's BYOK credential; absence is null, the assistant's inert-offline state);
-//   getAssistantEndpoint()/setAssistantEndpoint({url, model}) (the user-configured, provider-agnostic
-//   inference destination; absence is null, same inert state, since there is no hardcoded default
-//   endpoint anywhere in this deployment). Phase KG-11: getSubmissionScope(communityId)/
+//   screen's own picker for anyone who prefers it). Phase KG-9b (supersedes KG-9's single-provider
+//   getApiKey/setApiKey/getAssistantEndpoint/setAssistantEndpoint, since BYOK across more than one
+//   preset needs a key and endpoint per provider, never one shared pair): getAssistantProviderConfig
+//   (providerId)/setAssistantProviderConfig(providerId, {endpoint, apiKey, model}) (per-provider
+//   endpoint, key, and selected model; absence is null, the assistant's inert-offline state for that
+//   provider); getAssistantActiveProvider()/setAssistantActiveProvider(providerId) (which configured
+//   provider the assistant surface currently uses; absence is null); addAssistantModel(providerId,
+//   modelId)/removeAssistantModel(providerId, modelId) (the user-owned added-model list per provider,
+//   vault-persisted, never fetched live). Phase KG-11: getSubmissionScope(communityId)/
 //   setSubmissionScope(communityId, identities|null) (the submission threshold's own default feed
 //   scope, a claim-identity allowlist distinct from the kind-based filter; absence is null, the
 //   whole community, exactly as before this phase).
@@ -239,29 +243,61 @@ export function setSkin(skinId) {
   writeStore(store);
 }
 
-// Phase KG-9: the assistant extension's BYOK credential and endpoint configuration. The key never
-// ships in any extension, appears in any manifest, or serializes into any patch; it lives only here,
-// read at call time and passed transiently into the sandbox's one call, never persisted by the
-// extension itself. Absence is null (no key configured, the assistant renders its setup state and
-// calls nothing); exportAll() carries it like every other vault field, since the vault's own export
-// is the one place a profile's own contents are meant to leave the device, at the reader's own hand.
-export function getApiKey() {
-  return readStore().assistantApiKey || null;
+// Phase KG-9b: the assistant extension's BYOK credential and endpoint configuration, per provider
+// (api/assistant.js's PROVIDER_PRESETS ids, or a caller's own custom id). A key never ships in any
+// extension, appears in any manifest, or serializes into any patch; it lives only here, read at call
+// time and passed transiently into the sandbox's one call, never persisted by the extension itself.
+// Absence (no entry for a given providerId) is null (that provider unconfigured, the assistant renders
+// its setup state and calls nothing for it); exportAll() carries the whole map like every other vault
+// field, since the vault's own export is the one place a profile's own contents are meant to leave the
+// device, at the reader's own hand.
+export function getAssistantProviderConfig(providerId) {
+  const providers = readStore().assistantProviders || {};
+  return providers[providerId] || null; // { endpoint, apiKey, model, addedModels } | null
 }
-export function setApiKey(key) {
+export function setAssistantProviderConfig(providerId, config) {
   const store = readStore();
-  if (key) store.assistantApiKey = key;
-  else delete store.assistantApiKey;
+  const providers = store.assistantProviders || {};
+  if (config && config.endpoint && config.apiKey && config.model) {
+    const existing = providers[providerId];
+    providers[providerId] = { endpoint: config.endpoint, apiKey: config.apiKey, model: config.model, addedModels: (existing && existing.addedModels) || [] };
+  } else {
+    delete providers[providerId];
+  }
+  store.assistantProviders = providers;
   writeStore(store);
 }
 
-export function getAssistantEndpoint() {
-  return readStore().assistantEndpoint || null; // { url, model } | null
+export function getAssistantActiveProvider() {
+  return readStore().assistantActiveProvider || null;
 }
-export function setAssistantEndpoint(endpoint) {
+export function setAssistantActiveProvider(providerId) {
   const store = readStore();
-  if (endpoint && endpoint.url && endpoint.model) store.assistantEndpoint = { url: endpoint.url, model: endpoint.model };
-  else delete store.assistantEndpoint;
+  if (providerId) store.assistantActiveProvider = providerId;
+  else delete store.assistantActiveProvider;
+  writeStore(store);
+}
+
+// the user-owned model list per provider: never fetched live (auth and CORS vary per endpoint;
+// staleness is fixed by the user owning the list, not by this app polling a provider's own catalog).
+export function addAssistantModel(providerId, modelId) {
+  if (!providerId || !modelId) return;
+  const store = readStore();
+  const providers = store.assistantProviders || {};
+  const existing = providers[providerId] || { endpoint: "", apiKey: "", model: "", addedModels: [] };
+  if (!existing.addedModels.includes(modelId)) existing.addedModels = [...existing.addedModels, modelId];
+  providers[providerId] = existing;
+  store.assistantProviders = providers;
+  writeStore(store);
+}
+export function removeAssistantModel(providerId, modelId) {
+  const store = readStore();
+  const providers = store.assistantProviders || {};
+  const existing = providers[providerId];
+  if (!existing) return;
+  existing.addedModels = (existing.addedModels || []).filter((m) => m !== modelId);
+  providers[providerId] = existing;
+  store.assistantProviders = providers;
   writeStore(store);
 }
 
