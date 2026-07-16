@@ -1,0 +1,77 @@
+name: android-release
+
+# Builds the Android TWA wrapper (Phase KG-6a) and attaches the signed APK to a GitHub release.
+# Manually triggered, or on pushing a version tag. Wraps the live deployed app; the project is
+# generated fresh from the deployed manifest on every run, never a bundled snapshot.
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up the Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Point Bubblewrap at the runner's own JDK and Android SDK
+        run: |
+          mkdir -p "$HOME/.bubblewrap"
+          cat > "$HOME/.bubblewrap/config.json" <<EOF
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+
+      - name: Install the wrapper's own dependencies (Bubblewrap, scoped to android/ alone)
+        working-directory: android
+        run: npm ci
+
+      - name: Generate the TWA project from the live deployed manifest
+        working-directory: android
+        run: node generate-project.mjs
+
+      - name: Build and sign the APK with the committed test keystore
+        working-directory: android
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: kg-test-only-2026
+          BUBBLEWRAP_KEY_PASSWORD: kg-test-only-2026
+        run: npx bubblewrap build
+
+      - name: Locate the built APK
+        id: apk
+        working-directory: android
+        run: |
+          test -f app-release-signed.apk
+          echo "path=android/app-release-signed.apk" >> "$GITHUB_OUTPUT"
+
+      - name: Attach the APK to a GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('android-test-{0}', github.run_number) }}
+          name: Knowledge Game Android (test-signed sideload)
+          body: |
+            Test-signed APK wrapping https://a-viable-fork.github.io/Knowledge-Game/app/ as a
+            Trusted Web Activity. Sideload only; see android/test-keystore/README.md for the
+            TEST ONLY signing key and android/assetlinks.json for the Digital Asset Links
+            statement (place at the org-site repo's `.well-known/assetlinks.json` to remove the
+            URL bar).
+          files: ${{ steps.apk.outputs.path }}
+          draft: false
+          prerelease: true

@@ -200,6 +200,32 @@ moves from `c1408ea4ba3560e58226a66014588f133cd3ec1d38fc7d05969809fd0ce230f2` to
 `build/check-card-hashes.mjs` confirming the reproduction and a new deliberate-break case (declaring
 a license moves the hash).
 
+**Phase KG-6a, completed: the Android wrapper.** Wraps this same deployment in a Trusted Web
+Activity, never a second copy. The repository-root `index.html` redirects immediately to `app/`,
+closing the live Pages root's previously Jekyll-rendered README. `app/manifest.webmanifest` gains
+real PNG icon files at 192 and 512 (`build/generate-icons.mjs`, a deterministic Playwright
+rasterizer over the mark's existing SVG), since Bubblewrap's icon fetcher rejects the manifest's
+earlier data-URI icons outright; `build/shell-files.mjs` and `sw.js`'s precache list extend to cover
+them. `standalone` display, `portrait` orientation, and theme and background colors matching the
+mark complete the manifest polish. `android/generate-project.mjs` builds the TWA's Gradle project
+through `@bubblewrap/core`'s library API directly, never the CLI's interactive prompts, so the same
+inputs run unattended in CI; it always fetches the live deployed manifest, never a local copy, so
+the wrapped `host` and `startUrl` are always the real origin. Package id
+`com.aviablefork.knowledgegame`, signed with a committed TEST ONLY keystore
+(`android/test-keystore/`, its password documented beside it in capital letters, a deliberate
+low-stakes sideload-test key). `android/assetlinks.json` states the Digital Asset Links proof twice:
+committed here for reference, and reported verbatim for the operator to place at the org-site
+repository's `.well-known/assetlinks.json`, the one remaining step to remove the in-app URL bar.
+`.github/workflows/android-release.yml` builds and signs the APK on a real GitHub Actions runner and
+attaches it to a GitHub release; this development session's own network egress does not reach the
+Android SDK, the Gradle distribution, or the Pages host itself, confirmed directly rather than
+assumed and documented in `android/README.md`, so the runner is where the real build happens, not
+this session. `manifests/capability.json` records that the wrapper adds no new runtime destination.
+Three obligations follow this phase and are ledgered rather than built, not silently deferred: SK-25
+(production signing) and SK-26 (Play Store publishing), both operator actions outside this
+repository's engineering scope, and SK-27 (push notifications), a deferred egress decision, not yet
+chosen. `docs/status-report.md`'s bounded-follow-up division gains all three, now 8 items.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

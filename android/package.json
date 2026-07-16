@@ -1,0 +1,9 @@
+{
+  "name": "knowledge-game-android-wrapper",
+  "private": true,
+  "description": "Android TWA wrapper tooling only. Scoped here, deliberately separate from the zero-dependency web app: Bubblewrap and its Android/Gradle toolchain are wrapper-only concerns, never a dependency of the app itself.",
+  "type": "module",
+  "devDependencies": {
+    "@bubblewrap/cli": "1.24.1"
+  }
+}
