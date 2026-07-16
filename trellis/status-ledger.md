@@ -511,6 +511,46 @@ walk target naming a room that does not exist failed the walk-resolution asserti
 three reverted, green. Capability manifest is unchanged: the rooms are three more same-origin
 fixtures, opening no new runtime destination.
 
+**Phase KG-6c, completed: the inbound gate.** Symmetric to KG-6b's own outbound outbox and virtual
+layer: pull no longer auto-applies unbidden once a reader reaches for this. `vault/vault.js` gains
+`getInboundMode`/`setInboundMode` (`"auto"` or `"review"` per community; absence is `"auto"`, the
+existing sync behavior, gate-open, unchanged), `getInboundBaseline`/`setInboundBaseline` (the
+last-accepted working view: a lightweight `{identity, kind, grade}` ledger plus the kind and source
+tables and governance hash captured when it was taken), and `getHeldUpdates`/`setHeldUpdates`
+(declined changes, each recording the exact grade declined). `api/inbound-gate.js`, pure throughout:
+`establishBaseline` captures the current view silently the first time review mode has something to
+diff against, so switching a community into review mode never itself produces a false "everything is
+new" list; `computeUpdateList` diffs a fresh read against the baseline (a claim absent is new, a claim
+present with a different grade has moved), a held record whose declined grade still matches stays
+quietly in the held list, one that no longer matches has been overtaken by motion and returns to
+pending; `flagContradictions` names a held identity a "contradicts" link connects to; `acceptIntoBaseline`
+absorbs identities at their current real grade (exactly what auto mode already shows);
+`holdUpdates`/`clearHeld` manage declines; `adoptGovernanceHash` is the reader-side "adopt this
+parameter set" act; `recomputeUnderAdoptedParameters` reuses `api/epistemic-cost.js`'s own
+parameterized recompute over the baseline's own kind/source tables rather than a second
+implementation, promoting the epistemic-cost report from a view to a gate condition ("these N pending
+changes grade differently under what you've adopted so far"). `periphery/app.js`'s `loadCommunity`
+excludes every pending or held identity from the solid ranked feed and renders each pending one as its
+own ghost card (`periphery/card.js`'s `renderIncomingCard`, `row.incoming: true`, the inbound gate's
+own mirror image of an outbound virtual: real in the store, not yet actual in the working view),
+naming both grades plainly and offering Accept/Hold inline; `periphery/inbound-screen.js`'s update-list
+screen (new route, `view=inbound`) carries bulk accept-all/accept-selected/hold-selected, a governance-
+hash mismatch banner with an adopt action, the epistemic-cost toggle, and a held list where nothing is
+ever a dead end (a held item's own Accept button absorbs it directly; re-sync alone re-offers it the
+moment its incoming state moves again, never silently dropped or silently re-applied).
+`periphery/communities-screen.js` gains the per-community inbound-mode picker and a pending/held count
+link into the review screen. New check: `build/check-inbound-gate.mjs` (auto mode is unaffected; a
+freshly established baseline pends and holds nothing; twenty rounds of accept/hold/clear/adopt leave
+the real rows and the community's own store byte-identical; accepting absorbs exactly the live grade;
+a held item whose incoming state has not moved again stays quietly held across a re-sync, one that has
+moved again returns to pending; the module reaches no bundle-building or store-writing file).
+Deliberate-break coverage: a mutation bug rolling a real row's grade back to its baseline value on
+diff failed the isolation assertion by name; a misrecorded first-claim grade at baseline establishment
+failed the "excludes nothing" identity assertion; silently dropping a matched held item on re-sync
+failed the held-persistence assertion naming it; all three reverted, green. Capability manifest is
+unchanged: the inbound gate reaches no destination beyond the community fetch every load already
+makes.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

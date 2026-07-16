@@ -23,7 +23,12 @@
 //   identity -> [{roomId, roomLabel}], present only for a community that carries case-claims about
 //   the three rooms) and `onWalkToRoom(roomId)`; a claim named in the map renders one button per
 //   target, always visible (not gated behind the Level 2 disclosure), walking the reader into that
-//   room's own community.
+//   room's own community. Phase KG-6c: a row may also carry `incoming: true` (api/inbound-gate.js's
+//   computeUpdateList() pending entries): {identity, kind, statement, type: "new"|"grade-moved",
+//   fromGrade, toGrade, contradictsHeld?}, rendered ghosted, the inbound gate's own mirror image of
+//   an outbound virtual (real in the community's store, not yet actual in this reader's working
+//   view). ctx carries `onAcceptOne(identity)` and `onHoldOne(identity)` for its single-item actions;
+//   bulk accept/hold lives on the dedicated update-list screen, not here.
 // Invariant: a grade is rendered as a computed reading, labeled as such, never as truth, validation,
 //   or acceptance. Grade is encoded by lattice position with a color plus a textual grade word,
 //   color never carrying the distinction alone. No likes, no counters, no engagement chrome. A
@@ -188,6 +193,37 @@ function virtualBadge(virtualState) {
   );
 }
 
+// the inbound gate's own ghost card (Phase KG-6c), the mirror image of an outbound virtual: real in
+// the community's store, not yet actual in this reader's working view. row is one of
+// api/inbound-gate.js's computeUpdateList() pending entries, shaped {identity, kind, statement,
+// type: "new"|"grade-moved", fromGrade, toGrade, contradictsHeld?}, with `incoming: true` set by the
+// caller. Never renders gradeBadge (the claim's real grade is not this card's to assert solidly);
+// its motion line names both grades plainly, the same convention periphery/alerts-panel.js already
+// holds for standing-motion.
+function incomingBadge(type) {
+  const label = type === "new" ? "New (incoming)" : "Grade moved (incoming)";
+  return el("span", { class: "badge badge-incoming", role: "img", "aria-label": `incoming, not yet accepted: ${label}` }, label);
+}
+
+function renderIncomingCard(row, ctx) {
+  return el(
+    "article",
+    { class: "card card-virtual card-incoming", "data-incoming": "true", id: `incoming-${row.identity}` },
+    el("div", { class: "card-top" }, kindBadge(row.kind), incomingBadge(row.type)),
+    el("p", { class: "statement" }, row.statement),
+    el("p", { class: "incoming-motion" }, row.type === "new" ? `arrives as: ${row.toGrade}` : `${row.fromGrade} -> ${row.toGrade}`),
+    row.contradictsHeld
+      ? el("p", { class: "incoming-contradicts" }, `contradicts a claim you have held: ${row.contradictsHeld}`)
+      : null,
+    el(
+      "div",
+      { class: "incoming-actions" },
+      ctx.onAcceptOne ? el("button", { type: "button", class: "contribute-action", onclick: () => ctx.onAcceptOne(row.identity) }, "Accept") : null,
+      ctx.onHoldOne ? el("button", { type: "button", class: "contribute-action incoming-hold", onclick: () => ctx.onHoldOne(row.identity) }, "Hold") : null
+    )
+  );
+}
+
 // staleness, always labeled: "as of your snapshot, N days old" (or "less than a day old"), never a
 // bare timestamp a reader would have to do arithmetic on to understand how current it is.
 function stalenessLabel(atMs) {
@@ -246,6 +282,7 @@ function roomWalkButtons(row, ctx) {
 
 export function renderCard(row, ctx) {
   if (row.virtual) return renderVirtualCard(row, ctx);
+  if (row.incoming) return renderIncomingCard(row, ctx);
   const isTarget = ctx.isDeepLinkTarget(row.identity);
   const isComment = row.kind === "comment";
   const card = el(

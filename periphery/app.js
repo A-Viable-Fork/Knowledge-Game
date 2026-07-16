@@ -49,6 +49,11 @@ import { renderAccountScreen } from "./account-screen.js";
 import { ROOM_WALKS } from "../api/room-walks.js";
 import { checkSkinConformance } from "../api/skin-conformance.js";
 import { SKINS } from "../api/skins.js";
+import {
+  establishBaseline, computeUpdateList, flagContradictions, acceptIntoBaseline,
+  holdUpdates, clearHeld, adoptGovernanceHash, recomputeUnderAdoptedParameters,
+} from "../api/inbound-gate.js";
+import { renderUpdateList, renderHeldList } from "./inbound-screen.js";
 
 // The community registry. The founded EpiStack Competition Community (Phase B/C, its community card
 // at communities/epistack-competition/community-card.json) is the default; the two development
@@ -56,8 +61,8 @@ import { SKINS } from "../api/skins.js";
 // remains unbuilt; this is still a hardcoded list, now naming a real published community rather than
 // only fixtures.
 const COMMUNITIES = [
-  { id: "epistack-competition", label: "EpiStack Competition Community", path: "../communities/epistack-competition/snapshot/epistack-competition.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/epistack-competition" },
-  { id: "the-registry", label: "The Registry (artifacts of the ecosystem, self-hosted)", path: "../communities/the-registry/snapshot/the-registry.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/the-registry", registry: true },
+  { id: "epistack-competition", label: "EpiStack Competition Community", path: "../communities/epistack-competition/snapshot/epistack-competition.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/epistack-competition", governanceHash: "dbd6dc3c2aed980cb94a7f5de7a7f1d50303af4135d6f87537a75468fdcfc8ed" },
+  { id: "the-registry", label: "The Registry (artifacts of the ecosystem, self-hosted)", path: "../communities/the-registry/snapshot/the-registry.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game/tree/main/communities/the-registry", registry: true, governanceHash: "26fbdef0d1ec08c58018b7c0916a49de4b5eacb9fe3978ae67bc2c1eb7d2c5c4" },
   // the mirror (Phase KG-12 Step 5): the protocol's own repositories, joined as ordinary browsable
   // communities like any other, snapshot by hash, fetched through the identical path. A promotion
   // proposal read here (adopt something to shared) is an ordinary claim, argued in the open and
@@ -72,16 +77,19 @@ const COMMUNITIES = [
   {
     id: "lhc", label: "The LHC Room (black holes)", path: "fixtures/lhc.snapshot.json", mirror: true,
     contributionTarget: "https://github.com/A-Viable-Fork/epistack/tree/main/corpora/lhc",
+    governanceHash: "2fde344a7e9aa2f0b78065a04b05fbd89e08f6d7a023a038f7457aef42de8315",
     caseFraming: "The clean case: existential-sounding risk, resolvable grounding, its safety standing checkable by anyone under named parameters.",
   },
   {
     id: "eggs", label: "The Eggs Room (nutrition)", path: "fixtures/eggs.snapshot.json", mirror: true,
     contributionTarget: "https://github.com/A-Viable-Fork/epistack/tree/main/corpora/eggs",
+    governanceHash: "2fde344a7e9aa2f0b78065a04b05fbd89e08f6d7a023a038f7457aef42de8315",
     caseFraming: "The stress test for a noisy, contested empirical field: claims ground to their own floors where evidence supports them, and an unsettled cross-domain weighing is left honestly unsettled rather than synthesized into false confidence.",
   },
   {
     id: "covid", label: "The Covid Room (pandemic origins)", path: "fixtures/covid.snapshot.json", mirror: true,
     contributionTarget: "https://github.com/A-Viable-Fork/epistack/tree/main/corpora/covid",
+    governanceHash: "2fde344a7e9aa2f0b78065a04b05fbd89e08f6d7a023a038f7457aef42de8315",
     caseFraming: "The adversarial case: genuinely contested ground, motivated parties, evidence spanning domains, where disagreement localizes to named claims and parameters instead of camps.",
   },
 ];
@@ -397,6 +405,45 @@ async function loadCommunity(id, deepLinkClaim) {
     renderFeed();
   }
 
+  // the inbound gate (Phase KG-6c): auto (the default) leaves rows exactly as every load before
+  // this phase produced them. Review mode diffs this fresh read against the community's own
+  // last-accepted baseline; a new or grade-moved claim not currently held is excluded from the
+  // solid ranked feed and rendered only as a ghost card until accepted, the mirror image of an
+  // outbound virtual. The first review-mode load with no baseline yet establishes one silently
+  // (adopting everything currently visible), so switching a community into review mode never
+  // itself produces a false "everything is new" list.
+  let inboundPending = [];
+  let inboundStillHeld = [];
+  function recomputeInbound() {
+    inboundPending = [];
+    inboundStillHeld = [];
+    if (settings.getInboundMode(meta.id) !== "review") return;
+    let baseline = settings.getInboundBaseline(meta.id);
+    if (!baseline) {
+      baseline = establishBaseline(rows, community.raw, meta.governanceHash);
+      settings.setInboundBaseline(meta.id, baseline);
+      return;
+    }
+    const held = settings.getHeldUpdates(meta.id);
+    const { pending, stillHeld } = computeUpdateList(baseline, held, rows);
+    inboundPending = flagContradictions(pending, stillHeld, community.raw.state.links || []);
+    inboundStillHeld = stillHeld;
+  }
+  recomputeInbound();
+  function acceptOne(identity) {
+    const baseline = settings.getInboundBaseline(meta.id);
+    settings.setInboundBaseline(meta.id, acceptIntoBaseline(baseline, rows, [identity]));
+    settings.setHeldUpdates(meta.id, clearHeld(settings.getHeldUpdates(meta.id), [identity]));
+    recomputeInbound();
+    renderFeed();
+  }
+  function holdOne(identity) {
+    const held = settings.getHeldUpdates(meta.id);
+    settings.setHeldUpdates(meta.id, holdUpdates(held, inboundPending, [identity]));
+    recomputeInbound();
+    renderFeed();
+  }
+
   let weights = settings.getObjective();
   const observationOn = settings.observationEnabled();
   let excludedKinds = settings.getFilter(meta.id);
@@ -404,7 +451,9 @@ async function loadCommunity(id, deepLinkClaim) {
 
   async function renderFeed() {
     const extra = { reconciliations, observation: { enabled: observationOn, log: settings.observationLog() } };
-    const { visible: kindVisible, hidden: kindHidden } = applyFilter(rows, excludedKinds, community.raw.kinds);
+    const inboundHiddenIdentities = new Set([...inboundPending, ...inboundStillHeld].map((p) => p.identity));
+    const inboundVisibleRows = inboundHiddenIdentities.size ? rows.filter((r) => !inboundHiddenIdentities.has(r.identity)) : rows;
+    const { visible: kindVisible, hidden: kindHidden } = applyFilter(inboundVisibleRows, excludedKinds, community.raw.kinds);
     // the submission threshold's own default scope (Phase KG-11): a further restriction to exactly
     // the claim identities the reader just read, composed on top of the ordinary kind filter, never
     // replacing it; its own hidden count folds into the same chip the kind filter already renders.
@@ -492,6 +541,21 @@ async function loadCommunity(id, deepLinkClaim) {
     for (const virtualRow of virtualRowsFor(outboxEntriesHere())) {
       const card = renderCard(virtualRow, { lensImpact, onDiscardVirtual: discardVirtual });
       feedEl.appendChild(card);
+    }
+
+    // the inbound gate's own ghost cards (Phase KG-6c): every pending incoming change (new or
+    // grade-moved, not currently held), rendered after the virtual layer, real in the community's
+    // store, not yet actual in this reader's working view.
+    for (const pendingRow of inboundPending) {
+      const card = renderCard({ ...pendingRow, incoming: true }, { onAcceptOne: acceptOne, onHoldOne: holdOne });
+      feedEl.appendChild(card);
+    }
+    if (inboundPending.length || inboundStillHeld.length) {
+      const reviewLink = document.createElement("a");
+      reviewLink.href = `#community=${meta.id}&view=inbound`;
+      reviewLink.className = "inbound-review-link";
+      reviewLink.textContent = `Review updates (${inboundPending.length} pending, ${inboundStillHeld.length} held)`;
+      feedEl.appendChild(reviewLink);
     }
     feedEl.setAttribute("aria-busy", "false");
     observeDwell(feedEl);
@@ -832,6 +896,75 @@ async function loadAlertsScreen(id) {
   renderAlertsPanel(mount, { alerts });
 }
 
+// the inbound gate's own review screen (Phase KG-6c): bulk accept/hold over the update list, the
+// held list, the governance-hash mismatch banner, and the epistemic-cost tie-in toggle. Fetches
+// fresh (like every other per-community screen here); a community not in review mode, or with
+// nothing pending or held, still opens, honestly showing an empty list rather than refusing.
+async function loadInboundScreen(id) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const rows = community.api.read({});
+  let epistemicCostOn = false;
+
+  function draw() {
+    let baseline = settings.getInboundBaseline(meta.id);
+    if (!baseline) {
+      baseline = establishBaseline(rows, community.raw, meta.governanceHash);
+      settings.setInboundBaseline(meta.id, baseline);
+    }
+    const held = settings.getHeldUpdates(meta.id);
+    const { pending: rawPending, stillHeld } = computeUpdateList(baseline, held, rows);
+    const pending = flagContradictions(rawPending, stillHeld, community.raw.state.links || []);
+    const governanceMismatch = meta.governanceHash && baseline.governanceHash && baseline.governanceHash !== meta.governanceHash
+      ? { adopted: baseline.governanceHash, current: meta.governanceHash } : null;
+    const epistemicCostReport = epistemicCostOn && pending.length ? recomputeUnderAdoptedParameters(pending, community.raw, baseline) : null;
+
+    renderUpdateList(feedEl, {
+      pending, stillHeld, governanceMismatch, epistemicCostOn, epistemicCostReport,
+      onAcceptAll: () => {
+        settings.setInboundBaseline(meta.id, acceptIntoBaseline(baseline, rows, pending.map((p) => p.identity)));
+        settings.setHeldUpdates(meta.id, clearHeld(held, pending.map((p) => p.identity)));
+        draw();
+      },
+      onAcceptSelected: (identities) => {
+        if (!identities.length) return;
+        settings.setInboundBaseline(meta.id, acceptIntoBaseline(baseline, rows, identities));
+        settings.setHeldUpdates(meta.id, clearHeld(held, identities));
+        draw();
+      },
+      onHoldSelected: (identities) => {
+        if (!identities.length) return;
+        settings.setHeldUpdates(meta.id, holdUpdates(held, pending, identities));
+        draw();
+      },
+      onToggleEpistemicCost: (checked) => { epistemicCostOn = checked; draw(); },
+      onAdoptGovernanceHash: () => {
+        settings.setInboundBaseline(meta.id, adoptGovernanceHash(baseline, meta.governanceHash));
+        draw();
+      },
+      onAcceptHeld: (identity) => {
+        settings.setInboundBaseline(meta.id, acceptIntoBaseline(baseline, rows, [identity]));
+        settings.setHeldUpdates(meta.id, clearHeld(held, [identity]));
+        draw();
+      },
+      onBack: () => setHash({ view: "feed", community: meta.id }),
+    });
+  }
+  feedEl.setAttribute("aria-busy", "false");
+  draw();
+}
+
 function loadMenuScreen() {
   const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "false");
@@ -1132,6 +1265,12 @@ function loadCommunitiesScreen(activeId) {
       else await pinCommunity(community);
       loadCommunitiesScreen(activeId);
     },
+    getInboundMode: (id) => settings.getInboundMode(id),
+    onSetInboundMode: (id, mode) => {
+      settings.setInboundMode(id, mode);
+      loadCommunitiesScreen(activeId);
+    },
+    onReviewUpdates: (id) => setHash({ community: id, view: "inbound" }),
   });
 }
 
@@ -1147,6 +1286,8 @@ function route({ community, claim, view, action, target }) {
     loadFilterScreen(activeId);
   } else if (view === "alerts") {
     loadAlertsScreen(activeId);
+  } else if (view === "inbound") {
+    loadInboundScreen(activeId);
   } else if (view === "account") {
     loadAccountScreen();
   } else if (view === "vault") {

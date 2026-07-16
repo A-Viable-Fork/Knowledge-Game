@@ -5,9 +5,13 @@
 //   a protocol repository joined as an ordinary browsable community, never privileged, and the page
 //   renders the convention note once, above the list, rather than once per card.
 // Contract: renderCommunitiesScreen(container, { communities, activeId, isPinned, pinAgeLabel,
-//   lastSyncedLabel, onSelect, onTogglePin }). communities is the app's own registered list
-//   ({id, label, contributionTarget?, mirror?}); onSelect(id) switches the active community and
-//   returns to the feed; onTogglePin(community) pins or unpins.
+//   lastSyncedLabel, onSelect, onTogglePin, getInboundMode, onSetInboundMode, onReviewUpdates }).
+//   communities is the app's own registered list ({id, label, contributionTarget?, mirror?});
+//   onSelect(id) switches the active community and returns to the feed; onTogglePin(community) pins
+//   or unpins. Phase KG-6c: getInboundMode(id) -> "auto"|"review" (this community's own inbound
+//   gate mode); onSetInboundMode(id, mode) persists a change; onReviewUpdates(id) opens the update
+//   list. getInboundMode/onSetInboundMode/onReviewUpdates are optional; omitting them renders the
+//   page exactly as before this phase.
 // Invariant: renders only what it is given; no storage or network access of its own.
 "use strict";
 
@@ -25,7 +29,7 @@ function el(tag, attrs, ...children) {
   return node;
 }
 
-export function renderCommunitiesScreen(container, { communities, activeId, isPinned, pinAgeLabel, lastSyncedLabel, onSelect, onTogglePin }) {
+export function renderCommunitiesScreen(container, { communities, activeId, isPinned, pinAgeLabel, lastSyncedLabel, onSelect, onTogglePin, getInboundMode, onSetInboundMode, onReviewUpdates }) {
   container.innerHTML = "";
   const hasMirror = communities.some((c) => c.mirror);
   container.appendChild(
@@ -45,6 +49,7 @@ export function renderCommunitiesScreen(container, { communities, activeId, isPi
         { class: "communities-list" },
         ...communities.map((c) => {
           const pinned = isPinned(c.id);
+          const inboundMode = getInboundMode ? getInboundMode(c.id) : "auto";
           return el(
             "li",
             {},
@@ -59,7 +64,27 @@ export function renderCommunitiesScreen(container, { communities, activeId, isPi
               "button",
               { type: "button", "aria-pressed": String(pinned), onclick: () => onTogglePin(c) },
               pinned ? `Unpin (${pinAgeLabel(c.id)})` : "Pin for offline"
-            )
+            ),
+            getInboundMode
+              ? el(
+                  "div",
+                  { class: "inbound-mode-section" },
+                  el(
+                    "label",
+                    {},
+                    "Inbound: ",
+                    el(
+                      "select",
+                      { onchange: (e) => onSetInboundMode(c.id, e.target.value) },
+                      el("option", { value: "auto", selected: inboundMode === "auto" ? true : undefined }, "Auto (sync applies immediately)"),
+                      el("option", { value: "review", selected: inboundMode === "review" ? true : undefined }, "Review (I accept or hold each change)")
+                    )
+                  ),
+                  inboundMode === "review"
+                    ? el("button", { type: "button", onclick: () => onReviewUpdates(c.id) }, "Review updates")
+                    : null
+                )
+              : null
           );
         })
       )

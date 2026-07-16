@@ -8,7 +8,8 @@
 //   setOutbox, getSyncPolicy, setSyncPolicy, getLastSynced, setLastSynced, getSkin, setSkin,
 //   getAssistantProviderConfig, setAssistantProviderConfig, getAssistantActiveProvider,
 //   setAssistantActiveProvider, addAssistantModel, removeAssistantModel, getAccount, setAccount,
-//   deleteAccount: thin pass-throughs to vault/vault.js.
+//   deleteAccount, getInboundMode, setInboundMode, getInboundBaseline, setInboundBaseline,
+//   getHeldUpdates, setHeldUpdates: thin pass-throughs to vault/vault.js.
 // Invariant: this module holds no logic and no rule of its own; it is a naming surface. The vault's
 //   own invariants (off means off, absence is off/empty, no other file touches storage) live in
 //   vault/vault.js and are unchanged by being reached through here.
@@ -60,3 +61,9 @@ export const removeAssistantModel = vault.removeAssistantModel;
 export const getAccount = vault.getAccount;
 export const setAccount = vault.setAccount;
 export const deleteAccount = vault.deleteAccount;
+export const getInboundMode = vault.getInboundMode;
+export const setInboundMode = vault.setInboundMode;
+export const getInboundBaseline = vault.getInboundBaseline;
+export const setInboundBaseline = vault.setInboundBaseline;
+export const getHeldUpdates = vault.getHeldUpdates;
+export const setHeldUpdates = vault.setHeldUpdates;

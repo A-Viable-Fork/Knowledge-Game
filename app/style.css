@@ -127,6 +127,25 @@ a:focus-visible {
 .room-case-framing-mark { color: var(--ink-muted); font-style: italic; }
 .room-walk-buttons { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.4rem 0; }
 .room-walk-button { font: inherit; font-size: 0.8rem; padding: 0.3rem 0.65rem; border-radius: 999px; border: 1px solid var(--focus); background: var(--card-bg); color: var(--ink); cursor: pointer; }
+
+/* the inbound gate (Phase KG-6c): the ghost card is real in the store, not yet actual in the
+   working view, so it renders visibly translucent, the same treatment an outbound virtual card
+   would carry if this codebase's own .card-virtual had dedicated styling beyond its class name. */
+.card-incoming { opacity: 0.62; border-style: dashed; }
+.badge-incoming { background: var(--card-bg); border: 1px solid var(--ink-muted); color: var(--ink-muted); }
+.incoming-motion { font-size: 0.82rem; color: var(--ink-muted); }
+.incoming-contradicts { font-size: 0.82rem; color: var(--ink); font-style: italic; }
+.incoming-actions { display: flex; gap: 0.5rem; margin-top: 0.4rem; }
+.inbound-review-link { display: inline-block; margin: 0.6rem 0; font-size: 0.85rem; }
+.inbound-mode-section { margin-top: 0.3rem; font-size: 0.82rem; display: flex; align-items: center; gap: 0.5rem; }
+.update-list, .held-list { list-style: none; padding: 0; margin: 0.4rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.update-item, .held-item { font-size: 0.85rem; }
+.update-motion { color: var(--ink-muted); }
+.update-contradicts { color: var(--ink); font-style: italic; }
+.update-actions { display: flex; gap: 0.5rem; margin: 0.5rem 0; }
+.governance-mismatch-banner { border: 1px solid var(--focus); border-radius: var(--radius); padding: 0.6rem 0.8rem; margin: 0.6rem 0; }
+.epistemic-cost-toggle-label { display: block; font-size: 0.85rem; margin-top: 0.6rem; }
+.epistemic-cost-line { font-size: 0.85rem; color: var(--ink-muted); }
 .community-contribution-target { font-size: 0.75rem; color: var(--ink-muted); word-break: break-all; }
 .communities-list { list-style: none; padding: 0; margin: 0.6rem 0; display: flex; flex-direction: column; gap: 0.6rem; }
 .communities-list li { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.8rem; flex-wrap: wrap; }
