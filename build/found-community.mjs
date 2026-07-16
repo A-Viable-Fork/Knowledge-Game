@@ -13,12 +13,21 @@
 //   `node build/found-community.mjs publish <config.json>` re-runs the relocated build over whatever
 //   claims now populate <id>-data.js, emits the snapshot to <config.home>/snapshot/<id>.snapshot.json,
 //   writes <config.home>/community-card.json, and scaffolds <config.home>/.github/workflows and a
-//   README, all through emitCommunityArtifacts (exported for the founding report to call directly).
+//   README, all through emitCommunityArtifacts (exported for the founding report to call directly),
+//   then (Phase KG-9) stages the whole tree into <config.home>-publish-bundle.tar.gz and writes
+//   <config.home>/PUBLISH-WALKTHROUGH.md through emitPublishWalkthrough, closing the gap between "the
+//   flow emitted a complete community" and "the community is live" (creating the real repository,
+//   uploading the tree, verifying it actually serves) that is otherwise a by-hand GitHub dance.
+//   `node build/found-community.mjs walkthrough <config.json>` regenerates the walkthrough and bundle
+//   alone, against whatever snapshot <config.home>/snapshot/<id>.snapshot.json already holds, without
+//   re-running publish.
 // Invariant: no rule of the gate is reimplemented; the scaffolder and emit-snapshot are run unmodified
 //   and only their output's import paths are relocated. The parameter step's free/fixed classification
 //   comes from build/parameter-surface.mjs, itself reading the schema's own x-tier annotations, never
 //   hand-listed here. Every emitted artifact is checked for this deployment's own name and URL by
-//   build/check-neutrality.mjs, a check this module does not perform on itself.
+//   build/check-neutrality.mjs, a check this module does not perform on itself. The walkthrough
+//   requests no credential of any kind and automates nothing against GitHub; every one of its steps is
+//   a link or a shell command for the operator to run by hand.
 // Governs: claim-10: emitCommunityArtifacts writes every founded artifact from config and the built
 //   snapshot alone, never this deployment's own name or URL; build/check-neutrality.mjs greps the
 //   result for it.
@@ -246,6 +255,7 @@ export async function publishCommunity(config) {
 
   const snapshot = JSON.parse(readFileSync(dest, "utf8"));
   emitCommunityArtifacts(config, snapshot);
+  emitPublishWalkthrough(config, snapshot);
   return snapshot;
 }
 
@@ -385,12 +395,92 @@ jobs:
   console.log(`\nwrote ${config.home}/community-card.json, ${config.home}/.github/workflows/{check,pages}.yml, ${config.home}/README.md, ${config.home}/vendor/kernel (self-contained copy), ${config.home}/build/{${config.kernel_id}-build,check}.mjs`);
 }
 
+// Phase KG-9, Step 3: the publish walkthrough. Closes the gap between "the flow emitted a complete
+// community" and "the community is live", which is otherwise a by-hand GitHub dance: creating the
+// repository, flipping its one Pages setting, uploading the emitted tree, then confirming the
+// snapshot actually serves, the card's own fetch location actually resolves, and the gate-check
+// workflow actually runs green. Stages the emitted directory into one downloadable bundle and writes
+// a checklist naming the exact link or command for every step; automates nothing against GitHub
+// (no API token, no credential, ever asked for here) and requests no credential of any kind.
+export function emitPublishWalkthrough(config, snapshot) {
+  const home = resolve(ROOT, config.home);
+  const id = config.kernel_id;
+  const repoNameSuggestion = id;
+  const fetchUrl = (config.fetch_locations || [])[0] || null;
+  const bundlePath = `${home}-publish-bundle.tar.gz`;
+
+  // stage everything the standalone repository needs (the directory emitCommunityArtifacts already
+  // made self-contained) into one archive, so "what to upload" is a single file, not a tree to
+  // reconstruct by hand.
+  execFileSync("tar", ["-czf", bundlePath, "-C", dirname(home), basenameOf(home)]);
+
+  const pagesUrlNote = fetchUrl
+    ? `This config's own fetch_locations already names: ${fetchUrl}\nThe repository name and path below must match it exactly, or edit fetch_locations in the founding config and republish before going further.`
+    : `This config declares no fetch_locations yet. Choose the repository name below, then set fetch_locations to https://<your-account>.github.io/<repo>/snapshot/${id}.snapshot.json in the founding config and republish before starting this walkthrough for real.`;
+
+  const lines = [
+    `# Publish walkthrough: ${config.frame.name}`,
+    "",
+    "No step here asks for a credential of any kind, and nothing in this document is executed against",
+    "GitHub automatically; every command and link below is for you to run or open by hand.",
+    "",
+    "## 1. Create",
+    "",
+    `- [ ] Create a new, empty GitHub repository. Suggested name: \`${repoNameSuggestion}\` (any name works;`,
+    "      it only has to match the URL you put in fetch_locations). Link: https://github.com/new",
+    "- [ ] In the new repository's own Settings -> Pages, set \"Build and deployment\" -> Source to",
+    "      \"GitHub Actions\" (the one settings flip; the emitted pages.yml workflow expects it and will",
+    "      not serve anything until this is set).",
+    "",
+    "## 2. Upload",
+    "",
+    `- [ ] The emitted artifacts are staged as one downloadable bundle: \`${bundlePath}\``,
+    "- [ ] Extract it into an empty local clone of the new repository, commit, and push to \`main\`:",
+    "",
+    "```",
+    `tar -xzf ${bundlePath} -C <path to your empty clone> --strip-components=1`,
+    "cd <path to your empty clone>",
+    "git add -A",
+    'git commit -m "Found the community"',
+    "git push -u origin main",
+    "```",
+    "",
+    "## 3. Verify",
+    "",
+    pagesUrlNote,
+    "",
+    `- [ ] The snapshot URL serves: open ${fetchUrl || "https://<your-account>.github.io/<repo>/snapshot/" + id + ".snapshot.json"} directly; it should return the snapshot JSON, hash: ${snapshot.snapshot_hash}`,
+    `- [ ] The community card's own fetch_locations resolves to the same URL: check \`${config.home}/community-card.json\`'s \`fetch_locations\` field reads exactly the URL above, byte for byte.`,
+    "- [ ] One gate-check Actions run is green: open the new repository's Actions tab, confirm the",
+    "      \"check\" workflow (triggered by the push above) completed successfully. Link pattern:",
+    "      https://github.com/<your-account>/<repo>/actions",
+    "",
+    "## Done",
+    "",
+    "Once every box above is checked, the card is ready to share: send `community-card.json`'s own",
+    "content, or the snapshot URL directly, to anyone who wants to point a client at this community.",
+    "",
+  ];
+  writeFileSync(join(home, "PUBLISH-WALKTHROUGH.md"), lines.join("\n"));
+  console.log(`\nwrote ${config.home}/PUBLISH-WALKTHROUGH.md and staged ${bundlePath}`);
+  return { walkthroughPath: join(home, "PUBLISH-WALKTHROUGH.md"), bundlePath };
+}
+
+function basenameOf(p) {
+  const parts = p.split("/").filter(Boolean);
+  return parts[parts.length - 1];
+}
+
 // ---- CLI ----
 if (process.argv[1] && process.argv[1].endsWith("found-community.mjs")) {
   const [, , mode, configPath] = process.argv;
-  if (!mode || !configPath) { console.error("usage: node build/found-community.mjs <generate|publish> <config.json>"); process.exit(2); }
+  if (!mode || !configPath) { console.error("usage: node build/found-community.mjs <generate|publish|walkthrough> <config.json>"); process.exit(2); }
   const config = loadConfig(configPath);
   if (mode === "generate") generateKernel(config);
   else if (mode === "publish") await publishCommunity(config);
-  else { console.error(`unknown mode '${mode}'`); process.exit(2); }
+  else if (mode === "walkthrough") {
+    const dest = join(resolve(ROOT, config.home), "snapshot", `${config.kernel_id}.snapshot.json`);
+    const snapshot = JSON.parse(readFileSync(dest, "utf8"));
+    emitPublishWalkthrough(config, snapshot);
+  } else { console.error(`unknown mode '${mode}'`); process.exit(2); }
 }
