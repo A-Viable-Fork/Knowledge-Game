@@ -21,8 +21,11 @@
 //   or support structure; build/check-ranking-separation.mjs fuzzes arbitrary weight vectors and
 //   asserts every one of those fields byte-identical before and after.
 // Governs: claim-2: orderByObjective attaches `_objectiveContributions` and `_objectiveTotal` to every
-//   row, so the panel that renders the active objective (periphery/objective-panel.js) always has the
-//   real per-component data to show, never a description standing in for the actual computation.
+//   row, so the panel that renders the active objective (periphery/objective-panel.js, reached from
+//   Menu as of Phase KG-7) always has the real per-component data to show, never a description
+//   standing in for the actual computation. objectiveChipLabel (Phase KG-7) is claim 2's new
+//   at-rest satisfaction: a compact, persistent, always-present chip naming the active objective (or
+//   "Null order" at the zero vector), one tap from the full vector page; never empty, never absent.
 "use strict";
 import { POSITIONS } from "../vendor/kernel/schema/confidence.mjs";
 import { orderFeed } from "./feed.js";
@@ -212,4 +215,15 @@ export function explainPosition(row, position) {
     text += `; requested but inert: ${inertButRequested.map(([id]) => id).join(", ")}`;
   }
   return text;
+}
+
+// the compact objective indicator (Phase KG-7, claim 2's new grounding: a persistent named chip
+// rather than the full vector always on screen). Never empty: the zero vector names itself "Null
+// order" rather than rendering nothing, so the active objective is always visible even at rest.
+const SHORT_LABEL = Object.fromEntries(COMPONENTS.map((c) => [c.id, c.label.split(":")[0]]));
+export function objectiveChipLabel(weights) {
+  const w = weights || {};
+  const active = COMPONENTS.filter((c) => w[c.id]);
+  if (!active.length) return "Null order";
+  return active.map((c) => SHORT_LABEL[c.id]).join(", ");
 }

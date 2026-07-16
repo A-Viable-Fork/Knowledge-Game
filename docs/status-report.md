@@ -45,7 +45,7 @@ strings, but has no way to verify the label honestly describes the evidence it n
 check can bound semantic honesty of a label the substrate itself does not define beyond its enum;
 this repository's own read-before-merge practice is the standing discipline named in place of one.
 
-## 3. Bounded follow-up engineering (10 items)
+## 3. Bounded follow-up engineering (11 items)
 
 **SK-20**, recency: `api/feed.js`'s null order has nothing between grounding and the identity-hash
 tiebreak, because the v3 claim record carries no timestamp and no other content-derived temporal
@@ -106,6 +106,14 @@ screen instead. Contest and fork bundles stay export-only, as before this phase;
 made outbox-eligible, since they are not the ordinary claim-contribution path this phase's own
 prompt scoped the outbox to. Closes with an edit-in-place form on the outbox screen, seeded from the
 demoted entry's own stored bundle content.
+
+**SK-30**, the filter chip's own scope: the slim bar's filter chip needs the active community's own
+hidden-row counts to render honestly, so it appears only on the feed and filter pages, the two
+screens that already hold the community's rows in memory; every other page (Menu, Communities,
+Vault, Outbox, Extensions, Dashboard, Compose) never shows it, even when a filter is actively hiding
+rows, rather than fetching a community fresh on every page just to keep one chip honest. Closes by
+fetching rows everywhere (a real cost this phase judged not worth paying for one chip) or caching the
+current hidden count in the vault, refreshed on the feed/filter pages and read cheaply elsewhere.
 
 ## 4. Plural community-policy choices (5 items)
 

@@ -1,6 +1,11 @@
 // Role: verifies the type filter's own contract (Phase KG-4, spec Section 6). Exclusion counts are
 //   correct against fuzzed filter states and graphs; a filter changes no grade, no declared field, and
 //   no identity, trivially (it is view-side set selection only) but stated and checked.
+//   Phase KG-7: filterChipLabel's own compact-indicator semantics also verified here. OLD assertion:
+//   "a filter states its exclusions" was satisfied by the filter bar rendering continuously above the
+//   feed. NEW assertion (section [3]): a compact chip renders only when a filter is active (never at
+//   rest, unlike the objective chip, which is claim 2's own always-present case), and its own text
+//   states the honest hidden count whenever it does render.
 // Contract: `node build/check-filter.mjs` exits non-zero on any divergence, naming it.
 "use strict";
 let fails = 0;
@@ -8,7 +13,7 @@ const ok = (c, m) => { console.log(`${c ? "  ok  " : " FAIL "} ${m}`); if (!c) f
 const H = "=".repeat(80);
 console.log(H); console.log("CHECK-FILTER: exclusion counts are honest, filtering moves no grade"); console.log(H);
 
-const { kindsPresent, applyFilter, UNTYPED } = await import("../api/filter.js");
+const { kindsPresent, applyFilter, filterChipLabel, UNTYPED } = await import("../api/filter.js");
 
 function randomRows(n, kindTable) {
   const kindNames = kindTable.map((k) => k.kind).concat(["crossing-arrival"]); // one name never in the table
@@ -71,6 +76,24 @@ console.log("\n[3] filtering moves no grade: every visible row is the identical 
   }
   ok(untouched, "every field of every visible row is byte-identical to before filtering");
   ok(visible.every((r) => rows.includes(r)), "every visible row is the SAME object reference as the input row (no copy, no mutation surface introduced)");
+}
+
+console.log("\n[3] Phase KG-7: the compact filter chip renders only when a filter is active, and states the honest hidden count");
+ok(filterChipLabel([]) === null, "an empty hidden list produces no chip label (null): nothing renders at rest when no filter is active");
+ok(filterChipLabel(undefined) === null, "an undefined hidden argument also produces no chip label");
+for (let trial = 0; trial < 10; trial++) {
+  const rows = randomRows(1 + Math.floor(Math.random() * 30), KIND_TABLE);
+  const kindNames = new Set(KIND_TABLE.map((k) => k.kind));
+  const allKinds = [...new Set(rows.map((r) => (kindNames.has(r.kind) ? r.kind : UNTYPED)))];
+  const excluded = allKinds.filter(() => Math.random() < 0.6);
+  const { hidden } = applyFilter(rows, excluded, KIND_TABLE);
+  const label = filterChipLabel(hidden);
+  if (hidden.length) {
+    const total = hidden.reduce((s, h) => s + h.count, 0);
+    ok(typeof label === "string" && label.includes(String(total)), `trial ${trial}: an active filter's chip label states the honest total hidden count (${total})`);
+  } else {
+    ok(label === null, `trial ${trial}: an exclusion set that hides nothing still produces no chip label`);
+  }
 }
 
 console.log("\n" + H);

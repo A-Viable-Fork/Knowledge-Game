@@ -4,7 +4,9 @@
 //   qualification, contest this claim's type, and fork this type, each a link into the contribution
 //   draft screen (periphery/contribute-screen.js) rather than an action performed here; a card
 //   proposes nothing itself. Level 2 also carries Discussion (Phase KG-4): comments-on/replies-to
-//   threads attached to this row, rendered gradeless and visually distinct from a claim.
+//   threads attached to this row, rendered gradeless and visually distinct from a claim. Phase KG-7
+//   (the interface pass) trims Level 1 to exactly statement, kind badge, grade mark, and origin;
+//   why-am-I-seeing-this (whyThisCard) moves behind the one tap into Level 2, its content unchanged.
 // Contract: renderCard(row, ctx) -> HTMLElement. `row` is an api.read() row (identity, kind,
 //   statement, declared_grade, earned_grade) plus `whyThisCard` and `position` (its feed index), OR
 //   (Phase KG-6b) a virtual row (api/virtual.js's virtualRowsFor): {identity, kind, statement,
@@ -120,6 +122,8 @@ function levelTwo(row, ctx) {
   return el(
     "div",
     { class: "level-2" },
+    el("h3", {}, "Why you're seeing this"),
+    el("p", { class: "why-card" }, row.whyThisCard),
     el("h3", {}, "Supports"),
     list(supportsIn, (l) => claimLink(l.from_identity)),
     el("h3", {}, "This claim supports"),
@@ -228,8 +232,7 @@ export function renderCard(row, ctx) {
     el(
       "div",
       { class: "card-meta" },
-      el("span", {}, `origin: ${ctx.kernelId}`),
-      el("span", { class: "why-card" }, row.whyThisCard)
+      el("span", {}, `origin: ${ctx.kernelId}`)
     ),
     el(
       "details",

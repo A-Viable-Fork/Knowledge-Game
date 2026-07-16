@@ -2,6 +2,12 @@
 //   empty vector is exactly the null order and renders as "null order". Same snapshot plus the same
 //   vector yields the identical order across runs and across permutations of the input records.
 //   Every position's why-answer reproduces from the component scores the ordering itself computed.
+//   Phase KG-7: claim 2's own grounding changes here, not silently. OLD assertion: the full objective
+//   vector (every component, its weight, its score, its contribution) is what satisfies "always
+//   visible", rendered continuously above the feed. NEW assertion (this file, section [4]): a
+//   compact, persistent chip (api/ranking.js's objectiveChipLabel) satisfies "always visible" at
+//   rest instead, one tap from the full vector page; the chip itself is asserted NEVER empty across
+//   the zero vector and any nonempty vector, so the indicator is load-bearing, not decorative.
 // Contract: `node build/check-objective.mjs` exits non-zero on any divergence, naming it.
 "use strict";
 import { readFileSync } from "node:fs";
@@ -16,7 +22,7 @@ console.log(H); console.log("CHECK-OBJECTIVE: no hidden default, deterministic, 
 
 const { createLocalProvider } = await import(join(ROOT, "vendor", "api", "providers", "local-provider.mjs"));
 const { createClientApi } = await import(join(ROOT, "vendor", "api", "client-api.mjs"));
-const { orderByObjective, explainPosition } = await import(join(ROOT, "api", "ranking.js"));
+const { orderByObjective, explainPosition, objectiveChipLabel, COMPONENTS } = await import(join(ROOT, "api", "ranking.js"));
 const { orderFeed } = await import(join(ROOT, "api", "feed.js"));
 
 function shuffled(array, seed) {
@@ -66,6 +72,17 @@ for (const name of ["knowledge-game", "math"]) {
   });
   ok(allReproduce, "every card's why-answer is a pure function of its own _objectiveContributions, nothing external");
 }
+
+console.log("\n[4] Phase KG-7: the compact objective chip is the new always-visible indicator, never empty");
+ok(objectiveChipLabel(undefined) === "Null order", "an omitted vector's chip label is 'Null order', never empty or absent");
+ok(objectiveChipLabel({}) === "Null order", "an empty vector's chip label is 'Null order', never empty or absent");
+for (const c of COMPONENTS) {
+  const label = objectiveChipLabel({ [c.id]: 1 });
+  ok(typeof label === "string" && label.length > 0, `a single-component vector ('${c.id}') produces a nonempty chip label`);
+  ok(!label.includes(":"), `chip label for '${c.id}' is the short name only, not the full descriptive label with its colon`);
+}
+const allOn = Object.fromEntries(COMPONENTS.map((c) => [c.id, 1]));
+ok(objectiveChipLabel(allOn).split(", ").length === COMPONENTS.length, "a vector with every component active names every one in the chip label");
 
 console.log("\n" + H);
 if (fails === 0) console.log("verified: the zero vector is the null order with no hidden default, ordering is deterministic under runs and permutations, and every why-answer reproduces from stored scores.");

@@ -18,7 +18,7 @@ Grounded by 1 check(s): `build/check-ranking-separation.mjs`
 The active ranking objective is always visible to the user.
 
 Referenced by 2 file(s):
-- `api/ranking.js`: orderByObjective attaches `_objectiveContributions` and `_objectiveTotal` to every row, so the panel that renders the active objective (periphery/objective-panel.js) always has the real per-component data to show, never a description standing in for the actual computation.
+- `api/ranking.js`: orderByObjective attaches `_objectiveContributions` and `_objectiveTotal` to every row, so the panel that renders the active objective (periphery/objective-panel.js, reached from Menu as of Phase KG-7) always has the real per-component data to show, never a description standing in for the actual computation. objectiveChipLabel (Phase KG-7) is claim 2's new at-rest satisfaction: a compact, persistent, always-present chip naming the active objective (or "Null order" at the zero vector), one tap from the full vector page; never empty, never absent.
 - `periphery/objective-panel.js`: this is the render surface for "the active ranking objective is always visible"; it never omits a component and never reports null order while an extension ranker is actually ordering the feed.
 
 Grounded by 1 check(s): `build/check-objective.mjs`

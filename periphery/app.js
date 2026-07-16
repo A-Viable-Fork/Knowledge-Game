@@ -1,8 +1,11 @@
-// Role: the app shell. Parses the URL hash for the active community, view (feed or vault), and an
-//   optional deep-linked claim; fetches the community through the data layer; orders the feed under
-//   the reader's objective (or the null order at the zero vector); renders the objective panel, the
-//   epistemic-cost report, the card list, and the vault screen; records opt-in dwell and expand
-//   observations when enabled.
+// Role: the app shell. Parses the URL hash for the active community, view, and an optional deep-linked
+//   claim; fetches the community through the data layer; orders the feed under the reader's objective
+//   (or the null order at the zero vector); renders the feed, the virtual layer, and every other page;
+//   records opt-in dwell and expand observations when enabled. Phase KG-7 (the interface pass)
+//   restructures navigation: the feed owns the screen at rest, chrome is the slim self-hiding top bar
+//   plus a persistent bottom nav (Feed, Communities, Compose, Menu), and everything else (the
+//   objective vector editor, the filter page, alerts, vault, outbox, extensions, the dashboard) is its
+//   own page reached from Menu, never inline above the feed.
 // Contract: none exported; this is the entry module app/index.html loads. Imports only api/ and its
 //   own periphery/ files, never vendor/, kernel/, or vault/ directly (governing-trellis G0-1 / A-1).
 // Invariant: this module computes no grade, no ranking rule, and touches no storage directly; every
@@ -10,10 +13,9 @@
 //   null order at the zero vector), every persisted read or write from api/settings.js.
 "use strict";
 import { fetchCommunity } from "../api/community.js";
-import { whyThisCard } from "../api/feed.js";
-import { orderByObjective, explainPosition, COMPONENTS } from "../api/ranking.js";
+import { orderByObjective, explainPosition, objectiveChipLabel, COMPONENTS } from "../api/ranking.js";
 import { epistemicCost, epistemicCostSummary } from "../api/epistemic-cost.js";
-import { kindsPresent, applyFilter } from "../api/filter.js";
+import { kindsPresent, applyFilter, filterChipLabel } from "../api/filter.js";
 import { checkConformance, runRanker, runRenderer, contentHash } from "../api/extension.js";
 import { computeAlerts, refreshWatches } from "../api/alerts.js";
 import * as settings from "../api/settings.js";
@@ -30,6 +32,8 @@ import { renderOutboxScreen } from "./outbox-screen.js";
 import { renderContributeScreen } from "./contribute-screen.js";
 import { renderExtensionScreen, renderDashboardScreen } from "./extension-screen.js";
 import { renderOnboardingScreen } from "./onboarding-screen.js";
+import { renderMenuScreen } from "./menu-screen.js";
+import { renderCommunitiesScreen } from "./communities-screen.js";
 import { LEARN_EFFICIENTLY_SOURCE } from "./demo-extensions.js";
 
 // The community registry. The founded EpiStack Competition Community (Phase B/C, its community card
@@ -63,60 +67,94 @@ function setHash(next) {
 }
 
 // pin age, labeled per the staleness discipline: never a bare number without units and context.
-function pinAgeLabel(ms) {
+function pinAgeLabel(id) {
+  const ms = pinAge(id);
+  if (ms === null) return "";
   const days = Math.floor(ms / (24 * 60 * 60 * 1000));
   return days < 1 ? "pinned less than a day ago" : `pinned ${days} day${days === 1 ? "" : "s"} ago`;
 }
+function lastSyncedLabel(id) {
+  const at = settings.getLastSynced(id);
+  return at ? new Date(at).toLocaleString() : "never";
+}
 
-function renderSwitcher(activeId) {
-  const nav = document.getElementById("community-switcher");
-  nav.innerHTML = "";
-  for (const c of COMMUNITIES) {
-    const wrap = document.createElement("span");
-    wrap.className = "switcher-entry";
-    const btn = document.createElement("button");
-    btn.textContent = c.label;
-    btn.setAttribute("aria-current", String(c.id === activeId));
-    btn.addEventListener("click", () => setHash({ community: c.id, claim: null, view: "feed" }));
-    wrap.appendChild(btn);
+// this session's last-computed alerts state, refreshed whenever the feed screen loads; used only to
+// paint the Menu nav button's unread dot on every other screen without re-fetching a community there.
+let lastKnownHasAlerts = false;
 
-    const pinned = isPinned(c.id);
-    const pinBtn = document.createElement("button");
-    pinBtn.className = "pin-button";
-    pinBtn.setAttribute("aria-pressed", String(pinned));
-    pinBtn.textContent = pinned ? `Unpin (${pinAgeLabel(pinAge(c.id))})` : "Pin for offline";
-    pinBtn.addEventListener("click", async () => {
-      if (pinned) await unpinCommunity(c.id, c.path);
-      else await pinCommunity(c);
-      renderSwitcher(activeId);
-    });
-    wrap.appendChild(pinBtn);
-    nav.appendChild(wrap);
+function clearChrome() {
+  const feedEl = document.getElementById("feed");
+  const syncEl = document.getElementById("sync-state");
+  const lensMountEl = document.getElementById("virtual-lens-mount");
+  if (syncEl) syncEl.innerHTML = "";
+  if (lensMountEl) lensMountEl.innerHTML = "";
+  feedEl.innerHTML = "";
+  return feedEl;
+}
+
+// the slim bar (Phase KG-7): active community name, sync-state (rendered separately, unchanged), and
+// the two governance indicator chips. The objective chip is a pure function of settings alone and
+// renders on every screen; the filter chip needs the active community's own rows to state an honest
+// hidden count, so it renders only where that data is already loaded (the feed and filter pages),
+// passed as `hidden`, and is simply omitted (never fabricated) elsewhere.
+function renderChrome({ communityLabel, weights, hidden, view }) {
+  const nameEl = document.getElementById("active-community-name");
+  if (nameEl) nameEl.textContent = communityLabel || "";
+  const chipsEl = document.getElementById("indicator-chips");
+  if (chipsEl) {
+    chipsEl.innerHTML = "";
+    const objBtn = document.createElement("button");
+    objBtn.type = "button";
+    objBtn.className = "indicator-chip";
+    objBtn.textContent = objectiveChipLabel(weights || settings.getObjective());
+    objBtn.addEventListener("click", () => setHash({ view: "objective" }));
+    chipsEl.appendChild(objBtn);
+    const filterLabel = filterChipLabel(hidden);
+    if (filterLabel) {
+      const filterBtn = document.createElement("button");
+      filterBtn.type = "button";
+      filterBtn.className = "indicator-chip";
+      filterBtn.textContent = filterLabel;
+      filterBtn.addEventListener("click", () => setHash({ view: "filters" }));
+      chipsEl.appendChild(filterBtn);
+    }
   }
-  const vaultBtn = document.createElement("button");
-  vaultBtn.textContent = "Vault";
-  vaultBtn.className = "vault-nav-button";
-  vaultBtn.addEventListener("click", () => setHash({ view: "vault" }));
-  nav.appendChild(vaultBtn);
+  const dot = document.getElementById("menu-unread-dot");
+  if (dot) dot.hidden = !lastKnownHasAlerts;
+  for (const btn of document.querySelectorAll(".bottom-nav-button")) {
+    btn.setAttribute("aria-current", String(btn.dataset.nav === view));
+  }
+}
 
-  const outboxBtn = document.createElement("button");
-  const outboxCount = listOutbox().length;
-  outboxBtn.textContent = outboxCount ? `Outbox (${outboxCount})` : "Outbox";
-  outboxBtn.className = "outbox-nav-button";
-  outboxBtn.addEventListener("click", () => setHash({ view: "outbox" }));
-  nav.appendChild(outboxBtn);
+// chrome self-hides on scroll-down, returns on scroll-up (the standard feed pattern); the bottom nav
+// persists (thumb anchor). Reduced-motion users get the identical show/hide, just without the CSS
+// transition (handled entirely in style.css's own @media rule, not here).
+let lastScrollY = 0;
+function wireSelfHidingHeader() {
+  const header = document.getElementById("app-header");
+  if (!header || header.dataset.wired) return;
+  header.dataset.wired = "true";
+  window.addEventListener("scroll", () => {
+    const y = window.scrollY;
+    if (y > lastScrollY && y > 40) header.classList.add("header-hidden");
+    else header.classList.remove("header-hidden");
+    lastScrollY = y;
+  }, { passive: true });
+}
 
-  const extensionsBtn = document.createElement("button");
-  extensionsBtn.textContent = "Extensions";
-  extensionsBtn.className = "extensions-nav-button";
-  extensionsBtn.addEventListener("click", () => setHash({ view: "extensions" }));
-  nav.appendChild(extensionsBtn);
-
-  const dashboardBtn = document.createElement("button");
-  dashboardBtn.textContent = "Dashboard";
-  dashboardBtn.className = "dashboard-nav-button";
-  dashboardBtn.addEventListener("click", () => setHash({ view: "dashboard" }));
-  nav.appendChild(dashboardBtn);
+function wireBottomNav() {
+  const nav = document.getElementById("bottom-nav");
+  if (!nav || nav.dataset.wired) return;
+  nav.dataset.wired = "true";
+  nav.addEventListener("click", (e) => {
+    const btn = e.target.closest(".bottom-nav-button");
+    if (!btn) return;
+    const view = btn.dataset.nav;
+    if (view === "feed") setHash({ view: "feed" });
+    else if (view === "communities") setHash({ view: "communities" });
+    else if (view === "compose") setHash({ view: "contribute", action: null, target: null });
+    else if (view === "menu") setHash({ view: "menu" });
+  });
 }
 
 function linksMaps(raw) {
@@ -134,27 +172,24 @@ function sourcesMap(raw) {
   return new Map((raw.sources || []).map((s) => [s.source_id, s]));
 }
 
-// the visible sync state: which community, its snapshot hash prefix, when this load happened, a
-// verified badge (every load that reaches this point already passed api/community.js's hash check; a
-// failed one refuses to load and never reaches here at all), and (Phase KG-6b) the last-synced time
-// per community, labeled plainly, never a bare timestamp with no reference for how current it is.
+// the visible sync-state dot (Phase KG-7: compact, in the slim bar's header row): a verified badge
+// (every load that reaches this point already passed api/community.js's hash check; a failed one
+// refuses to load and never reaches here at all) plus the last-synced time, labeled plainly, never a
+// bare timestamp with no reference for how current it is. The snapshot hash and the "loaded at" detail
+// move to the Communities page (per-community sync detail), which has room for them.
 function renderSyncState(community, communityId) {
   const el = document.getElementById("sync-state");
   if (!el) return;
   el.innerHTML = "";
-  const loadedAt = new Date().toLocaleTimeString();
   const span = (text, cls) => {
     const s = document.createElement("span");
     if (cls) s.className = cls;
     s.textContent = text;
     return s;
   };
-  el.appendChild(span(`community: ${community.kernelId}`));
-  el.appendChild(span(`snapshot: ${community.snapshotHash.slice(0, 12)}...`));
-  el.appendChild(span(`loaded: ${loadedAt}`));
   el.appendChild(span("verified", "verified-badge"));
   const lastSynced = settings.getLastSynced(communityId);
-  el.appendChild(span(lastSynced ? `last synced: ${new Date(lastSynced).toLocaleString()}` : "last synced: never", "last-synced"));
+  el.appendChild(span(lastSynced ? `synced ${new Date(lastSynced).toLocaleTimeString()}` : "not yet synced", "last-synced"));
 }
 
 // the virtual lens (Phase KG-6b): off by default, a toggle rendered once per community load. On, it
@@ -234,12 +269,8 @@ function observeDwell(feedEl) {
 }
 
 async function loadCommunity(id, deepLinkClaim) {
-  const feedEl = document.getElementById("feed");
-  const panelEl = document.getElementById("objective-panel-mount");
-  const filterBarEl = document.getElementById("filter-bar-mount");
-  const alertsPanelEl = document.getElementById("alerts-panel-mount");
+  const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "true");
-  feedEl.innerHTML = "";
   const status = document.createElement("p");
   status.className = "feed-status";
   status.textContent = "Loading the feed...";
@@ -286,7 +317,6 @@ async function loadCommunity(id, deepLinkClaim) {
   function discardVirtual(virtualRow) {
     removeFromOutbox(virtualRow.contributionId);
     renderFeed();
-    renderSwitcher(meta.id);
   }
   renderLensToggle(lensOn, (checked) => {
     lensOn = checked;
@@ -298,7 +328,7 @@ async function loadCommunity(id, deepLinkClaim) {
   // refresh the stored snapshot so the NEXT load diffs against this one, not a stale reading.
   const priorWatches = settings.getWatches(meta.id);
   const alerts = computeAlerts(priorWatches, rows);
-  renderAlertsPanel(alertsPanelEl, { alerts });
+  lastKnownHasAlerts = alerts.length > 0;
   settings.setWatches(meta.id, refreshWatches(priorWatches, rows));
   let watchedIdentities = new Set(priorWatches.map((w) => w.identity));
   function toggleWatch(row) {
@@ -319,23 +349,10 @@ async function loadCommunity(id, deepLinkClaim) {
   const observationOn = settings.observationEnabled();
   let excludedKinds = settings.getFilter(meta.id);
 
-  function updateFilterBar() {
-    const present = kindsPresent(rows, community.raw.kinds);
-    const { hidden } = applyFilter(rows, excludedKinds, community.raw.kinds);
-    renderFilterBar(filterBarEl, {
-      present, excluded: excludedKinds, hidden,
-      onChange: (next) => {
-        excludedKinds = next;
-        settings.setFilter(meta.id, next);
-        renderFeed();
-        updateFilterBar();
-      },
-    });
-  }
-
   async function renderFeed() {
     const extra = { reconciliations, observation: { enabled: observationOn, log: settings.observationLog() } };
-    const { visible } = applyFilter(rows, excludedKinds, community.raw.kinds);
+    const { visible, hidden } = applyFilter(rows, excludedKinds, community.raw.kinds);
+    renderChrome({ communityLabel: meta.label, weights, hidden, view: "feed" });
     const activeRankerHash = settings.getActiveRanker();
     const activeRankerEntry = activeRankerHash ? (settings.getExtensions() || []).find((e) => e.hash === activeRankerHash && e.shape === "ranker") : null;
     let ordered;
@@ -397,59 +414,10 @@ async function loadCommunity(id, deepLinkClaim) {
     }
   }
   renderFeed();
-  updateFilterBar();
-
-  let currentCostSummary = null;
-  function updatePanel() {
-    const activeRankerHash = settings.getActiveRanker();
-    const activeRankerEntry = activeRankerHash ? (settings.getExtensions() || []).find((e) => e.hash === activeRankerHash && e.shape === "ranker") : null;
-    renderObjectivePanel(panelEl, {
-      components: COMPONENTS,
-      weights,
-      observationOn,
-      costSummary: currentCostSummary,
-      activeExtensionRanker: activeRankerEntry ? activeRankerEntry.label : null,
-      onWeightsChange: (next) => {
-        weights = next;
-        settings.setObjective(next);
-        renderFeed();
-        updatePanel();
-      },
-    });
-  }
-  updatePanel();
-
-  // the epistemic-cost report: the active feed's top 20, viewed under the OTHER community's
-  // parameters. Computed after first render so the feed itself never waits on it.
-  const other = COMMUNITIES.find((c) => c.id !== meta.id);
-  if (other) {
-    try {
-      const otherCommunity = await fetchCommunity(other.path);
-      const top20 = rows.slice(0, 20);
-      const report = epistemicCost(top20, community.raw, otherCommunity.raw);
-      currentCostSummary = epistemicCostSummary(other.label, report, top20.length);
-    } catch (e) {
-      currentCostSummary = `Epistemic-cost report unavailable: ${e.message}`;
-    }
-    updatePanel();
-  }
-
-  renderSwitcher(meta.id);
 }
 
 async function loadContributeScreen(id, action, targetIdentity) {
-  const feedEl = document.getElementById("feed");
-  const panelEl = document.getElementById("objective-panel-mount");
-  const filterBarEl = document.getElementById("filter-bar-mount");
-  const alertsPanelEl = document.getElementById("alerts-panel-mount");
-  const syncEl = document.getElementById("sync-state");
-  if (syncEl) syncEl.innerHTML = "";
-  panelEl.innerHTML = "";
-  filterBarEl.innerHTML = "";
-  alertsPanelEl.innerHTML = "";
-  const lensMountEl = document.getElementById("virtual-lens-mount");
-  if (lensMountEl) lensMountEl.innerHTML = "";
-  feedEl.innerHTML = "";
+  const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "true");
 
   const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
@@ -463,27 +431,17 @@ async function loadContributeScreen(id, action, targetIdentity) {
   }
   const targetRow = targetIdentity ? community.api.read({ identity: targetIdentity })[0] : null;
   feedEl.setAttribute("aria-busy", "false");
+  renderChrome({ communityLabel: meta.label, view: "compose" });
   renderContributeScreen(feedEl, {
     community, action, targetRow, contributionTarget: meta.contributionTarget, communityId: meta.id,
     onBack: () => setHash({ view: "feed", action: null, target: null }),
   });
-  renderSwitcher(null);
 }
 
 function loadVaultScreen() {
-  const feedEl = document.getElementById("feed");
-  const panelEl = document.getElementById("objective-panel-mount");
-  const filterBarEl = document.getElementById("filter-bar-mount");
-  const alertsPanelEl = document.getElementById("alerts-panel-mount");
-  const syncEl = document.getElementById("sync-state");
-  if (syncEl) syncEl.innerHTML = "";
-  panelEl.innerHTML = "";
-  filterBarEl.innerHTML = "";
-  alertsPanelEl.innerHTML = "";
-  const lensMountEl = document.getElementById("virtual-lens-mount");
-  if (lensMountEl) lensMountEl.innerHTML = "";
-  feedEl.innerHTML = "";
+  const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "false");
+  renderChrome({ view: "menu" });
   renderVaultScreen(feedEl, {
     observationOn: settings.observationEnabled(),
     log: settings.observationLog(),
@@ -508,23 +466,12 @@ function loadVaultScreen() {
       loadVaultScreen();
     },
   });
-  renderSwitcher(null);
 }
 
 function loadOutboxScreen() {
-  const feedEl = document.getElementById("feed");
-  const panelEl = document.getElementById("objective-panel-mount");
-  const filterBarEl = document.getElementById("filter-bar-mount");
-  const alertsPanelEl = document.getElementById("alerts-panel-mount");
-  const syncEl = document.getElementById("sync-state");
-  if (syncEl) syncEl.innerHTML = "";
-  panelEl.innerHTML = "";
-  filterBarEl.innerHTML = "";
-  alertsPanelEl.innerHTML = "";
-  const lensMountEl = document.getElementById("virtual-lens-mount");
-  if (lensMountEl) lensMountEl.innerHTML = "";
-  feedEl.innerHTML = "";
+  const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "false");
+  renderChrome({ view: "menu" });
 
   async function draw() {
     renderOutboxScreen(feedEl, {
@@ -542,25 +489,14 @@ function loadOutboxScreen() {
       },
       onBack: () => setHash({ view: "feed" }),
     });
-    renderSwitcher(null);
   }
   draw();
 }
 
 async function loadExtensionScreen(id) {
-  const feedEl = document.getElementById("feed");
-  const panelEl = document.getElementById("objective-panel-mount");
-  const filterBarEl = document.getElementById("filter-bar-mount");
-  const alertsPanelEl = document.getElementById("alerts-panel-mount");
-  const syncEl = document.getElementById("sync-state");
-  if (syncEl) syncEl.innerHTML = "";
-  panelEl.innerHTML = "";
-  filterBarEl.innerHTML = "";
-  alertsPanelEl.innerHTML = "";
-  const lensMountEl = document.getElementById("virtual-lens-mount");
-  if (lensMountEl) lensMountEl.innerHTML = "";
-  feedEl.innerHTML = "";
+  const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
 
   const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
   let community;
@@ -594,23 +530,12 @@ async function loadExtensionScreen(id) {
     });
   }
   draw();
-  renderSwitcher(null);
 }
 
 async function loadDashboardScreen(id) {
-  const feedEl = document.getElementById("feed");
-  const panelEl = document.getElementById("objective-panel-mount");
-  const filterBarEl = document.getElementById("filter-bar-mount");
-  const alertsPanelEl = document.getElementById("alerts-panel-mount");
-  const syncEl = document.getElementById("sync-state");
-  if (syncEl) syncEl.innerHTML = "";
-  panelEl.innerHTML = "";
-  filterBarEl.innerHTML = "";
-  alertsPanelEl.innerHTML = "";
-  const lensMountEl = document.getElementById("virtual-lens-mount");
-  if (lensMountEl) lensMountEl.innerHTML = "";
-  feedEl.innerHTML = "";
+  const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
 
   const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
   let community;
@@ -638,22 +563,206 @@ async function loadDashboardScreen(id) {
     descriptor, error,
     onContribute: (action, targetRow) => setHash({ view: "contribute", action, target: targetRow.identity, community: meta.id }),
   });
-  renderSwitcher(null);
+}
+
+// the objective page (Phase KG-7): the full vector editor, the inert-component notes, and the
+// epistemic-cost report, moved off the feed onto its own page. Fetches the active community fresh
+// (needed for the epistemic-cost report's own top-20 read), same pattern the dashboard page uses.
+async function loadObjectiveScreen(id) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const rows = community.api.read({});
+  const reconciliations = community.api.reconciliations({});
+  let weights = settings.getObjective();
+  const observationOn = settings.observationEnabled();
+  const backBtn = document.createElement("button");
+  backBtn.type = "button";
+  backBtn.className = "contribute-back";
+  backBtn.textContent = "Back to the feed";
+  backBtn.addEventListener("click", () => setHash({ view: "feed" }));
+
+  let currentCostSummary = "Computing...";
+  const mount = document.createElement("div");
+  mount.id = "objective-panel-mount";
+
+  function draw() {
+    const activeRankerHash = settings.getActiveRanker();
+    const activeRankerEntry = activeRankerHash ? (settings.getExtensions() || []).find((e) => e.hash === activeRankerHash && e.shape === "ranker") : null;
+    renderObjectivePanel(mount, {
+      components: COMPONENTS,
+      weights,
+      observationOn,
+      costSummary: currentCostSummary,
+      activeExtensionRanker: activeRankerEntry ? activeRankerEntry.label : null,
+      onWeightsChange: (next) => {
+        weights = next;
+        settings.setObjective(next);
+        draw();
+      },
+    });
+  }
+  feedEl.innerHTML = "";
+  feedEl.appendChild(backBtn);
+  feedEl.appendChild(mount);
+  feedEl.setAttribute("aria-busy", "false");
+  draw();
+
+  const other = COMMUNITIES.find((c) => c.id !== meta.id);
+  if (other) {
+    try {
+      const otherCommunity = await fetchCommunity(other.path);
+      const top20 = orderByObjective(rows, weights, community.raw.state, { reconciliations, observation: { enabled: observationOn, log: settings.observationLog() } }).slice(0, 20);
+      const report = epistemicCost(top20, community.raw, otherCommunity.raw);
+      currentCostSummary = epistemicCostSummary(other.label, report, top20.length);
+    } catch (e) {
+      currentCostSummary = `Epistemic-cost report unavailable: ${e.message}`;
+    }
+    draw();
+  }
+}
+
+// the filter page (Phase KG-7): the kind chips and counts, moved off the feed onto its own page.
+async function loadFilterScreen(id) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const rows = community.api.read({});
+  let excludedKinds = settings.getFilter(meta.id);
+  const backBtn = document.createElement("button");
+  backBtn.type = "button";
+  backBtn.className = "contribute-back";
+  backBtn.textContent = "Back to the feed";
+  backBtn.addEventListener("click", () => setHash({ view: "feed" }));
+  const mount = document.createElement("div");
+  mount.id = "filter-bar-mount";
+
+  function draw() {
+    const present = kindsPresent(rows, community.raw.kinds);
+    const { hidden } = applyFilter(rows, excludedKinds, community.raw.kinds);
+    renderChrome({ communityLabel: meta.label, hidden, view: "filters" });
+    renderFilterBar(mount, {
+      present, excluded: excludedKinds, hidden,
+      onChange: (next) => {
+        excludedKinds = next;
+        settings.setFilter(meta.id, next);
+        draw();
+      },
+    });
+  }
+  feedEl.innerHTML = "";
+  feedEl.appendChild(backBtn);
+  feedEl.appendChild(mount);
+  feedEl.setAttribute("aria-busy", "false");
+  draw();
+}
+
+// the alerts page (Phase KG-7): standing-motion alerts, moved off the feed onto its own page,
+// reached from Menu with an unread dot when the gap report has content.
+async function loadAlertsScreen(id) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  const rows = community.api.read({});
+  const priorWatches = settings.getWatches(meta.id);
+  const alerts = computeAlerts(priorWatches, rows);
+  lastKnownHasAlerts = alerts.length > 0;
+  const backBtn = document.createElement("button");
+  backBtn.type = "button";
+  backBtn.className = "contribute-back";
+  backBtn.textContent = "Back to the feed";
+  backBtn.addEventListener("click", () => setHash({ view: "feed" }));
+  const mount = document.createElement("div");
+  mount.id = "alerts-panel-mount";
+  feedEl.innerHTML = "";
+  feedEl.appendChild(backBtn);
+  feedEl.appendChild(mount);
+  feedEl.setAttribute("aria-busy", "false");
+  renderAlertsPanel(mount, { alerts });
+}
+
+function loadMenuScreen() {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "false");
+  renderChrome({ view: "menu" });
+  renderMenuScreen(feedEl, {
+    hasAlerts: lastKnownHasAlerts,
+    onNavigate: (view) => setHash({ view }),
+  });
+}
+
+function loadCommunitiesScreen(activeId) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "false");
+  renderChrome({ view: "communities" });
+  renderCommunitiesScreen(feedEl, {
+    communities: COMMUNITIES,
+    activeId,
+    isPinned,
+    pinAgeLabel,
+    lastSyncedLabel,
+    onSelect: (id) => setHash({ community: id, claim: null, view: "feed" }),
+    onTogglePin: async (community) => {
+      if (isPinned(community.id)) await unpinCommunity(community.id, community.path);
+      else await pinCommunity(community);
+      loadCommunitiesScreen(activeId);
+    },
+  });
 }
 
 function route({ community, claim, view, action, target }) {
-  if (view === "vault") {
+  const activeId = community || COMMUNITIES[0].id;
+  if (view === "communities") {
+    loadCommunitiesScreen(activeId);
+  } else if (view === "menu") {
+    loadMenuScreen();
+  } else if (view === "objective") {
+    loadObjectiveScreen(activeId);
+  } else if (view === "filters") {
+    loadFilterScreen(activeId);
+  } else if (view === "alerts") {
+    loadAlertsScreen(activeId);
+  } else if (view === "vault") {
     loadVaultScreen();
   } else if (view === "outbox") {
     loadOutboxScreen();
   } else if (view === "extensions") {
-    loadExtensionScreen(community || COMMUNITIES[0].id);
+    loadExtensionScreen(activeId);
   } else if (view === "dashboard") {
-    loadDashboardScreen(community || COMMUNITIES[0].id);
+    loadDashboardScreen(activeId);
   } else if (view === "contribute") {
-    loadContributeScreen(community || COMMUNITIES[0].id, action, target);
+    loadContributeScreen(activeId, action, target);
   } else {
-    loadCommunity(community || COMMUNITIES[0].id, claim);
+    loadCommunity(activeId, claim);
   }
 }
 
@@ -677,19 +786,7 @@ async function activateLearnEfficientlyDefault() {
 function boot() {
   const parsed = parseHash();
   if (!settings.onboardingSeen()) {
-    const feedEl = document.getElementById("feed");
-    const panelEl = document.getElementById("objective-panel-mount");
-    const filterBarEl = document.getElementById("filter-bar-mount");
-    const alertsPanelEl = document.getElementById("alerts-panel-mount");
-    const syncEl = document.getElementById("sync-state");
-    if (syncEl) syncEl.innerHTML = "";
-    panelEl.innerHTML = "";
-    filterBarEl.innerHTML = "";
-    alertsPanelEl.innerHTML = "";
-  const lensMountEl = document.getElementById("virtual-lens-mount");
-  if (lensMountEl) lensMountEl.innerHTML = "";
-    feedEl.innerHTML = "";
-    renderSwitcher(null);
+    const feedEl = clearChrome();
     renderOnboardingScreen(feedEl, {
       onFinish: async (topics, { activateDefault }) => {
         settings.setFollowedTopics(topics);
@@ -709,4 +806,6 @@ function boot() {
 
 window.addEventListener("hashchange", boot);
 setupShell();
+wireSelfHidingHeader();
+wireBottomNav();
 boot();
