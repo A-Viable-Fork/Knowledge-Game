@@ -11,14 +11,13 @@
 </head>
 <body>
 <a class="skip-link" href="#feed">Skip to feed</a>
-<header class="app-header">
-  <h1>The Knowledge Game</h1>
-  <nav class="community-switcher" id="community-switcher" aria-label="Community switcher"></nav>
-  <div class="sync-state" id="sync-state" aria-live="polite"></div>
+<header class="app-header" id="app-header">
+  <div class="header-row">
+    <span class="active-community-name" id="active-community-name"></span>
+    <div class="sync-state" id="sync-state" aria-live="polite"></div>
+  </div>
+  <div class="indicator-chips" id="indicator-chips" aria-label="Governance indicators"></div>
 </header>
-<div id="objective-panel-mount"></div>
-<div id="filter-bar-mount"></div>
-<div id="alerts-panel-mount"></div>
 <div id="virtual-lens-mount"></div>
 <main id="feed" class="feed" aria-live="polite" aria-busy="true">
   <p class="feed-status" id="feed-status">Loading the feed...</p>
@@ -26,6 +25,12 @@
 <footer class="app-footer">
   <p>Grades are computed on device from the public graph. A grade is a computed reading, never a claim of truth.</p>
 </footer>
+<nav class="bottom-nav" id="bottom-nav" aria-label="Main navigation">
+  <button type="button" class="bottom-nav-button" data-nav="feed" aria-label="Feed">Feed</button>
+  <button type="button" class="bottom-nav-button" data-nav="communities" aria-label="Communities">Communities</button>
+  <button type="button" class="bottom-nav-button" data-nav="compose" aria-label="Compose">Compose</button>
+  <button type="button" class="bottom-nav-button" data-nav="menu" aria-label="Menu">Menu<span class="menu-unread-dot" id="menu-unread-dot" hidden></span></button>
+</nav>
 <script type="module" src="../periphery/app.js"></script>
 </body>
 </html>

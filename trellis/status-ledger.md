@@ -272,6 +272,31 @@ policy.mjs` proves every (policy, trigger, wifi-reading) combination makes a net
 if `shouldSync` authorizes it. `manifests/capability.json` records that this phase adds no new runtime
 destination beyond what `manifests/network.json` already declares.
 
+**Phase KG-7, completed: the interface pass.** The feed takes the screen back. Navigation
+restructures to a bottom nav (Feed, Communities, Compose, Menu) plus a slim, self-hiding top bar; the
+objective vector editor, the filter page, alerts, vault, outbox, extensions, and the dashboard are
+each their own page reached from Menu, never inline above the feed. Measured on a 390x844 mobile
+viewport: the resting chrome shrinks from 501px (60% of the viewport, the old always-visible
+objective panel, filter bar, alerts panel, and community switcher stacked above the feed, 0 cards
+visible at rest) to a 58px slim bar plus a 45px bottom nav (12% together), 2 cards visible at rest
+immediately; screenshots in `docs/screenshots/kg7-before-resting-feed.png` and
+`kg7-after-resting-feed.png`. **Claim 2's own grounding changes here, not silently.** OLD: "the
+active ranking objective is always visible" was satisfied by the full vector panel rendering
+continuously above the feed. NEW: satisfied by a compact, persistent chip
+(`api/ranking.js`'s `objectiveChipLabel`) in the slim bar, naming the active objective (or "Null
+order" at the zero vector), one tap from the full vector page; `build/check-objective.mjs` now
+asserts the chip is never empty across the zero vector and every single- and all-component vector,
+replacing its earlier silence on the rendering surface entirely. The filter discipline's own
+indicator follows the same pattern but stays claim-2-adjacent, not claim 2 itself: a chip appears
+only when a filter is actually active (`api/filter.js`'s `filterChipLabel`, `null` at rest), stating
+the honest hidden count; `build/check-filter.mjs` asserts both the absence at rest and the honest
+count when active. The card ontology's Level 1 trims to statement, kind badge, grade mark, and
+origin; why-am-I-seeing-this moves behind the one tap into Level 2, its content unchanged, and the
+virtual/comment/actual triad's own treatments carry through untouched. Deliberate-break coverage:
+removing the objective chip from the resting layout (returning empty unconditionally) failed
+`check-objective.mjs` on 14 of its own assertions; removing the filter chip with a filter active
+(returning `null` unconditionally) failed `check-filter.mjs` on 9; both reverted, green.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

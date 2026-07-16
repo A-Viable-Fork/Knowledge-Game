@@ -4,7 +4,10 @@
 // Contract: kindsPresent(rows, kindTable) -> [{kind, count}], named kinds sorted, `untyped` last if
 //   present; applyFilter(rows, excludedKinds, kindTable) -> { visible, hidden } where `hidden` is
 //   exactly the [{kind, count}] the exclusion set hid, so a filter bar can always state its own
-//   exclusions rather than occlude silently.
+//   exclusions rather than occlude silently. filterChipLabel(hidden) -> string | null (Phase KG-7):
+//   the compact indicator's own text, present only when a filter is actually active (hidden is
+//   nonempty), naming the total hidden count; null when nothing is excluded, so the chip itself does
+//   not render, matching "a compact chip with the hidden count when any filter is active."
 // Invariant: pure, no grade or receipt read or touched. Filtering selects a set; it composes with
 //   ranking by running first (a caller orders `visible`, never the reverse), so a filter can only
 //   ever change what is shown, never what anything is worth.
@@ -45,4 +48,12 @@ export function applyFilter(rows, excludedKinds, kindTable) {
   }
   const hidden = sortedByKindName([...hiddenCounts.entries()]).map(([kind, count]) => ({ kind, count }));
   return { visible, hidden };
+}
+
+// the compact filter indicator (Phase KG-7): absent (null) when nothing is excluded, so no chip
+// renders at rest; present and honest about the total hidden count the moment a filter is active.
+export function filterChipLabel(hidden) {
+  if (!hidden || !hidden.length) return null;
+  const total = hidden.reduce((sum, h) => sum + h.count, 0);
+  return `${total} hidden (${hidden.map((h) => h.kind).join(", ")})`;
 }

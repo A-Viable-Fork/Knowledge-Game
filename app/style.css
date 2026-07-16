@@ -58,41 +58,110 @@ html, body {
 }
 .skip-link:focus { left: 1rem; top: 1rem; }
 
+/* The slim bar (Phase KG-7): community name, sync state, and the two governance indicator chips.
+   Self-hides on scroll-down, returns on scroll-up (the standard feed pattern); reduced-motion users
+   get the same show/hide, just without the transition, per the discipline. Resting height budget:
+   roughly a tenth of a typical phone viewport (measured and reported in docs/status-report.md). */
 .app-header {
   position: sticky;
   top: 0;
   z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem 1.25rem 0.75rem;
+  gap: 0.25rem;
+  padding: 0.4rem 0.9rem;
   background: var(--paper);
   border-bottom: 1px solid var(--line);
+  transform: translateY(0);
+  transition: transform var(--motion) ease;
+  overflow: hidden;
 }
-.app-header h1 { font-size: 1.15rem; margin: 0; letter-spacing: 0.01em; }
+.app-header.header-hidden { transform: translateY(-100%); }
+@media (prefers-reduced-motion: reduce) {
+  .app-header { transition: none; }
+}
+.header-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.active-community-name { font-size: 0.85rem; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.community-switcher { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.community-switcher button {
+.indicator-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.indicator-chip {
   font: inherit;
-  font-size: 0.85rem;
-  padding: 0.4rem 0.75rem;
+  font-size: 0.68rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: var(--card-bg);
   color: var(--ink-muted);
   cursor: pointer;
+  line-height: 1.3;
 }
-.community-switcher button[aria-current="true"] {
-  color: var(--ink);
-  border-color: var(--focus);
-  font-weight: 600;
-}
-.community-switcher button:focus-visible,
+.indicator-chip:focus-visible,
 .card summary:focus-visible,
 button:focus-visible,
 a:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
+}
+
+/* Communities page (Phase KG-7): the switcher, pins, and per-community sync, moved off the slim bar. */
+.communities-screen { max-width: 640px; margin: 0 auto; padding: 1rem 1.1rem; }
+.communities-screen h2 { font-size: 1rem; }
+.communities-list { list-style: none; padding: 0; margin: 0.6rem 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.communities-list li { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.6rem 0.8rem; flex-wrap: wrap; }
+.communities-list button[aria-current="true"] { color: var(--ink); border-color: var(--focus); font-weight: 600; }
+.communities-list button { font: inherit; font-size: 0.85rem; padding: 0.4rem 0.75rem; border-radius: 999px; border: 1px solid var(--line); background: var(--card-bg); color: var(--ink-muted); cursor: pointer; }
+
+/* Bottom navigation (Phase KG-7): persists through scroll (the thumb anchor); safe-area aware. */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  display: flex;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
+.bottom-nav-button {
+  flex: 1;
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.7rem 0.4rem;
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  min-height: 44px;
+  position: relative;
+}
+.bottom-nav-button[aria-current="true"] { color: var(--focus); font-weight: 600; }
+.menu-unread-dot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--grade-asserted);
+  margin-left: 0.3rem;
+  vertical-align: middle;
+}
+
+/* Menu page (Phase KG-7): everything not always-visible, one tap away. */
+.menu-screen { max-width: 640px; margin: 0 auto; padding: 1rem 1.1rem; }
+.menu-list { list-style: none; padding: 0; margin: 0.6rem 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.menu-list button {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  color: var(--ink);
+  cursor: pointer;
+  min-height: 44px;
 }
 
 .feed {
@@ -266,18 +335,15 @@ a:focus-visible {
   cursor: pointer;
 }
 .vault-actions .vault-delete { color: #b3392c; border-color: #b3392c; }
-.vault-nav-button { margin-left: auto; }
 
-/* Sync state banner (the PWA shell) */
+/* Sync state (Phase KG-7: inline in the slim bar's header row, not its own block) */
 .sync-state {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 0.4rem 1.1rem;
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   color: var(--ink-muted);
   display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
+  gap: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .sync-state .verified-badge { color: var(--grade-checked); font-weight: 600; }
 .install-button {
