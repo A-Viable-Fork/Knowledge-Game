@@ -7,8 +7,8 @@
 //   setActiveRanker, getActiveRenderer, setActiveRenderer, getPins, setPin, removePin, getOutbox,
 //   setOutbox, getSyncPolicy, setSyncPolicy, getLastSynced, setLastSynced, getSkin, setSkin,
 //   getAssistantProviderConfig, setAssistantProviderConfig, getAssistantActiveProvider,
-//   setAssistantActiveProvider, addAssistantModel, removeAssistantModel: thin pass-throughs to
-//   vault/vault.js.
+//   setAssistantActiveProvider, addAssistantModel, removeAssistantModel, getAccount, setAccount,
+//   deleteAccount: thin pass-throughs to vault/vault.js.
 // Invariant: this module holds no logic and no rule of its own; it is a naming surface. The vault's
 //   own invariants (off means off, absence is off/empty, no other file touches storage) live in
 //   vault/vault.js and are unchanged by being reached through here.
@@ -57,3 +57,6 @@ export const getAssistantActiveProvider = vault.getAssistantActiveProvider;
 export const setAssistantActiveProvider = vault.setAssistantActiveProvider;
 export const addAssistantModel = vault.addAssistantModel;
 export const removeAssistantModel = vault.removeAssistantModel;
+export const getAccount = vault.getAccount;
+export const setAccount = vault.setAccount;
+export const deleteAccount = vault.deleteAccount;

@@ -25,6 +25,7 @@
 const CACHE_NAME = "knowledge-game-shell-v1";
 const PINS_CACHE_NAME = "kg-pins-v1";
 const PRECACHE_URLS = [
+  "api/account.js",
   "api/alerts.js",
   "api/assistant.js",
   "api/community.js",
@@ -43,6 +44,7 @@ const PRECACHE_URLS = [
   "api/register-artifact.js",
   "api/registry.js",
   "api/settings.js",
+  "api/signatures.js",
   "api/skin-conformance.js",
   "api/skins.js",
   "api/submission.js",
@@ -59,6 +61,7 @@ const PRECACHE_URLS = [
   "app/index.html",
   "app/manifest.webmanifest",
   "app/style.css",
+  "periphery/account-screen.js",
   "periphery/alerts-panel.js",
   "periphery/app.js",
   "periphery/assistant-screen.js",
@@ -77,6 +80,7 @@ const PRECACHE_URLS = [
   "periphery/outbox-screen.js",
   "periphery/register-artifact-screen.js",
   "periphery/registry-screen.js",
+  "periphery/signing-panel.js",
   "periphery/skin-apply.js",
   "periphery/skin-picker.js",
   "periphery/submission-screen.js",

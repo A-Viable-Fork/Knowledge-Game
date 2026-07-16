@@ -38,6 +38,7 @@ import { draftProposal, draftContest, draftFork, draftComment, draftPromoteToCla
 import { queueBundle } from "../api/outbox.js";
 import { renderLadder } from "./ladder.js";
 import { describeReceipt } from "./gate-feedback.js";
+import { renderSigningPanel } from "./signing-panel.js";
 
 function el(tag, attrs, ...children) {
   const node = document.createElement(tag);
@@ -146,6 +147,9 @@ function renderProposalDraft(container, ctx) {
           : el("p", { class: "empty" }, "This community has not declared a contribution target yet.")
       );
       resultMount.appendChild(instructions);
+      const signingMount = el("div", {});
+      resultMount.appendChild(signingMount);
+      renderSigningPanel(signingMount, { bundle });
     });
     resultMount.appendChild(exportBtn);
     resultMount.appendChild(renderQueueButton(proposal, receipt, extraSources, ctx, community));
@@ -232,6 +236,9 @@ function renderCommentDraft(container, ctx) {
       const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
       downloadJSONBlob(`contribution-${bundle.contribution_id.slice(0, 12)}.json`, JSON.stringify(bundle, null, 2));
       resultMount.appendChild(el("p", {}, `Contribution id: ${bundle.contribution_id}`));
+      const signingMount = el("div", {});
+      resultMount.appendChild(signingMount);
+      renderSigningPanel(signingMount, { bundle });
     });
     resultMount.appendChild(exportBtn);
     resultMount.appendChild(renderQueueButton(proposal, receipt, extraSources, ctx, community));
@@ -286,6 +293,9 @@ function renderPromoteDraft(container, ctx) {
       const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
       downloadJSONBlob(`contribution-${bundle.contribution_id.slice(0, 12)}.json`, JSON.stringify(bundle, null, 2));
       resultMount.appendChild(el("p", {}, `Contribution id: ${bundle.contribution_id}`));
+      const signingMount = el("div", {});
+      resultMount.appendChild(signingMount);
+      renderSigningPanel(signingMount, { bundle });
     });
     resultMount.appendChild(exportBtn);
     resultMount.appendChild(renderQueueButton(proposal, receipt, extraSources, ctx, community));
@@ -340,6 +350,9 @@ function renderContestDraft(container, ctx) {
       const bundle = bundleProposal(proposal, receipt, { kernel_id: community.kernelId, state_id: community.snapshotHash });
       downloadJSONBlob(`contest-${bundle.contribution_id.slice(0, 12)}.json`, JSON.stringify(bundle, null, 2));
       resultMount.appendChild(el("p", {}, `Contribution id: ${bundle.contribution_id}`));
+      const signingMount = el("div", {});
+      resultMount.appendChild(signingMount);
+      renderSigningPanel(signingMount, { bundle });
     });
     resultMount.appendChild(exportBtn);
   }

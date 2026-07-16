@@ -444,6 +444,41 @@ wiring `identity_thresholds.propose` into a real conditional in the finish scree
 `build/check-seams.mjs`'s own static scan and `check-designer.mjs`'s designer-specific re-invocation
 of it; all three reverted, green.
 
+**Phase KG-14, completed: the optional account layer.** Accounts, built as everything the
+architecture already allows without the credential seam: `api/account.js` generates a WebCrypto
+(ECDSA P-256) keypair locally, the account id a content hash of the public key alone (never a
+display name), with export (a plain, prominent warning before download) and delete (irrevocable, no
+soft delete) both real; a fresh install carries no account, and no read path (`api/community.js`,
+`api/feed.js`, `api/ranking.js`, `api/filter.js`, `api/epistemic-cost.js`, `api/virtual.js`,
+`periphery/card.js`) references account state at all. `api/signatures.js` produces a detached
+signature over a bundle's own content-derived `contribution_id`, travelling as a sibling artifact
+(`periphery/signing-panel.js`, reused identically by every export site: a plain proposal, a comment,
+a promotion, a contest, and the registry's own register-an-artifact flow); an unsigned export is
+untouched and fully valid, since a signature never mutates the bundle it signs. The presentation menu
+(`PRESENTATION_LEVELS` in `api/account.js`, naming spec Section 5's own vocabulary: this key, a
+member of a group, a member of this community, the empty predicate) renders its true current state:
+"this key" and "floor, unlinkable" are functional today; the two membership levels render, visibly
+disabled, with the plain reason (membership presentation awaits the credential seam and member-set
+commitments upstream). A single shared guard, `canSignWithLevel(levelId, hasAccount)`, is the one
+rule both the UI's disabled radio input and its sign handler's own defensive re-check call against,
+so a disabled level can never reach `crypto.subtle.sign` by any path. `periphery/account-screen.js`
+carries the account view, the presentation overview, a verify tool (checks a signature against a
+bundle id and a public key, live), and the boundary notices stated plainly: signatures are verifiable
+but no community yet requires them; anonymity here is graph-level, since the GitHub-based
+contribution path still names the pusher at the transport layer; presentation levels 2 and 3 await
+upstream; this deployment holds keys locally by design, unlike a custodial client. New check:
+`build/check-accounts.mjs` (no read path references account state; a fresh install is accountless;
+the bundle-building modules carry no import edge to `api/account.js` or `api/signatures.js`; a
+signature verifies and fails on tamper against contribution id, signature, or public key
+independently; an unsigned contribution is fully valid and carries no signature field; the two
+disabled presentation levels refuse `canSignWithLevel` under every combination). `build/check-
+profile-leak.mjs` extends its own canary discipline to the account's own private key. Deliberate-
+break coverage: referencing account state from a read-path module failed `check-accounts.mjs`'s
+static scan naming the exact file; planting the private-key canary and driving the bundle path failed
+`check-profile-leak.mjs`'s runtime fuzz; forcing `canSignWithLevel` to accept a disabled level failed
+`check-accounts.mjs`'s own per-level assertions naming it; all three reverted, green. Capability
+manifest is unchanged: the account is entirely local, opening no new runtime destination.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is
