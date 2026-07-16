@@ -183,8 +183,9 @@ Grounded by 1 check(s): `build/check-substrate.mjs`
 
 An installed extension cannot modify canonical standing, and cannot execute outside its sandbox.
 
-Referenced by 2 file(s):
-- `api/extension-sandbox.js`: this module is the structural half of "cannot execute outside its sandbox"; the candidate cannot reach fetch, DOM, or host memory regardless of what api/extension.js decides about its conformance.
-- `api/extension.js`: checkConformance's ranking-separation fuzz refuses install to any candidate that mutates a grade-bearing field, drops a row, or introduces an unknown identity, and build/check-extension-seam.mjs proves this by naming the violation on a mutating candidate.
+Referenced by 3 file(s):
+- `api/assistant.js`: the assistant is this deployment's own worked example of a workflow-shaped extension declaring exactly one destination; build/check-assistant.mjs proves its manifest, its egress is exact, its offline honesty, and its structural inability to reach a store outside draft.
+- `api/extension-sandbox.js`: this module is the structural half of "cannot execute outside its sandbox, or beyond its own declared destinations"; the candidate cannot reach DOM, host memory, or an undeclared destination regardless of what api/extension.js decides about its conformance.
+- `api/extension.js`: checkConformance's ranking-separation fuzz refuses install to any candidate that mutates a grade-bearing field, drops a row, or introduces an unknown identity, and build/check-extension-seam.mjs proves this by naming the violation on a mutating candidate; as of Phase KG-9, the same claim also grounds that a candidate reaches at most its own exactly-declared destinations and nothing else, proven by build/check-extension-seam.mjs's egress section and build/check-assistant.mjs against the shipped assistant extension specifically.
 
 Grounded by 1 check(s): `build/check-extension-seam.mjs`

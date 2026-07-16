@@ -3,10 +3,15 @@
 //   actions (support, undercut, qualification, contest-type, fork-type) plus (Phase KG-4) comment,
 //   reply, and promote, routed by `ctx.action`.
 // Contract: renderContributeScreen(container, ctx) -> void. ctx = { community, action, targetRow,
-//   contributionTarget?, onBack }. community is what api/community.js's fetchCommunity() returns;
-//   targetRow is the card's row the action originated from (the comment being replied to or promoted,
-//   for "reply"/"promote"); contributionTarget is the community's declared PR destination (absent for
-//   a community that has not declared one).
+//   contributionTarget?, onBack, prefill? }. community is what api/community.js's fetchCommunity()
+//   returns; targetRow is the card's row the action originated from (the comment being replied to or
+//   promoted, for "reply"/"promote"); contributionTarget is the community's declared PR destination
+//   (absent for a community that has not declared one). Phase KG-9: prefill (only ever passed by
+//   periphery/assistant-screen.js reusing this exact screen, never by the ordinary card-driven route)
+//   is {statement, kind, assisted: true, note?}; only the default (new/support/undercut/qualification)
+//   draft form honors it, pre-filling the statement and kind fields and rendering a visible
+//   "drafted with assistant help" attribution above the form. The gate treats an assisted draft
+//   exactly like any other; the attribution is a rendering fact, never a field on the claim record.
 // Phase KG-6b: a gate-passed proposal (support/undercut/qualification/comment/reply/promote, never
 //   contest or fork) also offers "Queue to outbox" alongside export, when ctx.communityId is present
 //   (this app's own registered community id, distinct from the kernel's own id); this queues the same
@@ -104,10 +109,10 @@ function renderReceipt(receipt) {
 const PASSED = new Set(["accepted", "accepted-with-disagreement"]);
 
 function renderProposalDraft(container, ctx) {
-  const { community, action, targetRow, contributionTarget } = ctx;
+  const { community, action, targetRow, contributionTarget, prefill } = ctx;
   const resultMount = el("div", { class: "contribute-result" });
-  let statement = "";
-  let kind = targetRow ? targetRow.kind : (community.raw.kinds[0] && community.raw.kinds[0].kind) || "";
+  let statement = (prefill && prefill.statement) || "";
+  let kind = (prefill && prefill.kind) || (targetRow ? targetRow.kind : (community.raw.kinds[0] && community.raw.kinds[0].kind) || "");
   let citation = "";
   let contributorId = "contributor";
   let linkGrade = "corroborated";
@@ -154,8 +159,16 @@ function renderProposalDraft(container, ctx) {
   const form = el(
     "form",
     { class: "contribute-form", onsubmit: (e) => { e.preventDefault(); runDraft(); } },
+    prefill && prefill.assisted
+      ? el(
+          "div",
+          { class: "assistant-attribution", role: "note" },
+          el("p", {}, "Drafted with assistant help. Review before submitting; the gate treats this exactly like any other draft."),
+          prefill.note ? el("p", { class: "assistant-attribution-note" }, prefill.note) : null
+        )
+      : null,
     targetRow ? el("p", { class: "contribute-target" }, `Target claim: ${targetRow.statement}`) : null,
-    el("label", {}, "Statement", el("textarea", { required: true, oninput: (e) => (statement = e.target.value) })),
+    el("label", {}, "Statement", el("textarea", { required: true, oninput: (e) => (statement = e.target.value) }, statement)),
     el(
       "label", {}, "Kind",
       el("select", { onchange: (e) => (kind = e.target.value) }, ...kindOptions.map((k) => el("option", { value: k, selected: k === kind ? "" : undefined }, k)))

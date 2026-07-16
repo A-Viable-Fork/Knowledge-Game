@@ -16,7 +16,8 @@ import { fetchCommunity } from "../api/community.js";
 import { orderByObjective, explainPosition, objectiveChipLabel, COMPONENTS } from "../api/ranking.js";
 import { epistemicCost, epistemicCostSummary } from "../api/epistemic-cost.js";
 import { kindsPresent, applyFilter, filterChipLabel } from "../api/filter.js";
-import { checkConformance, runRanker, runRenderer, contentHash } from "../api/extension.js";
+import { checkConformance, runRanker, runRenderer, runWorkflow, contentHash } from "../api/extension.js";
+import { assemblePromptPack, buildFormalizeMessages, buildExplainMessages, parseFormalizeOutput, parseExplainOutput, ASSISTANT_SOURCE } from "../api/assistant.js";
 import { computeAlerts, refreshWatches } from "../api/alerts.js";
 import * as settings from "../api/settings.js";
 import { pinCommunity, unpinCommunity, isPinned, pinAge, listPins } from "../api/pins.js";
@@ -35,6 +36,7 @@ import { renderExtensionScreen, renderDashboardScreen } from "./extension-screen
 import { renderOnboardingScreen } from "./onboarding-screen.js";
 import { renderMenuScreen } from "./menu-screen.js";
 import { renderCommunitiesScreen } from "./communities-screen.js";
+import { renderAssistantScreen } from "./assistant-screen.js";
 import { LEARN_EFFICIENTLY_SOURCE } from "./demo-extensions.js";
 
 // The community registry. The founded EpiStack Competition Community (Phase B/C, its community card
@@ -727,6 +729,60 @@ function loadMenuScreen() {
   });
 }
 
+// the assistant screen (Phase KG-9): onFormalize/onExplain are the only two places this app ever
+// calls settings.getApiKey()/getAssistantEndpoint() and hands them to runWorkflow, alongside the
+// endpoint itself as the sandbox's one declared destination; nothing else in this module reads them.
+async function loadAssistantScreen(id) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  feedEl.setAttribute("aria-busy", "false");
+
+  const online = typeof navigator === "undefined" ? true : navigator.onLine !== false;
+
+  renderAssistantScreen(feedEl, {
+    community,
+    apiKey: settings.getApiKey(),
+    endpoint: settings.getAssistantEndpoint(),
+    online,
+    contributionTarget: meta.contributionTarget,
+    communityId: meta.id,
+    onSaveEndpoint: (endpoint) => { settings.setAssistantEndpoint(endpoint); loadAssistantScreen(id); },
+    onSaveApiKey: (key) => { settings.setApiKey(key); loadAssistantScreen(id); },
+    onFormalize: async (informalText, contextClaim) => {
+      const endpoint = settings.getAssistantEndpoint();
+      const apiKey = settings.getApiKey();
+      const promptPack = assemblePromptPack(community);
+      const messages = buildFormalizeMessages(promptPack, informalText, contextClaim);
+      const out = await runWorkflow(ASSISTANT_SOURCE, { endpoint: endpoint.url, apiKey, model: endpoint.model, messages }, [endpoint.url]);
+      return parseFormalizeOutput(out.content, !!contextClaim);
+    },
+    onExplain: async (claim) => {
+      const endpoint = settings.getAssistantEndpoint();
+      const apiKey = settings.getApiKey();
+      const links = community.raw.state.links || [];
+      const rowsByIdentity = new Map(community.api.read({}).map((r) => [r.identity, r]));
+      const supports = links.filter((l) => l.link_kind === "supports" && l.to_identity === claim.identity).map((l) => rowsByIdentity.get(l.from_identity)).filter(Boolean);
+      const challenges = links.filter((l) => (l.link_kind === "contradicts" || l.link_kind === "undercut") && l.to_identity === claim.identity).map((l) => ({ link_kind: l.link_kind, statement: (rowsByIdentity.get(l.from_identity) || {}).statement || "" }));
+      const promptPack = assemblePromptPack(community);
+      const messages = buildExplainMessages(promptPack, claim, supports, challenges);
+      const out = await runWorkflow(ASSISTANT_SOURCE, { endpoint: endpoint.url, apiKey, model: endpoint.model, messages }, [endpoint.url]);
+      return parseExplainOutput(out.content);
+    },
+    onBack: () => setHash({ view: "menu" }),
+  });
+}
+
 function loadCommunitiesScreen(activeId) {
   const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "false");
@@ -764,6 +820,8 @@ function route({ community, claim, view, action, target }) {
     loadOutboxScreen();
   } else if (view === "extensions") {
     loadExtensionScreen(activeId);
+  } else if (view === "assistant") {
+    loadAssistantScreen(activeId);
   } else if (view === "dashboard") {
     loadDashboardScreen(activeId);
   } else if (view === "contribute") {

@@ -503,6 +503,28 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
 .extension-status { font-size: 0.8rem; color: var(--ink-muted); min-height: 1.2em; }
 .extension-demo-installs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.6rem 0; }
 .extension-install-form { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.8rem; }
+.extension-destinations { font-size: 0.76rem; color: var(--ink-muted); margin: 0.2rem 0; }
+.extension-offline { font-style: italic; }
+.extension-consent { border: 1px solid var(--danger); border-radius: var(--radius); padding: 0.6rem 0.8rem; margin: 0.4rem 0; font-size: 0.82rem; }
+.extension-consent ul { margin: 0.3rem 0; padding-left: 1.2rem; }
+.extension-consent label { display: flex; align-items: flex-start; gap: 0.4rem; }
+
+/* Assistant (Phase KG-9) */
+.assistant-screen { max-width: 640px; margin: 0 auto; padding: 0 1.1rem 2rem; }
+.assistant-setup-form, .assistant-formalize-form, .assistant-explain-form { display: flex; flex-direction: column; gap: 0.5rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.8rem; margin: 0.8rem 0; }
+.assistant-setup-form label, .assistant-formalize-form label, .assistant-explain-form label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; }
+.assistant-setup-form input, .assistant-formalize-form textarea, .assistant-formalize-form select, .assistant-explain-form select {
+  font: inherit;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 0.5);
+  background: var(--card-bg);
+  color: var(--ink);
+}
+.assistant-offline-notice { font-style: italic; color: var(--ink-muted); padding: 0.6rem; border: 1px dashed var(--line); border-radius: var(--radius); }
+.assistant-attribution { border-left: 3px solid var(--focus); padding: 0.4rem 0.7rem; margin-bottom: 0.6rem; font-size: 0.82rem; background: color-mix(in srgb, var(--focus) 8%, transparent); }
+.assistant-attribution-note { color: var(--ink-muted); margin: 0.2rem 0 0; }
+.assistant-answer { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem; white-space: pre-wrap; }
 .dashboard-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.7rem; margin-top: 0.6rem; }
 .dashboard-tile { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem; }
 .dashboard-tile-label { font-size: 0.85rem; margin: 0 0 0.3rem; }

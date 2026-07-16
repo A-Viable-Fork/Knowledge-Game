@@ -25,7 +25,11 @@
 //   Phase KG-8: getSkin()/setSkin(skinId) (which registered skin id, api/skins.js's own SKINS array;
 //   absence is "trellis", the skin built around the app's own new mark, shipped as default once the
 //   mark exists to ship around; "ledger", this app's original look, stays one tap away on the vault
-//   screen's own picker for anyone who prefers it).
+//   screen's own picker for anyone who prefers it). Phase KG-9: getApiKey()/setApiKey(key) (the
+//   assistant extension's BYOK credential; absence is null, the assistant's inert-offline state);
+//   getAssistantEndpoint()/setAssistantEndpoint({url, model}) (the user-configured, provider-agnostic
+//   inference destination; absence is null, same inert state, since there is no hardcoded default
+//   endpoint anywhere in this deployment).
 // Invariant: a fresh profile constructs its off state rather than reading a configured default: no
 //   call ever writes a store on read, so a profile that has never called setObjective or
 //   setObservationEnabled has no key in storage at all, and every reader treats absence as off/empty
@@ -213,6 +217,32 @@ export function getSkin() {
 export function setSkin(skinId) {
   const store = readStore();
   store.skin = skinId;
+  writeStore(store);
+}
+
+// Phase KG-9: the assistant extension's BYOK credential and endpoint configuration. The key never
+// ships in any extension, appears in any manifest, or serializes into any patch; it lives only here,
+// read at call time and passed transiently into the sandbox's one call, never persisted by the
+// extension itself. Absence is null (no key configured, the assistant renders its setup state and
+// calls nothing); exportAll() carries it like every other vault field, since the vault's own export
+// is the one place a profile's own contents are meant to leave the device, at the reader's own hand.
+export function getApiKey() {
+  return readStore().assistantApiKey || null;
+}
+export function setApiKey(key) {
+  const store = readStore();
+  if (key) store.assistantApiKey = key;
+  else delete store.assistantApiKey;
+  writeStore(store);
+}
+
+export function getAssistantEndpoint() {
+  return readStore().assistantEndpoint || null; // { url, model } | null
+}
+export function setAssistantEndpoint(endpoint) {
+  const store = readStore();
+  if (endpoint && endpoint.url && endpoint.model) store.assistantEndpoint = { url: endpoint.url, model: endpoint.model };
+  else delete store.assistantEndpoint;
   writeStore(store);
 }
 
