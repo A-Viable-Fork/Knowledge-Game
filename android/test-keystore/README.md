@@ -24,4 +24,5 @@ SHA-256 certificate fingerprint (needed for `assetlinks.json`):
 **TEST ONLY.** Before any Google Play Store upload, generate a production keystore and hold it
 outside this repository, under the operator's own control alone. Never commit a production
 keystore. Retire this test key from any release channel beyond direct sideload once a production
-key exists. See `trellis/status-ledger.md` for the ledgered obligation.
+key exists. See `trellis/sorry-ledger.md` (SK-25) and `trellis/status-ledger.md` for the ledgered
+obligation.

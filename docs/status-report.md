@@ -45,7 +45,7 @@ strings, but has no way to verify the label honestly describes the evidence it n
 check can bound semantic honesty of a label the substrate itself does not define beyond its enum;
 this repository's own read-before-merge practice is the standing discipline named in place of one.
 
-## 3. Bounded follow-up engineering (5 items)
+## 3. Bounded follow-up engineering (8 items)
 
 **SK-20**, recency: `api/feed.js`'s null order has nothing between grounding and the identity-hash
 tiebreak, because the v3 claim record carries no timestamp and no other content-derived temporal
@@ -76,6 +76,20 @@ upstream, branch-local) has nothing structural to route a distribution toward fo
 claim admitted here. Closes with a typed `attributionTarget` field on the draft object, always
 present on a source-derived draft, checked so a draft built from a citation always carries a
 target or an explicit none, never a silent absence.
+
+**SK-25**, production signing: the Android wrapper is built and signed with a committed TEST ONLY
+keystore (`android/test-keystore/`); this repository's obligation is limited to stating the
+production rule, not performing it. Closes when the operator generates a production keystore held
+privately (never committed), re-emits `assetlinks.json` against its fingerprint, and retires the
+test key before any Play Store submission. An operator action, not an engineering one.
+
+**SK-26**, Play Store publishing: the wrapper is built and released as a sideload-only APK; listing
+it on the Play Store (developer account, store listing, review) is entirely outside this
+repository's scope. An operator action, not an engineering one.
+
+**SK-27**, push notifications: not built. Adding them would introduce a new runtime egress
+destination (a push service) that `manifests/network.json` and `manifests/capability.json` do not
+yet declare. A deferred egress decision, not yet chosen either way.
 
 ## 4. Plural community-policy choices (5 items)
 
