@@ -1,0 +1,96 @@
+{
+  "document": "docs/the-climb-of-synthesis.md",
+  "content_hash": "b497b8c38f032c679a9cd12405a683b979b313f33e60658088267d60d451d6ab",
+  "spans": [
+    {
+      "ref": "cos.limit.eval",
+      "register": "evaluative",
+      "anchor": {
+        "start": 870,
+        "end": 1036,
+        "quote_key": "From inside a single view, however good, you can"
+      },
+      "claim": "11914d9f901d7234275f4378cc9ad11c4d208e5b7405fe507373dd0603d9b0bc"
+    },
+    {
+      "ref": "cos.const.knowledge",
+      "register": "constitutive",
+      "anchor": {
+        "start": 2114,
+        "end": 2172,
+        "quote_key": "knowledge is the invariant left as the model is "
+      },
+      "claim": "64eabac25b13e4fedc4791c79c728b52f1b781207a71b05c2888a63ec6ed0673"
+    },
+    {
+      "ref": "cos.const.struct",
+      "register": "constitutive",
+      "anchor": {
+        "start": 2984,
+        "end": 3131,
+        "quote_key": "It performs the structural half: it attenuates t"
+      },
+      "claim": "473b8ad6d57e0975d4e9c4417d7daa556651fec6e9ea124f9fa0688df2b892c4"
+    },
+    {
+      "ref": "cos.const.semantic",
+      "register": "constitutive",
+      "anchor": {
+        "start": 3132,
+        "end": 3313,
+        "quote_key": "Judging whether that support is true of the worl"
+      },
+      "claim": "c50e2932d549b3fcfe9e9232e64660d44ed6a4bd9ce3a3356f18851711042d7f"
+    },
+    {
+      "ref": "cos.gate.mech",
+      "register": "mechanical",
+      "anchor": {
+        "start": 5107,
+        "end": 5237,
+        "quote_key": "admitting a contribution only if it holds togeth"
+      },
+      "claim": "021e3ef4046f08102efb1eaef7548a31710b2b4b1d665ce650cd0219b8c97051"
+    },
+    {
+      "ref": "cos.untyped.mech",
+      "register": "mechanical",
+      "anchor": {
+        "start": 5831,
+        "end": 5955,
+        "quote_key": "Input that arrives untyped is admitted and sits "
+      },
+      "claim": "69abefbec044c0ef4a251f7ddd12ed5048ee2ba3b50f1410054d4dbd6d421cb6"
+    },
+    {
+      "ref": "cos.producer.mech",
+      "register": "mechanical",
+      "anchor": {
+        "start": 7136,
+        "end": 7300,
+        "quote_key": "It checks a claim's structure, never its agent's"
+      },
+      "claim": "e67e22abe94aa54a9d466a549902011ce7494a44fb99a777ccf99bfb10829a2d"
+    },
+    {
+      "ref": "cos.ce.lhc",
+      "register": "mechanical",
+      "anchor": {
+        "start": 9332,
+        "end": 9476,
+        "quote_key": "until the graph makes the assumption the lines s"
+      },
+      "claim": "d47f51dfb5172e7402006fb2201804cf5fa2b2f306d84a5eaeed011bba345cc2"
+    },
+    {
+      "ref": "cos.ce.eggs",
+      "register": "mechanical",
+      "anchor": {
+        "start": 9976,
+        "end": 10168,
+        "quote_key": "until the frame it presupposes, which population"
+      },
+      "claim": "aabc69a0d4de7b296f672fc4de40e232ebf74e401270eac5de62fd2c1d5dcce6"
+    }
+  ]
+}

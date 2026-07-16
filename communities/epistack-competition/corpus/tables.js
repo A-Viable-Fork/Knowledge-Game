@@ -24,6 +24,10 @@ const KINDS = [
   {
     "kind": "comment",
     "ceiling": "ungraded"
+  },
+  {
+    "kind": "declaration",
+    "ceiling": "constitutive"
   }
 ];
 
@@ -37,6 +41,11 @@ const SOURCES = [
     "source_id": "S-epistack-submission-argument",
     "source_class": "preprint",
     "description": "the pinned reference implementation's own epistemic_uplift.md, compost-ledger.md, and trust-and-view.md, unreviewed argumentative essays awaiting the judges' own semantic acceptance, the asserting source for this kernel's evaluative claims"
+  },
+  {
+    "source_id": "S-epistack-vocabulary",
+    "source_class": "institutional-report",
+    "description": "upstream's own vocabulary kernel (corpora/vocabulary/vocabulary.js), the submission's terms as declaration claims each grounding by adoption in the document that defines it"
   }
 ];
 
@@ -44,12 +53,14 @@ const SOURCES = [
 const ADOPTED = [
   "measurement",
   "forum",
-  "comment"
+  "comment",
+  "declaration"
 ];
 const ADOPTED_HASHES = {
   "measurement": "2ed60a0154fef12d5d630f4a3f52d06686479c75aa57a44fd3b1488d581d3621",
   "forum": "04c5a97678a1228065e6c36068b0b3dcc12ca52ad1285e6727f49754030007a1",
-  "comment": "2a9e3db197c0eb335140a53e384059547817fe1b5f8918d64adb533581432bef"
+  "comment": "2a9e3db197c0eb335140a53e384059547817fe1b5f8918d64adb533581432bef",
+  "declaration": "354cba45e263a9788064fbf35d71d8506dd93ddf8c35b092ba606e5c2cc3b1bd"
 };
 
 // time-lock and standing (F5): the one clean free parameter, no grounding consequence.

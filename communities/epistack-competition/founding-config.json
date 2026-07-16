@@ -6,7 +6,12 @@
     "domain": "the EpiStack protocol and its competition submission",
     "purpose": "a community kernel grounding the protocol's own mechanical guarantees against the pinned reference implementation's own check suite, and holding the submission's evaluative theses bare, at their honest floor, awaiting semantic acceptance by the judges and participants who alone can give it"
   },
-  "adopted_type_hashes": ["measurement", "forum", "comment"],
+  "adopted_type_hashes": [
+    "measurement",
+    "forum",
+    "comment",
+    "declaration"
+  ],
   "local_kinds": [],
   "sources": [
     {
@@ -18,9 +23,16 @@
       "source_id": "S-epistack-submission-argument",
       "source_class": "preprint",
       "description": "the pinned reference implementation's own epistemic_uplift.md, compost-ledger.md, and trust-and-view.md, unreviewed argumentative essays awaiting the judges' own semantic acceptance, the asserting source for this kernel's evaluative claims"
+    },
+    {
+      "source_id": "S-epistack-vocabulary",
+      "source_class": "institutional-report",
+      "description": "upstream's own vocabulary kernel (corpora/vocabulary/vocabulary.js), the submission's terms as declaration claims each grounding by adoption in the document that defines it"
     }
   ],
-  "time_lock": { "setting": "light" },
+  "time_lock": {
+    "setting": "light"
+  },
   "identity_thresholds": {
     "propose": "any",
     "contest-type": "supported",

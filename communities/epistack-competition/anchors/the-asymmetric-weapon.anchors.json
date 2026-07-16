@@ -1,0 +1,56 @@
+{
+  "document": "docs/the-asymmetric-weapon.md",
+  "content_hash": "20c57396738351a0c773fbb1c2f722548408b94b6f3e12291cdd329514f1b167",
+  "spans": [
+    {
+      "ref": "aw.struct.const",
+      "register": "constitutive",
+      "anchor": {
+        "start": 1843,
+        "end": 2080,
+        "quote_key": "The kernel performs **structural attenuation**: "
+      },
+      "claim": "473b8ad6d57e0975d4e9c4417d7daa556651fec6e9ea124f9fa0688df2b892c4"
+    },
+    {
+      "ref": "aw.semantic.const",
+      "register": "constitutive",
+      "anchor": {
+        "start": 2081,
+        "end": 2250,
+        "quote_key": "What it does not perform is **semantic attenuati"
+      },
+      "claim": "c50e2932d549b3fcfe9e9232e64660d44ed6a4bd9ce3a3356f18851711042d7f"
+    },
+    {
+      "ref": "aw.boundary.eval",
+      "register": "evaluative",
+      "anchor": {
+        "start": 3338,
+        "end": 3512,
+        "quote_key": "Any mechanism that tried to perform semantic att"
+      },
+      "claim": "9d4b0d62ad9346844ddbb1c4de996749e5af0d623b6c88634b8055c71c5675c7"
+    },
+    {
+      "ref": "aw.recompute.mech",
+      "register": "mechanical",
+      "anchor": {
+        "start": 11261,
+        "end": 11384,
+        "quote_key": "a declared grade above what the published struct"
+      },
+      "claim": "c0a3ccada538d2a3a37db3e47fb72aae27300805c690f9c776ffd99154f501d7"
+    },
+    {
+      "ref": "aw.cannot.eval",
+      "register": "evaluative",
+      "anchor": {
+        "start": 11386,
+        "end": 11670,
+        "quote_key": "It cannot catch attestation fraud, because the g"
+      },
+      "claim": "a6408a5e36ecd9a73ef7b92c7fbbd9c2137c673df9d3f1da17bfac028c577a2b"
+    }
+  ]
+}

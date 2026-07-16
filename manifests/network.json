@@ -3,8 +3,8 @@
   "allowed_egress_destinations": [
     {
       "path": "../communities/epistack-competition/snapshot/epistack-competition.snapshot.json",
-      "snapshot_hash": "88a8ceeb2f60aae52d89df3728062536225dd3f7023c3c0f7eef777ffef8020f",
-      "description": "The founded EpiStack Competition Community, this deployment's default community: 19 claims (thirteen checked, the mechanical protocol claims plus the first admitted contribution; six asserted, the submission's own evaluative theses, awaiting semantic acceptance), now adopting three shared kinds (measurement, forum, comment as of the Phase KG-4 re-pin)."
+      "snapshot_hash": "3359b3d8178e1b0ce0bed3c21c90f58194c13eeb84b04d22309b11b5b38b7c25",
+      "description": "The founded EpiStack Competition Community, this deployment's default community: 56 claims (25 checked, the mechanical protocol claims plus the submission-decomposition's mechanical register plus the first admitted contribution; 20 constitutive, the submission-decomposition's own vocabulary-kernel definitions carried in by depends-on; 11 asserted, the submission's own evaluative theses across both the founding claims and the decomposed documents, awaiting semantic acceptance), now adopting four shared kinds (measurement, forum, comment, declaration as of the Phase KG-11 submission-decomposition merge)."
     },
     {
       "path": "fixtures/knowledge-game.snapshot.json",
