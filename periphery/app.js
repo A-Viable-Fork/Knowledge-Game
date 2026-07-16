@@ -37,6 +37,7 @@ import { renderOnboardingScreen } from "./onboarding-screen.js";
 import { renderMenuScreen } from "./menu-screen.js";
 import { renderCommunitiesScreen } from "./communities-screen.js";
 import { renderAssistantScreen } from "./assistant-screen.js";
+import { renderKernelDesignerScreen } from "./kernel-designer-screen.js";
 import { LEARN_EFFICIENTLY_SOURCE } from "./demo-extensions.js";
 
 // The community registry. The founded EpiStack Competition Community (Phase B/C, its community card
@@ -783,6 +784,13 @@ async function loadAssistantScreen(id) {
   });
 }
 
+function loadDesignerScreen() {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "false");
+  renderChrome({ view: "menu" });
+  renderKernelDesignerScreen(feedEl, { onBack: () => setHash({ view: "menu" }) });
+}
+
 function loadCommunitiesScreen(activeId) {
   const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "false");
@@ -824,6 +832,8 @@ function route({ community, claim, view, action, target }) {
     loadAssistantScreen(activeId);
   } else if (view === "dashboard") {
     loadDashboardScreen(activeId);
+  } else if (view === "designer") {
+    loadDesignerScreen();
   } else if (view === "contribute") {
     loadContributeScreen(activeId, action, target);
   } else {

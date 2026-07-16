@@ -32,12 +32,16 @@ record. `docs/blast-radius.md` carries the full file-level detail; this is the c
 | claim-19 | `build/check-substrate.mjs` |
 | claim-20 | `build/check-extension-seam.mjs`, `build/check-assistant.mjs` |
 
-Three structural checks ground the workflow track itself rather than a numbered claim:
+Four structural checks ground the workflow track itself rather than a numbered claim:
 `build/check-references.mjs` (Stage 4: every governance reference resolves, all 20 claims are
 covered), `build/check-parameter-surface.mjs` (the founding flow's parameter surface matches the
-vendored register), and `build/check-skins.mjs` (Phase KG-8: every registered skin and variant is
+vendored register), `build/check-skins.mjs` (Phase KG-8: every registered skin and variant is
 token-complete, grade-monotonic, and contrast-legible, and the grade word plus the actual/comment/
-virtual triad's distinguishing classes are structurally independent of which skin is active).
+virtual triad's distinguishing classes are structurally independent of which skin is active), and
+`build/check-designer.mjs` (Phase KG-10: every preset round-trips through the real vendored
+scaffolder, the kernel designer's live preview is deterministic and computes through the real
+provider path rather than illustrating, inactive fields serialize honestly and are read by nothing
+that evaluates them, and every guidance string covers the real vocabulary it explains).
 
 ## 2. Built but manually governed (1 item)
 
@@ -65,12 +69,13 @@ machinery scopes anonymity claims to the graph, never the transport; closing thi
 transport that does not name the submitting party, not specified upstream or planned locally as of
 this pin.
 
-**SK-23**, the license picker: the founding flow's parameter step does not yet surface a license
-picker, because `vendor/scaffolder/kernel-config.schema.json` carries no `corpus_content_license`
-property as of this pin. Closes automatically in the sense that matters: when the vendored schema
-gains the field, `build/check-parameter-surface.mjs` will fail on the register delta at the next
-re-pin, naming the new field as present in the schema but absent from the founding flow, which is
-the designed detection rather than a bug.
+**SK-23**, the license picker: **discharged** (Phase KG-10). The kernel designer's license picker
+(`periphery/kernel-designer-screen.js`, backed by `api/kernel-designer.js`'s `LICENSE_OPTIONS`) lets
+a founder set `corpus_content_license` interactively, feeding the same field the governance-hash and
+`reportParameters` have read since Phase KG-6. The re-pin to current upstream main confirmed the
+vendored scaffolder schema still carries no `corpus_content_license` property, and none was needed:
+the field was never meant to reach it, living outside `scaffoldConfig` exactly like
+`identity_thresholds` and `standing_economy`; the missing piece was only the picker, now built.
 
 **SK-24**, attribution capture: the draft path captures no typed attribution target when a draft
 derives from a published source, so a community's market-layer royalty machinery (specified,

@@ -74,6 +74,8 @@ jobs:
         run: node build/check-skins.mjs
       - name: check-assistant
         run: node build/check-assistant.mjs
+      - name: check-designer
+        run: node build/check-designer.mjs
       - name: check-gate-feedback
         run: node build/check-gate-feedback.mjs
       - name: check-card-hashes
