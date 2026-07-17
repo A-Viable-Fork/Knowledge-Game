@@ -589,6 +589,35 @@ reverted, green. The re-emitted `knowledge-game.snapshot.json` (snapshot_hash
 confirmed by fetch. Capability manifest is unchanged: the entrance listing adds no new runtime
 destination, only claims inside the already-served snapshot.
 
+**Phase KG-front-page, completed: the front page as six branching questions.** Replaces the root
+`index.html`, previously a bare redirect into `app/`, with a static, JavaScript-free front page: the
+submission's argument as six questions, each a native `<details>`/`<summary>` disclosure opening into
+a short answer and doors into the epistack repository's own artifacts, the sixth question's door being
+the app itself. Content landed verbatim per the governing prompt; no factual correction or register
+flattening was needed (the footer line, "Grades are computed on device from the public graph. A grade
+is a computed reading, never a claim of truth," is reused verbatim from `app/index.html`'s own existing
+footer, the same grounded register the entrance-surfaced claims already carry). A new standalone
+stylesheet, `root.css`, hand-copies `app/style.css`'s own token values (paper, ink, line, focus,
+radius, font stack) rather than importing it, so the two pages read as one family with no build-time
+coupling; the page reads fully with CSS absent, since disclosure is native HTML, never scripted.
+Service-worker determination: `build/shell-files.mjs`'s own walk starts from `app/index.html`, never
+the root file, so root `index.html` was never in `sw.js`'s precache list; the fetch handler's own
+cache-then-network fallback never writes a runtime cache entry either, so a returning visitor's next
+request for `/` always reaches the network fresh. No cache version bump was needed, and `sw.js` itself
+is untouched. `llms.txt` gained one line naming the new human entrance, the machine-readable state
+staying exactly where the file already said it was. Every door target was curl-verified as a real,
+resolving public URL against the epistack repository (contract-register.md, the-asymmetric-weapon.md,
+the-minimum-constitution.md and its own internet-history heading anchor, the-tcpip-counterexample.md,
+criteria-to-architecture-map.md, and the corpora/math and corpora/lineage directories), all resolving
+200; this deployment's own outbound proxy policy blocks the `*.github.io` domain outright (a
+connect-rejected policy denial, not a missing-page 404), so the deployed app door and the repository's
+own Pages could not be curl-verified from this session directly, and the local mirror server stood in
+for that specific check instead. Deliberate-break coverage: pointing the lineage-corpus door at a
+nonexistent path failed the curl sweep (this repository carries no automated link checker, so the
+sweep itself is the check named in the governing prompt) with a 404 naming the broken URL; reverted,
+green. Capability manifest is unchanged: the new page opens no new runtime destination of its own
+(every door is an ordinary outbound link a reader's own click follows, never a fetch this app makes).
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

@@ -1,0 +1,124 @@
+/* Role: the standalone stylesheet for the repository root's own front page (index.html). Deliberately
+   never coupled to app/style.css: a different document, a different lifecycle, no shared build step.
+   Its palette and token values are hand-copied from app/style.css's own Ledger-light/dark registers at
+   the time of writing, so the two pages read as one family without either importing the other. The
+   page must read fully with this file entirely absent (semantic HTML, native <details>/<summary>), so
+   every rule here is presentation only, never structure. */
+
+:root {
+  --paper: #f7f5f0;
+  --ink: #16181c;
+  --ink-muted: #55595f;
+  --line: #d8d4c8;
+  --card-bg: #ffffff;
+  --focus: #2f6df0;
+  --radius: 14px;
+  --font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #12140f;
+    --ink: #f1efe8;
+    --ink-muted: #b7b3a6;
+    --line: #33362c;
+    --card-bg: #1b1e17;
+    --focus: #7aa2ff;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-family);
+}
+
+body {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+  line-height: 1.5;
+}
+
+h1 {
+  font-size: 1.9rem;
+  margin: 0 0 0.3rem;
+}
+
+.subtitle {
+  color: var(--ink-muted);
+  margin: 0 0 1.4rem;
+  font-size: 1.05rem;
+}
+
+.primary-action {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #ffffff;
+  background: var(--focus);
+  padding: 0.65rem 1.3rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  margin-bottom: 1.6rem;
+}
+.primary-action:focus-visible, a:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.branch-intro {
+  color: var(--ink-muted);
+  margin: 0 0 1rem;
+  font-style: italic;
+}
+
+details {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+  padding: 0.2rem 1rem;
+}
+
+summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.75rem 0;
+  list-style: none;
+}
+summary::-webkit-details-marker { display: none; }
+summary::before {
+  content: "+ ";
+  color: var(--ink-muted);
+}
+details[open] summary::before {
+  content: "- ";
+}
+
+.answer {
+  padding: 0 0 0.9rem;
+}
+.answer p {
+  margin: 0 0 0.7rem;
+}
+
+.doors {
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+}
+.doors a, .answer a {
+  color: var(--focus);
+}
+
+footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+}
