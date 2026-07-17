@@ -67,14 +67,14 @@ const COMMUNITIES = [
   // communities like any other, snapshot by hash, fetched through the identical path. A promotion
   // proposal read here (adopt something to shared) is an ordinary claim, argued in the open and
   // decided by which communities choose to pin it, never a privileged act this app performs.
+  // knowledge-game also carries the front-page decomposition claims (fp.*, Phase
+  // KG-front-page-claims): the root front page's own six-question argument, entered into this same
+  // governance kernel rather than a second one, surfaced through this identical snapshot. The claim
+  // lens's comment/fork/contest doors (periphery/root-lens.js, reached from index.html, outside this
+  // app's own bundle) deep-link here, using the identical #community=knowledge-game&view=contribute
+  // &action=...&target=<identity> route every other card uses.
   { id: "knowledge-game", label: "Knowledge-Game (this repository's own governance kernel, mirrored)", path: "fixtures/knowledge-game.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game", mirror: true },
   { id: "math", label: "EpiStack (upstream protocol repository's math kernel, mirrored)", path: "fixtures/math.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/epistack", mirror: true },
-  // the front-page kernel (Phase KG-claim-lens): the root front page's own six-question argument,
-  // decomposed into typed claims, joined here as an ordinary browsable community so the claim
-  // lens's comment/fork/contest doors (periphery/root-lens.js, reached from index.html, outside
-  // this app's own bundle) have a real registered target to deep-link into, using the identical
-  // #community=front-page&view=contribute&action=...&target=<identity> route every other card uses.
-  { id: "front-page", label: "The Front Page (this repository's own entrance decomposition, mirrored)", path: "fixtures/front-page.snapshot.json", contributionTarget: "https://github.com/A-Viable-Fork/Knowledge-Game", mirror: true },
   // the three rooms (Phase KG-13): the competition's three cases, working corpora in epistack,
   // emitted here as ordinary browsable communities. The app hosts no room content; each fetches its
   // snapshot by hash and its contribution target names epistack's own corpus path, never this app.

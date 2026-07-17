@@ -3,7 +3,7 @@
   "governance_hash": "26fbdef0d1ec08c58018b7c0916a49de4b5eacb9fe3978ae67bc2c1eb7d2c5c4",
   "governance_hash_computed_by": "this deployment, app-side (docs/coordination-layer-spec.md's own computation is specified, not yet built upstream)",
   "member_set_commitment": null,
-  "snapshot_hash": "178a7d505d7fb75fe31154f36a484eded8c047e10904eb79e031cb2405c9a7fe",
+  "snapshot_hash": "534806ae2818870ac96a910cd83a68a87e5eeebc9089c8024efb1a647ea97dc0",
   "fetch_locations": [
     "https://a-viable-fork.github.io/Knowledge-Game/communities/the-registry/snapshot/the-registry.snapshot.json"
   ],

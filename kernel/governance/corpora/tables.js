@@ -9,6 +9,11 @@
 //   (kernel-config.json) names this kind in local_kinds so its own intent stays legible even though the
 //   two files were not regenerated together this time; the-registry's own tables.js carries the
 //   identical pattern (a constitutive-ceiling kind, contract-bundle, alongside checked-ceiling ones).
+// DEPARTURE (the front-page decomposition claims): "declaration" and "forum", both shared common kinds
+//   (vendor/corpora/_shared/common-types.js), adopted by hand for the identical reason: definitional
+//   statements (declaration, ceiling constitutive) and interpretive weighings (forum, ceiling
+//   corroborated) the front page's own six answers decompose into, honestly typed rather than forced
+//   into "identity" or "measurement".
 "use strict";
 
 const KINDS = [
@@ -19,6 +24,14 @@ const KINDS = [
   {
     "kind": "identity",
     "ceiling": "constitutive"
+  },
+  {
+    "kind": "declaration",
+    "ceiling": "constitutive"
+  },
+  {
+    "kind": "forum",
+    "ceiling": "corroborated"
   }
 ];
 
@@ -37,15 +50,29 @@ const SOURCES = [
     "source_id": "S-kg-self-stipulated",
     "source_class": "institutional-report",
     "description": "this deployment's own stipulated identity (name, tagline, and canonical locations): adopted by the operator, not measured, the same honest floor a constitutive-ceiling kind's own claim ever carries"
+  },
+  {
+    "source_id": "S-fp-self-declared",
+    "source_class": "institutional-report",
+    "description": "this deployment's own front page (index.html): the submission's argument, restated as the definitional and app-behavior claims the page itself stipulates or already grounds elsewhere in this kernel"
+  },
+  {
+    "source_id": "S-fp-epistack-submission",
+    "source_class": "institutional-report",
+    "description": "the epistack submission repository's own docs and corpora, cited by the front page's own doors; these claims enter at the honest floor a citation alone ever earns, awaiting a local fork that would type them"
   }
 ];
 
 // the shared common kinds this kernel adopts (names), and the type-hashes pinned at adoption.
 const ADOPTED = [
-  "measurement"
+  "measurement",
+  "declaration",
+  "forum"
 ];
 const ADOPTED_HASHES = {
-  "measurement": "2ed60a0154fef12d5d630f4a3f52d06686479c75aa57a44fd3b1488d581d3621"
+  "measurement": "2ed60a0154fef12d5d630f4a3f52d06686479c75aa57a44fd3b1488d581d3621",
+  "declaration": "354cba45e263a9788064fbf35d71d8506dd93ddf8c35b092ba606e5c2cc3b1bd",
+  "forum": "04c5a97678a1228065e6c36068b0b3dcc12ca52ad1285e6727f49754030007a1"
 };
 
 // time-lock and standing (F5): the one clean free parameter, no grounding consequence.
