@@ -34,6 +34,8 @@ jobs:
         run: node build/check-knowledge-game.mjs
       - name: check-entrance-listing
         run: node build/check-entrance-listing.mjs
+      - name: check-front-page-lens
+        run: node build/check-front-page-lens.mjs
       - name: check-imports
         run: node build/check-imports.mjs
       - name: check-egress
@@ -114,6 +116,10 @@ jobs:
         run: |
           node build/emit-fixtures.mjs
           git diff --exit-code app/fixtures
+      - name: front-page snapshot is reproducible (regenerate and diff)
+        run: |
+          node build/emit-front-page-snapshot.mjs
+          git diff --exit-code app/fixtures/front-page.snapshot.json
       - name: room snapshots and cards are reproducible (regenerate and diff)
         run: |
           node build/emit-rooms.mjs
