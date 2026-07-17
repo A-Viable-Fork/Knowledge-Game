@@ -618,6 +618,58 @@ sweep itself is the check named in the governing prompt) with a 404 naming the b
 green. Capability manifest is unchanged: the new page opens no new runtime destination of its own
 (every door is an ordinary outbound link a reader's own click follows, never a fetch this app makes).
 
+**Phase KG-claim-lens, completed (Tier A; Tier B not shipped): the claim lens over the front page.**
+Makes the front page the first instance of the reader-mode pattern: prose that reads as prose until a
+claim is tapped, at which point it isolates in a labeled dialog with the moves the protocol affords.
+A new front-page kernel (`kernel/front-page/`) decomposes the six answers into 21 typed claims,
+built and graded through the real gate (`build/front-page-build.mjs`, emitting
+`app/fixtures/front-page.snapshot.json`): 10 `forum` and 8 `declaration` claims for the epistack-
+artifact and protocol-shape sentences (asserted and constitutive respectively, the honest floor a
+citation or a stipulation alone ever earns), and 3 `measurement` claims for the app-behavior sentences
+(grades computed on device, ranking moves no grade, substrate pinned by commit and hash), each
+carrying a real `restatement` link to the governance claim that actually grounds it (claim-9, claim-1,
+claim-19, mirrored verbatim into this kernel's own build so the link resolves against a real sibling
+rather than declining as unresolved). The mechanical effect of a restatement link in the real gate
+joins two identities for supports-sharing, not the copying of a co-closure member's stored grade, so
+the lens itself reads the mirrored governance claim's own row for display, the same indirection the
+entrance listing's `references_claim` extension already established, now backed by a schema-real
+link. The front-page kernel is registered as an ordinary browsable app community ("front-page",
+mirrored), so the lens's comment/fork/contest doors are real, working deep links into the app's own
+unmodified compose surface (`app/#community=front-page&view=contribute&action=...&target=<identity>`);
+attest and decompose carry no pre-fill shape anywhere in this codebase and land as honestly labeled
+doors into the claim's own card instead, the gap named on the button rather than silently dropped.
+`index.html`'s answer text gained claim spans (a `data-ref` attribute, zero visual difference at
+rest); `periphery/root-lens.js`, a new progressive-enhancement module, matches each span to its claim
+by exact statement-text equality (never trusting `data-ref` alone), wires isolate/sheet/scroll-restore,
+the follow trail (a real hop into the governance kernel where a restatement exists, a labeled door
+into the epistack submission where a `url` extension exists, or an honest dead end where neither
+does), and the provenance chip (expandable, naming sibling claims resting on the same source). With
+the script absent or its one fetch failed, the page is exactly the static six-question page. New
+oracle `build/check-front-page-lens.mjs` verifies every span resolves, every restatement targets a
+real grounded claim (and is itself restricted to `measurement`-kind claims, an oracle-level guard
+against a claim borrowing standing it never earned, since the gate has no semantic check for this),
+and the emitted snapshot carries every claim and link intact; wired into CI alongside a front-page
+snapshot reproducibility step. `sw.js` gained one precache entry (`app/fixtures/front-page.snapshot
+.json`), the mechanical consequence of registering front-page as a browsable community, not of the
+root page or `root-lens.js` themselves (still outside the app's own shell walk, unchanged). Tier B
+(cross-kernel follow, fetching epistack's own published self-kernel snapshot) was investigated and
+found to have a real target: epistack's `pages-snapshot.yml` workflow deploys `corpora/self`'s own
+snapshot to `https://a-viable-fork.github.io/epistack/self.snapshot.json` in the identical `{kernel_id,
+snapshot_hash, state, sources, kinds}` shape this app's own snapshots use. It was not shipped: this
+environment's outbound proxy blocks the `a-viable-fork.github.io` host outright (the same
+connect-rejected policy denial the front-page phase already documented), so the success path could
+not be verified even once, and per the governing prompt's own discipline a partial Tier B is reverted
+rather than shipped. Verification: JS-disabled rendering confirmed (all spans plain, six branches
+open, zero script needed); the mechanical no-grade-motion check (a captured store-state hash stayed
+byte-identical across isolate, follow, provenance-chip, and every action sheet, across three distinct
+claims) then one real typing act (a fork through the app's own existing compose surface) produced a
+real gate receipt (parent/child type-hash, the named departure); deliberate-break A (a span pointed at
+a nonexistent ref) failed the oracle naming the broken span and the orphaned claim, reverted;
+deliberate-break B (an epistack-artifact claim given a restatement link to a governance claim) failed
+the oracle's kind-restriction rule naming the overclaim, reverted; an accessibility pass confirmed
+spans reachable by Tab, the sheet announced as `role="dialog"` with `aria-modal` and
+`aria-labelledby`, and prose-restore reachable by Escape with focus returned to the originating span.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

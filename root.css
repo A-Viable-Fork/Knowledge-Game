@@ -122,3 +122,154 @@ footer {
   color: var(--ink-muted);
   font-size: 0.85rem;
 }
+
+/* the claim lens (periphery/root-lens.js): every rule below is inert until the script runs and adds
+   claim-span-live / lens-open; a claim-span with neither class renders as plain, undisturbed text,
+   so a JS-disabled or failed-fetch reader sees nothing of this section. */
+.claim-span-live {
+  cursor: pointer;
+  border-bottom: 1px dotted var(--focus);
+}
+.claim-span-live:hover, .claim-span-live:focus-visible {
+  background: color-mix(in srgb, var(--focus) 12%, transparent);
+}
+.claim-span-open {
+  background: color-mix(in srgb, var(--focus) 20%, transparent);
+}
+
+.lens-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4vh 1rem;
+  overflow-y: auto;
+  z-index: 1000;
+}
+.lens-scrim[hidden] {
+  display: none;
+}
+.lens-panel {
+  position: relative;
+  background: var(--card-bg);
+  color: var(--ink);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  max-width: 34rem;
+  width: 100%;
+  padding: 1.5rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+.lens-close {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--ink-muted);
+  padding: 0.2rem 0.5rem;
+}
+.lens-panel-kind-line {
+  margin: 0 0 0.6rem;
+  display: flex;
+  gap: 0.5rem;
+}
+.lens-badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+.lens-badge-grade { font-weight: 600; }
+.lens-grade-constitutive { border-color: var(--focus); color: var(--focus); }
+.lens-grade-checked { border-color: #2f9e5c; color: #2f9e5c; }
+.lens-grade-asserted { color: var(--ink-muted); }
+.lens-panel-statement {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+}
+.lens-panel-honesty {
+  color: var(--ink-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin: 0 0 1rem;
+}
+.lens-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.lens-actions-read, .lens-actions-gated {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.lens-action {
+  display: inline-block;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper);
+  cursor: pointer;
+}
+.lens-action-read { border-color: var(--focus); }
+.lens-action-gated { border-style: solid; font-weight: 600; }
+.lens-action-door { opacity: 0.75; font-style: italic; }
+.lens-follow {
+  border-top: 1px solid var(--line);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.lens-hop {
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) / 1.5);
+  padding: 0.6rem 0.8rem;
+}
+.lens-hop-label {
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  margin: 0 0 0.35rem;
+}
+.lens-hop-cross-kernel { border-color: var(--focus); }
+.lens-hop-door, .lens-hop-end {
+  /* the ethereal/ghost register app/style.css's .card-virtual already carries for potentials this
+     device does not yet hold as actual: reused here, never a third visual state, for a hop that
+     leaves the lens or dead-ends honestly. */
+  opacity: 0.7;
+  font-style: italic;
+}
+.lens-door-link { color: var(--focus); word-break: break-all; }
+.lens-provenance {
+  margin-top: 0.4rem;
+}
+.lens-provenance-chip {
+  font-size: 0.78rem;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  color: var(--ink-muted);
+}
+.lens-provenance-detail {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+.lens-provenance-desc { font-style: italic; }
+.lens-provenance-rests-label { margin-bottom: 0.2rem; }

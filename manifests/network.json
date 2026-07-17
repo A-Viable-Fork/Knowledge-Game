@@ -22,6 +22,11 @@
       "description": "The mirror (Phase KG-12 Step 5): upstream EpiStack's own math kernel, the one legacy corpus in the pinned submodule that already exports a kernel-native buildKernel(), emitted directly from that submodule and joined as an ordinary browsable community. Its own repository (https://github.com/A-Viable-Fork/epistack) is the contribution target for any claim about it; a promotion proposal read here is an ordinary claim, argued in the open, never a privileged act this app performs on the protocol's behalf."
     },
     {
+      "path": "fixtures/front-page.snapshot.json",
+      "snapshot_hash": "a844d96c59eaf1285e2e28dc0e55b81a9e562fa12db3e5c6cd10dff766ab5399",
+      "description": "The front-page kernel (Phase KG-claim-lens): the root front page's own six-question argument, decomposed into 21 typed claims (10 forum and citation-floored, at the honest asserted floor a citation alone earns, doors into the epistack submission's own docs; 8 declaration, constitutive, definitional and protocol-shape statements this deployment stipulates; 3 measurement, asserted on their own, each carrying a real restatement link to the governance claim that actually grounds it) plus 3 claims mirrored verbatim from kernel/governance/corpora/knowledge-game-data.js (claim-1, claim-9, claim-19, each checked there and here identically, since claim identity is a pure function of kind and statement). Its own repository (https://github.com/A-Viable-Fork/Knowledge-Game) is the contribution target."
+    },
+    {
       "path": "fixtures/lhc.snapshot.json",
       "snapshot_hash": "57f39d36005af8ede3f1d8e5fb656c8a16a10c456b8c22d56e70ca9a5e49ac47",
       "description": "The three rooms (Phase KG-13): the LHC room, the competition's clean case, emitted directly from upstream/epistack's own unmodified build/lhc-build.mjs at the re-pinned commit 6b3cbfcd5a63b126a5ac6740a1feb2f9e92d80f4. 25 claims, 28 links. Its own repository (https://github.com/A-Viable-Fork/epistack/tree/main/corpora/lhc) is the contribution target; the corpus lives there, never in this app."
