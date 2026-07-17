@@ -1,11 +1,13 @@
-// Role: the claim lens over the root front page (Phase KG-claim-lens). Progressive enhancement,
-//   strictly: with this script absent or failed, index.html is the plain static six-question page,
-//   complete. Fetches the front-page kernel's own snapshot (app/fixtures/front-page.snapshot.json,
-//   built by build/front-page-build.mjs) once, matches each `.claim-span` in the document to its
-//   claim by exact statement-text equality (never by data-ref alone; data-ref is a build-time label
-//   only, checked against this same match by build/check-front-page-lens.mjs), and wires tap/click
-//   to isolate the claim in a labeled dialog: statement, kind, earned grade with one-line honesty
-//   text, and the action sheet (follow, comment, fork, contest, attest, decompose).
+// Role: the claim lens over the root front page (Phase KG-claim-lens; migrated to the governance
+//   kernel's own snapshot in Phase KG-front-page-claims). Progressive enhancement, strictly: with
+//   this script absent or failed, index.html is the plain static six-question page, complete.
+//   Fetches this deployment's own governance kernel snapshot (app/fixtures/knowledge-game.snapshot
+//   .json, the identical file both the org-root entrance and this app's own "knowledge-game" mirrored
+//   community fetch), once, matches each `.claim-span` in the document to its claim by its span_ref
+//   extension (kernel/governance/corpora/knowledge-game-data.js's fp.* claims each carry one; checked
+//   against the same data-ref by build/check-entrance-listing.mjs), and wires tap/click to isolate the
+//   claim in a labeled dialog: statement, kind, earned grade with one-line honesty text, and the
+//   action sheet (follow, comment, fork, contest, attest, decompose).
 // Contract: no exports; a side-effecting module, loaded once from index.html's own <script type=
 //   module>. Reads only api/community.js (the one membrane crossing this file makes), never vault/,
 //   never api/contribute.js: every compose-shaped action is a link into the app's own bundle, never
@@ -13,16 +15,17 @@
 // Invariant: the lens moves no grade, structurally. Every action on the sheet is either a read
 //   (follow, the provenance chip) or a link out to the app's own compose surface, labeled "through
 //   the gate"; nothing here calls propose() or touches a store. Comment, fork, and contest carry a
-//   real, working pre-fill (the front-page claim is a real row in a real registered community,
-//   "front-page", so `#community=front-page&view=contribute&action=<action>&target=<identity>`
-//   lands on the app's own existing, unmodified compose form). Attest and decompose carry no such
+//   real, working pre-fill: every fp.* claim is a row in the "knowledge-game" community the app
+//   already registers, so `#community=knowledge-game&view=contribute&action=<action>&target=<identity>`
+//   lands on the app's own existing, unmodified compose form. Attest and decompose carry no such
 //   pre-fill shape anywhere in this codebase (periphery/contribute-screen.js's ACTION_TITLES has no
 //   entry for either); both land as honestly labeled doors into the claim's own card instead, never
 //   silently dropped, never mislabeled as a shape that does not exist.
 "use strict";
 import { fetchCommunity } from "../api/community.js";
 
-const SNAPSHOT_PATH = "app/fixtures/front-page.snapshot.json";
+const SNAPSHOT_PATH = "app/fixtures/knowledge-game.snapshot.json";
+const COMMUNITY_ID = "knowledge-game";
 const APP_BASE = "app/";
 
 function el(tag, attrs, ...children) {
@@ -59,7 +62,7 @@ function kindBadge(kind) {
 // the provenance chip: the claim's own source row, expandable in place (Step 5's "tapping the chip
 // jumps straight to the source row, from which the trail can walk outward"), here rendered as an
 // inline expansion naming every sibling claim (in this same kernel) that cites the identical source,
-// the walk-outward this small, single-kernel corpus can honestly support without a second fetch.
+// the walk-outward this single kernel can honestly support without a second fetch.
 function renderProvenanceChip(row, ctx) {
   const source = ctx.sourcesById.get(row.source_id);
   const details = el("div", { class: "lens-provenance-detail", hidden: true });
@@ -89,11 +92,11 @@ function renderProvenanceChip(row, ctx) {
 }
 
 // the follow trail (Step 5): descends toward ground from the isolated claim. A front-page claim
-// carries at most one of: an outgoing restatement link (a real cross-kernel hop into the governance
-// kernel, named as such), a `url` extension (an epistack-artifact door, honestly labeled as leaving
-// the lens, Tier A), or neither (grounded by adoption alone, a plain dead end, never hidden as if a
-// hop existed). Tier B (cross-kernel follow) is not shipped; see the Tier B section in the final
-// report for why.
+// carries at most one of: an outgoing restatement link (the real governance claim already grounded in
+// this same kernel, named by ref), a `url` extension (an epistack-artifact door, honestly labeled as
+// leaving the lens, Tier A), or neither (grounded by adoption alone, a plain dead end, never hidden as
+// if a hop existed). Tier B (cross-kernel follow, into epistack's own published snapshot) is not
+// shipped; see the Tier B section in the final report for why.
 function renderFollow(row, ctx) {
   const outgoingRestatement = (ctx.linksByFrom.get(row.identity) || []).find((l) => l.link_kind === "restatement");
   const url = ctx.extensionsByIdentity.get(row.identity) && ctx.extensionsByIdentity.get(row.identity).url;
@@ -107,8 +110,8 @@ function renderFollow(row, ctx) {
       hops.push(
         el(
           "div",
-          { class: "lens-hop lens-hop-cross-kernel" },
-          el("p", { class: "lens-hop-label" }, `Leaving the front-page kernel into knowledge-game (this deployment's own governance kernel), restating ${restates || outgoingRestatement.to_identity.slice(0, 12) + "..."}`),
+          { class: "lens-hop lens-hop-restated" },
+          el("p", { class: "lens-hop-label" }, `Restates ${restates || outgoingRestatement.to_identity.slice(0, 12) + "..."}, already grounded in this deployment's own governance kernel`),
           el("p", {}, target.statement),
           gradeBadge(target.earned_grade),
           renderProvenanceChip(target, ctx)
@@ -120,7 +123,7 @@ function renderFollow(row, ctx) {
       el(
         "div",
         { class: "lens-hop lens-hop-door" },
-        el("p", { class: "lens-hop-label" }, "Leaving the lens: this claim's provenance lives in the epistack submission, outside this front-page kernel."),
+        el("p", { class: "lens-hop-label" }, "Leaving the lens: this claim's provenance lives in the epistack submission, outside this kernel."),
         el("a", { class: "lens-door-link", href: url, target: "_blank", rel: "noopener" }, url)
       )
     );
@@ -130,16 +133,16 @@ function renderFollow(row, ctx) {
   return el("div", { class: "lens-follow" }, ...hops);
 }
 
-// the "other actions" (Step 6): comment, fork, and contest are real, working pre-fills, since the
-// front-page claim is a row in a real registered app community ("front-page") the compose surface
-// already knows how to load. Attest and decompose carry no pre-fill shape anywhere in this codebase
-// (contribute-screen.js's ACTION_TITLES has neither); both land as honestly labeled doors into the
-// claim's own card, the gap named on the button itself rather than silently dropped.
+// the "other actions" (Step 6): comment, fork, and contest are real, working pre-fills, since every
+// front-page claim is a row in the "knowledge-game" community the app already registers and its
+// compose surface already knows how to load. Attest and decompose carry no pre-fill shape anywhere in
+// this codebase (contribute-screen.js's ACTION_TITLES has neither); both land as honestly labeled
+// doors into the claim's own card, the gap named on the button itself rather than silently dropped.
 function composeHref(action, identity) {
-  return `${APP_BASE}#community=front-page&view=contribute&action=${action}&target=${encodeURIComponent(identity)}`;
+  return `${APP_BASE}#community=${COMMUNITY_ID}&view=contribute&action=${action}&target=${encodeURIComponent(identity)}`;
 }
 function cardHref(identity) {
-  return `${APP_BASE}#community=front-page&claim=${encodeURIComponent(identity)}`;
+  return `${APP_BASE}#community=${COMMUNITY_ID}&claim=${encodeURIComponent(identity)}`;
 }
 
 function renderActionSheet(row, ctx, state) {
@@ -189,8 +192,14 @@ function buildContext(community) {
   const extensionsByIdentity = new Map(
     (community.raw.state.entries || []).map((e) => [e.identity, (e.canonical && e.canonical.extensions) || {}])
   );
-  const byStatement = new Map(rows.map((r) => [r.statement, r]));
-  return { rowsByIdentity, sourcesById, linksByFrom, extensionsByIdentity, allRows: rows, byStatement };
+  // the span-ref index: the one thing a claim-span's data-ref attribute is trusted to match, read
+  // from each claim's own span_ref extension (never the statement text, which several fp.* claims
+  // share no boundary with adjoining plain prose on the page).
+  const bySpanRef = new Map();
+  for (const [identity, ext] of extensionsByIdentity) {
+    if (ext.span_ref) bySpanRef.set(ext.span_ref, rowsByIdentity.get(identity));
+  }
+  return { rowsByIdentity, sourcesById, linksByFrom, extensionsByIdentity, allRows: rows, bySpanRef };
 }
 
 function wireLens(community) {
@@ -216,7 +225,7 @@ function wireLens(community) {
 
   function rerenderOpen() {
     if (!openSpan) return;
-    const row = ctx.byStatement.get(openSpan.textContent);
+    const row = ctx.bySpanRef.get(openSpan.getAttribute("data-ref"));
     if (!row) return;
     scrim.innerHTML = "";
     mountedPanel = renderPanel(row, ctx, state);
@@ -233,7 +242,7 @@ function wireLens(community) {
   }
 
   function open(span) {
-    const row = ctx.byStatement.get(span.textContent);
+    const row = ctx.bySpanRef.get(span.getAttribute("data-ref"));
     if (!row) return; // unresolved span: no claim to open, prose stays plain (never a broken dialog)
     if (openSpan) close();
     openSpan = span;
@@ -250,7 +259,7 @@ function wireLens(community) {
 
   const spans = document.querySelectorAll(".claim-span");
   for (const span of spans) {
-    if (!ctx.byStatement.has(span.textContent)) continue; // orphaned span: leave as plain prose
+    if (!ctx.bySpanRef.has(span.getAttribute("data-ref"))) continue; // orphaned span: leave as plain prose
     span.setAttribute("tabindex", "0");
     span.setAttribute("role", "button");
     span.classList.add("claim-span-live");

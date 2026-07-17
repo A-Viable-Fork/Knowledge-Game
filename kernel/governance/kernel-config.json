@@ -1,6 +1,6 @@
 {
   "kernel_id": "knowledge-game",
-  "adopted_type_hashes": ["measurement"],
+  "adopted_type_hashes": ["measurement", "declaration", "forum"],
   "local_kinds": [
     {
       "kind": "identity",
@@ -8,6 +8,7 @@
       "_note": "added for the entrance listing claims (title, tagline, link): a stipulation about this deployment's own name and location, adopted not evidenced, exactly as the-registry's contract-bundle kind is. Recorded here for documentation; corpora/tables.js was hand-synced to match rather than regenerated, since re-running scaffolder/new-kernel.mjs against this kernel's config would overwrite kernel/governance/corpora/knowledge-game-data.js's own 20 hand-grounded claims with an empty skeleton."
     }
   ],
+  "_note_adopted": "declaration (ceiling constitutive) and forum (ceiling corroborated) are shared common kinds (vendor/corpora/_shared/common-types.js), adopted for the front-page decomposition claims (fp.*): definitional statements and interpretive weighings respectively, hand-synced into corpora/tables.js for the same reason as local_kinds above.",
   "sources": [
     {
       "source_id": "S-kg-spec-v2",
@@ -18,6 +19,16 @@
       "source_id": "S-kg-self-stipulated",
       "source_class": "institutional-report",
       "description": "this deployment's own stipulated identity (name, tagline, and canonical locations): adopted by the operator, not measured, the same honest floor a constitutive-ceiling kind's own claim ever carries"
+    },
+    {
+      "source_id": "S-fp-self-declared",
+      "source_class": "institutional-report",
+      "description": "this deployment's own front page (index.html): the submission's argument, restated as the definitional and app-behavior claims the page itself stipulates or already grounds elsewhere in this kernel"
+    },
+    {
+      "source_id": "S-fp-epistack-submission",
+      "source_class": "institutional-report",
+      "description": "the epistack submission repository's own docs and corpora, cited by the front page's own doors; these claims enter at the honest floor a citation alone ever earns, awaiting a local fork that would type them"
     }
   ],
   "time_lock": { "setting": "light" }

@@ -6,10 +6,11 @@
 //   of the original 20 governance claims (claim-1 through claim-20) still computes to "checked" from a
 //   real checking record: grounding is complete as of Phase KG-4 (claim-20, the first entered through
 //   the app's own contribution path, grounded by build/check-extension-seam.mjs). The entrance-listing
-//   claims (claim-21 through claim-27, the entrance-listing amendment) are a separate honest floor,
-//   asserted here only at the boundary (their own kind's ceiling, never above it); their role and
-//   reference validity is build/check-entrance-listing.mjs's own concern. No grade is asserted by this
-//   script; every one is read from the real gate's own computed state.
+//   claims (claim-21 through claim-27) and the front-page decomposition claims (fp.*, Phase
+//   KG-front-page-claims) are a separate honest floor, asserted here only at the boundary (their own
+//   kind's ceiling, never above it); their role, span-ref, and restatement validity is
+//   build/check-entrance-listing.mjs's own concern. No grade is asserted by this script; every one is
+//   read from the real gate's own computed state.
 // Contract: `node build/check-knowledge-game.mjs` exits non-zero on any failure, naming the claim.
 "use strict";
 import { createRequire } from "node:module";
@@ -45,7 +46,7 @@ try {
   ok(false, `the kernel fails to build: ${e.message}`);
 }
 if (built) {
-  ok(built.state.entries.length === 27, `the kernel carries 27 governance claims: the original 20 plus the 7-claim entrance listing (got ${built.state.entries.length})`);
+  ok(built.state.entries.length === 48, `the kernel carries 48 governance claims: the original 20, the 7-claim entrance listing, and the 21-claim front-page decomposition (got ${built.state.entries.length})`);
   ok(built.receipt.decision === "accepted", `the contribution is accepted by the real gate (got ${built.receipt.decision})`);
 }
 
@@ -62,7 +63,7 @@ if (built) {
   }
 }
 
-console.log("\n[4] every entrance-listing claim (claim-21 through claim-27) declares nothing above what it earns");
+console.log("\n[4] every entrance-listing and front-page decomposition claim declares nothing above what it earns");
 if (built) {
   for (const { rec, spec } of built.claims) {
     if (ORIGINAL_REFS.has(spec.ref)) continue;
@@ -73,7 +74,7 @@ if (built) {
 }
 
 console.log("\n" + H);
-if (fails === 0) console.log("verified: the kernel is coherent, the gate accepts all 27 claims, the original 20 all compute checked from a real checking record, and the 7 entrance-listing claims declare nothing above what they earn.");
+if (fails === 0) console.log("verified: the kernel is coherent, the gate accepts all 48 claims, the original 20 all compute checked from a real checking record, and every entrance-listing and front-page decomposition claim declares nothing above what it earns.");
 console.log(fails === 0 ? "check-knowledge-game: OK" : `check-knowledge-game: ${fails} FAILURE(S)`);
 console.log(H);
 process.exit(fails === 0 ? 0 : 1);

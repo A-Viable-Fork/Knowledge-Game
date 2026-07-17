@@ -29,6 +29,48 @@
 //   status, claim-1 for the ranking-cannot-move-standing status); the entrance renderer displays THAT
 //   claim's own computed standing, never the listing claim's bare "asserted" floor, so the front door is
 //   gated by the same mechanism it advertises and can never overclaim beyond what the kernel grounds.
+// The front-page decomposition (fp.*, Phase KG-front-page-claims): the root front page (index.html)'s
+//   own six-question argument, decomposed one claim per asserting sentence or clause, surfaced through
+//   this same published snapshot rather than a second convention. Extends the entrance-listing pattern
+//   minimally: role: "front-page" alongside "title"/"tagline"/"status"/"link", still marked
+//   entrance_surfaced: true (an ordinary extension, moves no grade, adds no rule), plus one new
+//   extension, span_ref, the stable id the front page's own claim-span data-ref attribute matches
+//   against (ref itself is a build-time label discarded before the snapshot; span_ref is the one that
+//   survives into canonical.extensions, so it is set explicitly, not left to double as ref). Kind
+//   chosen honestly: "declaration" (ceiling constitutive, adopted shared kind) for definitional and
+//   protocol-shape statements this deployment or the submission stipulates; "forum" (ceiling
+//   corroborated, adopted shared kind) for interpretive weighings the epistack submission's own docs
+//   ground at a citation's honest floor (declared_grade "asserted", no checking records of a kind this
+//   repository could honestly claim independence for); "measurement" (this file's original kind) for
+//   the four app-behavior sentences that restate a real governance claim already grounded here, each
+//   carrying a genuine link_kind "restatement" (not a references_claim string this time: the target
+//   already lives in this same store, so the link resolves as an ordinary same-contribution sibling,
+//   no mirroring needed). A restatement link's mechanical effect in the real gate (restatementClosure/
+//   earnedOf, vendor/kernel/gate/gate.mjs) joins two identities for supports-sharing, not the copying
+//   of a co-closure member's already-stored grade, so a restating claim's own earned_grade is still its
+//   own honest floor ("asserted", no local checking records); the front page's own claim lens
+//   (periphery/root-lens.js) reads the restated claim's own row from this same snapshot for display,
+//   the same indirection claim-26/27's references_claim already established, now backed by a real,
+//   schema-validated link. One candidate restatement named in the governing prompt, claim-7 (no
+//   undeclared network egress), has no corresponding sentence anywhere on the current front page; no
+//   fp.* claim restates it, rather than inventing a sentence to justify one.
+// The capsule-to-refs mapping table (no separate capsule claims; a future condensed rendering of any
+//   answer below would reuse these same span_refs, never mint new ones):
+//     Q1 (What is the goal?):                     fp.competition-brief, fp.goal-attenuation,
+//                                                  fp.knowledge-definition
+//     Q2 (What has been performing this function?): fp.internet-three-configs,
+//                                                  fp.internet-cooperative-kernel,
+//                                                  fp.internet-recentralization-derived,
+//                                                  fp.internet-trajectory-repeats
+//     Q3 (Given recursive modelers...):            fp.recursive-modelers,
+//                                                  fp.contracts-parameters-division
+//     Q4 (What is the shape?):                     fp.eleven-contracts, fp.protocol-shape,
+//                                                  fp.free-parameters
+//     Q5 (What else has been shaped like this?):   fp.institutional-analogues, fp.lineage-conjecture
+//     Q6 (What is the shape, running?):            fp.app-is-a-feed, fp.grades-on-device,
+//                                                  fp.ranking-no-grade-motion, fp.checks-rerun-time,
+//                                                  fp.substrate-pinned
+//     Footer:                                      fp.footer-grades-on-device, fp.grade-not-truth
 "use strict";
 
 const STORE = {
@@ -485,9 +527,263 @@ const STORE = {
       role: "status",
       entrance_surfaced: true,
       references_claim: "claim-1"
+    },
+    {
+      ref: "fp.competition-brief",
+      kind: "forum",
+      statement: "The competition asked for epistemic tooling on hard contested questions, its three named cases being pandemic origins, black holes, and eggs: turn messy sources into typed claims tied to their origins, make the relations among claims legible, tell a reader what to believe and what to look at next, scale with better AI, and compound across people and teams.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.competition-brief",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/criteria-to-architecture-map.md"
+    },
+    {
+      ref: "fp.goal-attenuation",
+      kind: "forum",
+      statement: "This submission reads all of that as one goal: knowledge that survives attenuation.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.goal-attenuation",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/the-minimum-constitution.md"
+    },
+    {
+      ref: "fp.knowledge-definition",
+      kind: "declaration",
+      statement: "A claim counts as knowledge when it still stands after trust in whoever produced it is dialed down toward zero, and work compounds exactly when communities' claims compose without importing each other's authority.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "constitutive",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.knowledge-definition",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/the-minimum-constitution.md"
+    },
+    {
+      ref: "fp.internet-three-configs",
+      kind: "forum",
+      statement: "The internet, in three configurations, carrying claims on a substrate that sees only packets.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.internet-three-configs",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/the-tcpip-counterexample.md"
+    },
+    {
+      ref: "fp.internet-cooperative-kernel",
+      kind: "forum",
+      statement: "A cooperative kernel where social accountability supplied the verification; the same contracts meeting an adversarial population; a patched kernel where authorities compensate for standing that does not recompute.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.internet-cooperative-kernel",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/the-tcpip-counterexample.md"
+    },
+    {
+      ref: "fp.internet-recentralization-derived",
+      kind: "forum",
+      statement: "Each era, encoded as a kernel and run through the protocol's conformance checker, violates exactly the invariants the contracts fix, with each violation mapped to a documented failure, so the recentralization is derived rather than asserted.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.internet-recentralization-derived",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/the-tcpip-counterexample.md"
+    },
+    {
+      ref: "fp.internet-trajectory-repeats",
+      kind: "forum",
+      statement: "The same trajectory is now beginning one layer up, over claims themselves.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.internet-trajectory-repeats",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/the-minimum-constitution.md#the-internet-already-ran-this-experiment"
+    },
+    {
+      ref: "fp.recursive-modelers",
+      kind: "forum",
+      statement: "The history above is what recursive modelers do to fixed trust signals: model them, aim at them, and manufacture them cheaper than the substance they once certified.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.recursive-modelers",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/the-asymmetric-weapon.md"
+    },
+    {
+      ref: "fp.contracts-parameters-division",
+      kind: "declaration",
+      statement: "The division that survives this: fix the little that composition and adversaries require, as contracts, and leave every semantic judgment free, as parameters, because semantic controls spend the exact variety communities need for judging.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "constitutive",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.contracts-parameters-division",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/contract-register.md"
+    },
+    {
+      ref: "fp.eleven-contracts",
+      kind: "declaration",
+      statement: "Eleven fixed contracts and a gate.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "constitutive",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.eleven-contracts",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/contract-register.md"
+    },
+    {
+      ref: "fp.protocol-shape",
+      kind: "declaration",
+      statement: "Claims are typed and content-addressed; a grade recomputes from the public graph; an import grounds nothing until a local fork types it; views move no grade.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "constitutive",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.protocol-shape",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/contract-register.md"
+    },
+    {
+      ref: "fp.free-parameters",
+      kind: "declaration",
+      statement: "Everything else, the type systems, the standing rules, the forums, the licenses, is a free parameter, and a boundary linter holds the two registers disjoint.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "constitutive",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.free-parameters",
+      url: "https://github.com/A-Viable-Fork/epistack/blob/main/docs/contract-register.md"
+    },
+    {
+      ref: "fp.institutional-analogues",
+      kind: "forum",
+      statement: "Every mature institution runs these mechanisms by hand: precedent chains in common law, dependency graphs in software, replication in science, load orders in game modding, slashing in decentralized finance.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.institutional-analogues",
+      url: "https://github.com/A-Viable-Fork/epistack/tree/main/corpora/lineage"
+    },
+    {
+      ref: "fp.lineage-conjecture",
+      kind: "forum",
+      statement: "The lineage corpus grounds that record and one conjecture: nothing yet composes all five axes for empirical and contested knowledge.",
+      source_id: "S-fp-epistack-submission",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.lineage-conjecture",
+      url: "https://github.com/A-Viable-Fork/epistack/tree/main/corpora/lineage"
+    },
+    {
+      ref: "fp.app-is-a-feed",
+      kind: "declaration",
+      statement: "A feed over typed claims",
+      source_id: "S-fp-self-declared",
+      contributor_id: "P-front-page",
+      declared_grade: "constitutive",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.app-is-a-feed"
+    },
+    {
+      ref: "fp.grades-on-device",
+      kind: "measurement",
+      statement: "every grade computed on your device from the public graph",
+      source_id: "S-fp-self-declared",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.grades-on-device",
+      restates: "claim-9"
+    },
+    {
+      ref: "fp.ranking-no-grade-motion",
+      kind: "measurement",
+      statement: "the ranking set by you and moving no grade",
+      source_id: "S-fp-self-declared",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.ranking-no-grade-motion",
+      restates: "claim-1"
+    },
+    {
+      ref: "fp.checks-rerun-time",
+      kind: "declaration",
+      statement: "The repository's checks rerun in about two minutes",
+      source_id: "S-fp-self-declared",
+      contributor_id: "P-front-page",
+      declared_grade: "constitutive",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.checks-rerun-time"
+    },
+    {
+      ref: "fp.substrate-pinned",
+      kind: "measurement",
+      statement: "the substrate is pinned to the protocol by commit and hash",
+      source_id: "S-fp-self-declared",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.substrate-pinned",
+      restates: "claim-19"
+    },
+    {
+      ref: "fp.footer-grades-on-device",
+      kind: "measurement",
+      statement: "Grades are computed on device from the public graph.",
+      source_id: "S-fp-self-declared",
+      contributor_id: "P-front-page",
+      declared_grade: "asserted",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.footer-grades-on-device",
+      restates: "claim-9"
+    },
+    {
+      ref: "fp.grade-not-truth",
+      kind: "declaration",
+      statement: "A grade is a computed reading, never a claim of truth.",
+      source_id: "S-fp-self-declared",
+      contributor_id: "P-front-page",
+      declared_grade: "constitutive",
+      role: "front-page",
+      entrance_surfaced: true,
+      span_ref: "fp.grade-not-truth"
     }
   ],
-  links: []
+  links: [
+    { link_kind: "restatement", from: "fp.grades-on-device", to: "claim-9", source_id: "S-fp-self-declared", contributor_id: "P-front-page", declared_grade: "asserted" },
+    { link_kind: "restatement", from: "fp.ranking-no-grade-motion", to: "claim-1", source_id: "S-fp-self-declared", contributor_id: "P-front-page", declared_grade: "asserted" },
+    { link_kind: "restatement", from: "fp.substrate-pinned", to: "claim-19", source_id: "S-fp-self-declared", contributor_id: "P-front-page", declared_grade: "asserted" },
+    { link_kind: "restatement", from: "fp.footer-grades-on-device", to: "claim-9", source_id: "S-fp-self-declared", contributor_id: "P-front-page", declared_grade: "asserted" }
+  ]
 };
 
 module.exports = { STORE };

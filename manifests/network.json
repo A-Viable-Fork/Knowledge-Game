@@ -13,18 +13,13 @@
     },
     {
       "path": "fixtures/knowledge-game.snapshot.json",
-      "snapshot_hash": "a6a8766191b78d637b0d1b18537e830727904c0af74242f1821f1ea013c350bd",
-      "description": "The mirror (Phase KG-12 Step 5): this deployment's own governance kernel, joined as an ordinary browsable community, snapshot by hash like any other. 20 claims, all twenty checked. Grounding is complete as of Phase KG-4 (claim-20, the extension seam guarantee, entered through the app's own contribution path). Its own repository (https://github.com/A-Viable-Fork/Knowledge-Game) is the contribution target for any claim about it."
+      "snapshot_hash": "81f80dc0a083fe0dac714875afee765f607deca532eafe57995df5a32d4b513a",
+      "description": "The mirror (Phase KG-12 Step 5): this deployment's own governance kernel, joined as an ordinary browsable community, snapshot by hash like any other. 48 claims: the original 20 (all checked, grounding complete as of Phase KG-4), the 7-claim entrance listing, and the 21-claim front-page decomposition (Phase KG-front-page-claims), the same claims the front page's own claim lens (periphery/root-lens.js) reads from this identical snapshot. Its own repository (https://github.com/A-Viable-Fork/Knowledge-Game) is the contribution target for any claim about it."
     },
     {
       "path": "fixtures/math.snapshot.json",
       "snapshot_hash": "688fba0f08a873f1f1c9d04756f573ef8ac0078f588bb6558701cf7bf4906e52",
       "description": "The mirror (Phase KG-12 Step 5): upstream EpiStack's own math kernel, the one legacy corpus in the pinned submodule that already exports a kernel-native buildKernel(), emitted directly from that submodule and joined as an ordinary browsable community. Its own repository (https://github.com/A-Viable-Fork/epistack) is the contribution target for any claim about it; a promotion proposal read here is an ordinary claim, argued in the open, never a privileged act this app performs on the protocol's behalf."
-    },
-    {
-      "path": "fixtures/front-page.snapshot.json",
-      "snapshot_hash": "a844d96c59eaf1285e2e28dc0e55b81a9e562fa12db3e5c6cd10dff766ab5399",
-      "description": "The front-page kernel (Phase KG-claim-lens): the root front page's own six-question argument, decomposed into 21 typed claims (10 forum and citation-floored, at the honest asserted floor a citation alone earns, doors into the epistack submission's own docs; 8 declaration, constitutive, definitional and protocol-shape statements this deployment stipulates; 3 measurement, asserted on their own, each carrying a real restatement link to the governance claim that actually grounds it) plus 3 claims mirrored verbatim from kernel/governance/corpora/knowledge-game-data.js (claim-1, claim-9, claim-19, each checked there and here identically, since claim identity is a pure function of kind and statement). Its own repository (https://github.com/A-Viable-Fork/Knowledge-Game) is the contribution target."
     },
     {
       "path": "fixtures/lhc.snapshot.json",

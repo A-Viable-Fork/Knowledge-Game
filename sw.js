@@ -56,7 +56,6 @@ const PRECACHE_URLS = [
   "app/../communities/the-registry/snapshot/the-registry.snapshot.json",
   "app/fixtures/covid.snapshot.json",
   "app/fixtures/eggs.snapshot.json",
-  "app/fixtures/front-page.snapshot.json",
   "app/fixtures/knowledge-game.snapshot.json",
   "app/fixtures/lhc.snapshot.json",
   "app/fixtures/math.snapshot.json",

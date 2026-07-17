@@ -670,6 +670,51 @@ the oracle's kind-restriction rule naming the overclaim, reverted; an accessibil
 spans reachable by Tab, the sheet announced as `role="dialog"` with `aria-modal` and
 `aria-labelledby`, and prose-restore reachable by Escape with focus returned to the originating span.
 
+**Phase KG-front-page-claims, completed: the front-page decomposition claims, migrated into the
+governance kernel.** Retires the standalone `kernel/front-page/` kernel KG-claim-lens introduced and
+re-decomposes the front page's six answers as 21 `fp.*` claims directly in
+`kernel/governance/corpora/knowledge-game-data.js` (48 claims total: the original 20, the 7-claim
+entrance listing, the 21-claim front-page decomposition), surfaced through the identical entrance-
+listing convention rather than a second one: role `"front-page"` alongside `"title"`/`"tagline"`/
+`"status"`/`"link"`, still `entrance_surfaced: true`, plus one new extension, `span_ref` (the stable
+id the front page's own claim spans match against; `ref` itself is a build-time label discarded
+before the snapshot). Kind chosen honestly: 10 `forum` and 8 `declaration` claims for epistack-
+artifact and protocol-shape sentences (their own honest citation or stipulation floor); 3 `measurement`
+claims for the app-behavior sentences, each carrying a genuine `link_kind: "restatement"` to the real
+governance claim that grounds it (claim-9, claim-1, claim-19, plus a second restatement of claim-9
+from the footer, 4 links total), no mirroring needed this time, since the target already lives in
+the same store. One candidate restatement named in the governing prompt, claim-7 (no undeclared
+network egress), has no corresponding sentence on the current front page; no claim restates it rather
+than inventing one. `build/check-entrance-listing.mjs` was extended (not forked) with a new section
+verifying every front-page claim carries a unique `span_ref`, and, scanning the real `link_kind:
+"restatement"` records directly, not just claims that happen to carry a `restates` extension field,
+that every restatement's own source claim is kind `"measurement"` (the gate has no semantic check
+that a restatement's target actually grounds the citing claim's content; this is the oracle's own
+guard against a claim borrowing standing it never earned) and targets a claim that grounds.
+`periphery/root-lens.js` was migrated to fetch `app/fixtures/knowledge-game.snapshot.json` (the same
+file the org-root entrance already fetches) instead of a second snapshot, matching spans by their
+`span_ref` extension instead of exact statement-text equality; its follow-trail copy was updated
+since a restated claim is no longer "leaving into" a different kernel, just a claim already grounded
+in this same one. The standalone `front-page` mirrored community entry, its CI steps, its
+`manifests/network.json` and `sw.js` entries were all removed. A cascading pin: editing
+`build/check-conformance-read.mjs`'s hardcoded claim count (27 to 48) changed that file's own hash,
+which the-registry's own claim-3 cites as half its `required_oracle` pin; recomputed and updated,
+the-registry's snapshot and community-card re-emitted to match. Verification: full suite green
+(including both founded communities' own self-checks); deliberate-break A (a non-measurement-kind
+claim given a real restatement link, independent of the `restates` extension) failed the oracle
+naming the overclaim by the restating claim's own kind, reverted (this also caught and fixed a bug in
+the check's own first draft, which had checked the restatement target's kind rather than the
+restating claim's); deliberate-break B (a duplicated `span_ref`) failed the uniqueness check by name,
+reverted; the snapshot hash was confirmed to recompute correctly via this repository's own real
+canonical form (`hashOf({state, sources, kinds})`, the same function `api/community.js`'s
+`fetchCommunity` and this session's own round-trip through the real client API both use); the org-
+entrance's own separate `entrance.js` file could not be read directly (a different repository, out of
+this session's scope, not added autonomously), so its "ported canonical form" was not run verbatim,
+a limitation named rather than silently assumed away. A live browser smoke test confirmed the
+migrated lens end to end: span resolution, the follow trail's new "already grounded in this
+deployment's own governance kernel" label, a real fork through the app's own compose surface
+producing a real receipt, and the JS-disabled static page unchanged.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is
