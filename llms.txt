@@ -4,6 +4,10 @@ A kernel-bearing EpiStack deployment. The app is a fat client over a
 device-local gate: your browser fetches a community's snapshot, verifies
 its hash, and recomputes every grade itself.
 
+The repository root serves a human entrance, the submission as six
+questions, with the app itself at `app/`; the machine-readable state
+stays exactly where this file already says it is.
+
 Truth about this repository's own state lives in `trellis/status-ledger.md`
 (built vs specified), `trellis/sorry-ledger.md` (named gaps), and
 `trellis/stage-manifest.json` (the stage record), not in prose.
