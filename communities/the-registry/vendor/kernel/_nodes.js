@@ -197,6 +197,17 @@ module.exports = [
     "group": "schema"
   },
   {
+    "path": "kernel/schema/glossary.mjs",
+    "type": "kernel",
+    "group": "schema",
+    "flows": [
+      {
+        "type": "checked-by",
+        "to": "build/check-glossary.mjs"
+      }
+    ]
+  },
+  {
     "path": "kernel/schema/edges.js",
     "type": "kernel",
     "group": "schema"
@@ -265,5 +276,35 @@ module.exports = [
     "path": "kernel/store/state.mjs",
     "type": "kernel",
     "group": "store"
+  },
+  {
+    "path": "kernel/compute/transforms.mjs",
+    "type": "kernel",
+    "flows": [
+      {
+        "type": "checked-by",
+        "to": "build/check-compute.mjs"
+      }
+    ]
+  },
+  {
+    "path": "kernel/compute/canonical-packs.mjs",
+    "type": "kernel",
+    "flows": [
+      {
+        "type": "checked-by",
+        "to": "build/check-compute.mjs"
+      }
+    ]
+  },
+  {
+    "path": "kernel/compute/registry.mjs",
+    "type": "kernel",
+    "flows": [
+      {
+        "type": "checked-by",
+        "to": "build/check-compute.mjs"
+      }
+    ]
   }
 ];
