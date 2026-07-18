@@ -9,7 +9,10 @@
 //   failure or a hash mismatch, naming the mismatch. buildCrossDocumentIndex(anchorMapsById) ->
 //   Map<claimIdentity, [{docId, spanRef}]>, every document (and span) a claim identity is anchored
 //   in, across the whole sequence (a claim anchored in more than one document, like a shared
-//   vocabulary definition re-anchored where it is used, carries every one).
+//   vocabulary definition re-anchored where it is used, carries every one). PINNED_EPISTACK_COMMIT
+//   is exported so build/check-submission-surface.mjs's fetch stub reads the same pinned commit
+//   this module fetches from, rather than whatever commit the vendor-substrate submodule (a
+//   separate pin, upstream/lock.json) happens to be checked out to at test time.
 // Invariant: the document fetch's one destination is manifests/network.json's own declared entry
 //   per document (exact URL, no wildcard); the anchor map fetch is same-origin, already inside this
 //   deployment's own served tree, no new destination. A document whose fetched hashBytes does not
@@ -21,7 +24,7 @@
 "use strict";
 import { hashBytes } from "../vendor/kernel/schema/canonical.mjs";
 
-const PINNED_EPISTACK_COMMIT = "b97c2ad178bce92c81b180cd13bcbcfc6ce2f83b";
+export const PINNED_EPISTACK_COMMIT = "b97c2ad178bce92c81b180cd13bcbcfc6ce2f83b";
 const DOCUMENT_BASE_URL = `https://raw.githubusercontent.com/A-Viable-Fork/epistack/${PINNED_EPISTACK_COMMIT}/`;
 
 export const READING_SEQUENCE = [

@@ -1,13 +1,13 @@
 {
   "_purpose": "Build provenance. source_commit and artifact_hash are populated by a future build step, not by hand; they are null until that step exists.",
-  "source_commit": "b43f0ec9c279e9a119dea246ff4e11626de4c5d7",
+  "source_commit": "67b21551457a79f394000ccfe037abc57fadc9e8",
   "upstream_pin": {
     "repo": "A-Viable-Fork/epistack",
     "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
     "provisional": true
   },
   "build_command": ".github/workflows/ci.yml: no build tooling exists (no bundler, no transpiler); the deployed artifact is the checked-out working tree itself, served as vanilla ESM static files, after every build/check-*.mjs passes and app/fixtures/ is confirmed reproducible by regenerating and diffing against the committed content.",
-  "artifact_hash": "97eb270abf60e78579791b865b79f4ef8780b0ae59312d145773fa05d6d8fc37",
+  "artifact_hash": "be9b0d7825b5c50888cea37fea71bb3d9902602470d3c943f5768854a962a7c4",
   "artifact_hash_note": "artifact_hash is a sha256 over the sorted JSON of file_hashes, itself a sha256 per file over every file `git ls-files --cached --others --exclude-standard` lists (the deployed tree, since no build step compiles source into output), excluding this manifest itself. Recomputed and compared by build/check-release.mjs.",
   "protocol_identity": "v3",
   "provider_contract": "vendor/api/client-api.mjs",
@@ -51,7 +51,7 @@
     "api/signatures.js": "aeb481b1ce2efb4400c63ae9e4735786e1fc4b93d936a2fead507b5c322de186",
     "api/skin-conformance.js": "b9d9dd34ed157ea459417d95a7ba6fdcf0f0861bebf55d41672da8e7c8e72fbf",
     "api/skins.js": "ca3dd410b6f339d0b1e8320dfeb38924273a6fb6cae924e922c295c3a73e4dc9",
-    "api/submission.js": "bf891c0124e38b78822dc76a1289ff0326c81e747e4435f7a3ead9686e957f9b",
+    "api/submission.js": "fd570c37c181cd10ca43ca92c4e15a89486ee3bd1aa74ffaa1ce19f5f625fbe3",
     "api/sync.js": "ea961090e8bae99d40a02a0d18263161907d2c6d713f50e906c985f12e3b2b10",
     "api/virtual.js": "58afbda7ebd63a3d4cd61719e252f4678ac2adea060e25fffbed624f6b247068",
     "app/README.md": "9cf2b5a45cfa77be1c96612c83bc05b69f971eff1201e5efc76173c55029fb00",
@@ -102,7 +102,7 @@
     "build/check-seams.mjs": "5e62ae143906f1a8c482784dae00c776e7afa2844a053e486658327deecd2f48",
     "build/check-skins.mjs": "38cf883a326396cff20e4e10ad92e72ca0a5ae332ff6960971e08f8e4fd88076",
     "build/check-stages.mjs": "436f7e0f391f14701adcc172b9fad16adda9bce59865897bc6576f500700de76",
-    "build/check-submission-surface.mjs": "aca43ba62affde700d958616f319c7666e2946563c8343dccac6fbab3188d851",
+    "build/check-submission-surface.mjs": "249b6be61911d057372ba4a0cbf0e20055bddb54bd881e365f0b68dd369bde31",
     "build/check-substrate.mjs": "720508412d0f9c177bb7fa6417663a3198756d1fcb29f1165c67ba316700d3c7",
     "build/check-sync-policy.mjs": "4305d99e4dbf0c9888cb31fedd829bedfe2ed2496028a408e67ab35b13c1c8bb",
     "build/check-the-registry.mjs": "5d6742050f2adfe959e04715c55e502bf263898113726e21f97b2f53bc82eec7",
