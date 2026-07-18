@@ -7,14 +7,19 @@
 //   bundle only, refusing a claim-kind bundle through the identical path even when auto-during-window
 //   is enabled and now falls inside the declared window.
 // Contract: `node build/check-submission-surface.mjs` exits non-zero on any divergence, naming it.
-// Invariant: every fetch this check drives is answered from real on-disk content (the actual pinned
-//   documents and anchor maps this deployment ships), never a synthetic fixture standing in for them;
-//   only the doctored-hash and absent-claim sections deliberately corrupt a copy to prove the refusal
-//   path, and both leave the real files on disk untouched.
+// Invariant: every fetch this check drives is answered from real content (the actual pinned document
+//   at PINNED_EPISTACK_COMMIT, read via `git show` against the submodule's own object store, and the
+//   anchor maps this deployment ships), never a synthetic fixture standing in for them; only the
+//   doctored-hash and absent-claim sections deliberately corrupt a copy to prove the refusal path, and
+//   both leave the real files on disk untouched. The pinned document is read at its own fixed commit,
+//   never the submodule's live checkout (upstream/lock.json's pin moves independently for unrelated
+//   reasons, most recently KG-GLOSSARY's re-pin).
 "use strict";
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
+import { PINNED_EPISTACK_COMMIT } from "../api/submission.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 let fails = 0;
@@ -33,13 +38,15 @@ function installFetchStub() {
     const u = String(url);
     requested.push(u);
     if (declaredDocDestinations.has(u)) {
-      // the pinned upstream document itself: read the real vendored submodule copy on disk, since this
-      // check has no network access to raw.githubusercontent.com; the submodule at the pinned commit
-      // carries byte-identical content (verified once, live, during this phase's own build).
+      // the pinned upstream document itself: read it at PINNED_EPISTACK_COMMIT via `git show` against
+      // the submodule's own object store, since this check has no network access to
+      // raw.githubusercontent.com. This is deliberately NOT the submodule's live checkout: that pin
+      // (upstream/lock.json, the vendor substrate) moves independently of PINNED_EPISTACK_COMMIT (the
+      // submission surface's own, separate, permanent pin), and reading the live tree silently assumed
+      // the two always agreed, a coincidence, not an invariant.
       const rel = declaredDocDestinations.get(u).path.split("/docs/")[1];
-      const onDisk = join(ROOT, "upstream", "epistack", "docs", rel);
       try {
-        const body = readFileSync(onDisk, "utf8");
+        const body = execFileSync("git", ["-C", join(ROOT, "upstream", "epistack"), "show", `${PINNED_EPISTACK_COMMIT}:docs/${rel}`], { encoding: "utf8" });
         return { ok: true, status: 200, text: async () => body, json: async () => JSON.parse(body) };
       } catch (e) {
         return { ok: false, status: 404, text: async () => { throw e; }, json: async () => { throw e; } };

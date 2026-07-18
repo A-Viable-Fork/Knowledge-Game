@@ -2,7 +2,9 @@
 //   gate decision with the receipt shown -> bundle -> export. One screen handles all five card
 //   actions (support, undercut, qualification, contest-type, fork-type) plus (Phase KG-4) comment,
 //   reply, and promote, routed by `ctx.action`.
-// Contract: renderContributeScreen(container, ctx) -> void. ctx = { community, action, targetRow,
+// Contract: renderContributeScreen(container, ctx) -> void; glossaryHelpFor(community, action,
+//   kindOptions) -> { kinds, grades, declaredVsEarned } (KG-GLOSSARY, exported DOM-free for
+//   build/check-glossary-render.mjs, mirroring periphery/ladder.js's STATES). ctx = { community, action, targetRow,
 //   contributionTarget?, onBack, prefill? }. community is what api/community.js's fetchCommunity()
 //   returns; targetRow is the card's row the action originated from (the comment being replied to or
 //   promoted, for "reply"/"promote"); contributionTarget is the community's declared PR destination
@@ -33,10 +35,17 @@
 //   manual (the default) says a comment awaits the maintainers; auto-during-window inside its declared
 //   window says admission is automatic at the next scheduled sweep. Every other kind is always manual
 //   and this line never renders on their forms.
+// KG-GLOSSARY: the Kind selector and the support/promote grade selector each carry a help asterisk
+//   (periphery/help-asterisk.js) drawing text only from community.api.glossary() (the vendored
+//   kernel/schema/glossary.mjs, DESCRIBE-1), never a hand-authored string; the grade selector's
+//   asterisk is the load-bearing declared-vs-earned tooltip. glossaryHelpFor is the one resolution
+//   both this render path and build/check-glossary-render.mjs use, so the two can never drift. The
+//   comment/reply form has no kind, grade, or action selector and grows none of this.
 "use strict";
 import { draftProposal, draftContest, draftFork, draftComment, draftPromoteToClaim, bundleProposal } from "../api/contribute.js";
 import { queueBundle } from "../api/outbox.js";
 import { renderLadder } from "./ladder.js";
+import { renderHelpAsterisk } from "./help-asterisk.js";
 import { describeReceipt } from "./gate-feedback.js";
 import { renderSigningPanel } from "./signing-panel.js";
 
@@ -64,6 +73,75 @@ const ACTION_TITLES = {
   reply: "Reply",
   promote: "Promote to claim",
 };
+
+// KG-GLOSSARY: the declared grade selector's options, the same three grades wherever a draft
+// declares one (support's link grade, promote's claim grade).
+const GRADE_OPTIONS = ["asserted", "supported", "corroborated"];
+const NO_KIND_ACTIONS = new Set(["contest", "fork", "comment", "reply"]);
+const GRADE_ACTIONS = new Set(["support", "promote"]);
+
+// glossaryHelpFor(community, action, kindOptions): the exact glossary entries the render path below
+// attaches a help asterisk to, for a given action. DOM-free and pure, so build/check-glossary-
+// render.mjs asserts against precisely what would render, never a parallel description of it,
+// mirroring periphery/ladder.js's STATES and periphery/gate-feedback.js's describeReceipt. Every
+// description and whenToUse comes from community.api.glossary() (the vendored kernel/schema/
+// glossary.mjs); this function authors no text of its own.
+export function glossaryHelpFor(community, action, kindOptions) {
+  const glossary = community.api.glossary();
+  const kinds = NO_KIND_ACTIONS.has(action)
+    ? []
+    : (kindOptions || []).map((k) => ({
+        kind: k,
+        description: (glossary.KINDS[k] || {}).description,
+        ceiling: (glossary.KINDS[k] || {}).ceiling,
+      }));
+  const grades = GRADE_ACTIONS.has(action)
+    ? GRADE_OPTIONS.map((g) => ({
+        grade: g,
+        description: (glossary.GRADES[g] || {}).description,
+        whenToUse: (glossary.GRADES[g] || {}).whenToUse,
+      }))
+    : [];
+  const declaredVsEarned = GRADE_ACTIONS.has(action) ? (glossary.CONCEPTS["declared-vs-earned"] || {}).description : null;
+  return { kinds, grades, declaredVsEarned };
+}
+
+// attach a help asterisk to a label, wired to a Kind select: shows the currently selected kind's
+// glossary description and ceiling, updated on selection (KG-GLOSSARY Step 2's "show the kind's
+// description on selection" path); each option also carries its own description as a native title.
+function attachKindHelp(labelNode, selectNode, help) {
+  if (!help.kinds.length) return labelNode;
+  const byKind = new Map(help.kinds.map((k) => [k.kind, k]));
+  [...selectNode.options].forEach((opt) => {
+    const k = byKind.get(opt.value);
+    if (k && k.description) opt.title = `${k.description} (top grade: ${k.ceiling})`;
+  });
+  const current = byKind.get(selectNode.value);
+  const asterisk = renderHelpAsterisk({
+    description: current ? `${current.description} The top grade this kind can reach is ${current.ceiling}.` : "",
+    label: "Kind",
+  });
+  selectNode.addEventListener("change", () => {
+    const k = byKind.get(selectNode.value);
+    asterisk.setText(k && k.description ? `${k.description} The top grade this kind can reach is ${k.ceiling}.` : "");
+  });
+  labelNode.appendChild(asterisk);
+  return labelNode;
+}
+
+// attach the load-bearing declared-vs-earned tooltip to the grade select's label, and a native title
+// (description + whenToUse) on every grade option. Placed where the composer picks the grade, not in
+// a help page they will not open.
+function attachGradeHelp(labelNode, selectNode, help) {
+  if (!help.grades.length) return labelNode;
+  const byGrade = new Map(help.grades.map((g) => [g.grade, g]));
+  [...selectNode.options].forEach((opt) => {
+    const g = byGrade.get(opt.value);
+    if (g && g.description) opt.title = `${g.description} ${g.whenToUse || ""}`.trim();
+  });
+  labelNode.appendChild(renderHelpAsterisk({ description: help.declaredVsEarned || "", label: "Declared support grade" }));
+  return labelNode;
+}
 
 function downloadJSONBlob(filename, jsonText) {
   const blob = new Blob([jsonText], { type: "application/json" });
@@ -166,6 +244,17 @@ function renderProposalDraft(container, ctx) {
   }
 
   const kindOptions = (community.raw.kinds || []).map((k) => k.kind);
+  const help = glossaryHelpFor(community, action, kindOptions);
+  const kindSelect = el(
+    "select", { onchange: (e) => (kind = e.target.value) },
+    ...kindOptions.map((k) => el("option", { value: k, selected: k === kind ? "" : undefined }, k))
+  );
+  const kindLabel = attachKindHelp(el("label", {}, "Kind", kindSelect), kindSelect, help);
+  const gradeSelect =
+    action === "support"
+      ? el("select", { onchange: (e) => (linkGrade = e.target.value) }, ...GRADE_OPTIONS.map((g) => el("option", { value: g, selected: g === linkGrade ? "" : undefined }, g)))
+      : null;
+  const gradeLabel = gradeSelect ? attachGradeHelp(el("label", {}, "Declared support grade", gradeSelect), gradeSelect, help) : null;
   const form = el(
     "form",
     { class: "contribute-form", onsubmit: (e) => { e.preventDefault(); runDraft(); } },
@@ -179,13 +268,10 @@ function renderProposalDraft(container, ctx) {
       : null,
     targetRow ? el("p", { class: "contribute-target" }, `Target claim: ${targetRow.statement}`) : null,
     el("label", {}, "Statement", el("textarea", { required: true, oninput: (e) => (statement = e.target.value) }, statement)),
-    el(
-      "label", {}, "Kind",
-      el("select", { onchange: (e) => (kind = e.target.value) }, ...kindOptions.map((k) => el("option", { value: k, selected: k === kind ? "" : undefined }, k)))
-    ),
+    kindLabel,
     el("label", {}, "Citation (optional; becomes a testimony-class source, never an independent check)", el("input", { type: "text", oninput: (e) => (citation = e.target.value) })),
     el("label", {}, "Contributor id", el("input", { type: "text", value: contributorId, oninput: (e) => (contributorId = e.target.value) })),
-    action === "support" ? el("label", {}, "Declared support grade", el("select", { onchange: (e) => (linkGrade = e.target.value) }, ...["asserted", "supported", "corroborated"].map((g) => el("option", { value: g, selected: g === linkGrade ? "" : undefined }, g)))) : null,
+    gradeLabel,
     el("button", { type: "submit" }, "Check with the gate")
   );
 
@@ -310,18 +396,23 @@ function renderPromoteDraft(container, ctx) {
   }
 
   const kindOptions = (community.raw.kinds || []).map((k) => k.kind).filter((k) => k !== "comment");
+  const help = glossaryHelpFor(community, "promote", kindOptions);
+  const kindSelect = el(
+    "select", { onchange: (e) => (kind = e.target.value) },
+    ...kindOptions.map((k) => el("option", { value: k, selected: k === kind ? "" : undefined }, k))
+  );
+  const kindLabel = attachKindHelp(el("label", {}, "Kind", kindSelect), kindSelect, help);
+  const gradeSelect = el("select", { onchange: (e) => (declaredGrade = e.target.value) }, ...GRADE_OPTIONS.map((g) => el("option", { value: g, selected: g === declaredGrade ? "" : undefined }, g)));
+  const gradeLabel = attachGradeHelp(el("label", {}, "Declared grade", gradeSelect), gradeSelect, help);
   const form = el(
     "form",
     { class: "contribute-form", onsubmit: (e) => { e.preventDefault(); runDraft(); } },
     el("p", { class: "contribute-target" }, `Promoting comment: ${targetRow.statement}`),
     el("label", {}, "Claim statement", el("textarea", { required: true, value: statement, oninput: (e) => (statement = e.target.value) })),
-    el(
-      "label", {}, "Kind",
-      el("select", { onchange: (e) => (kind = e.target.value) }, ...kindOptions.map((k) => el("option", { value: k, selected: k === kind ? "" : undefined }, k)))
-    ),
+    kindLabel,
     el("label", {}, "Citation (optional; becomes a testimony-class source, never an independent check)", el("input", { type: "text", oninput: (e) => (citation = e.target.value) })),
     el("label", {}, "Contributor id", el("input", { type: "text", value: contributorId, oninput: (e) => (contributorId = e.target.value) })),
-    el("label", {}, "Declared grade", el("select", { onchange: (e) => (declaredGrade = e.target.value) }, ...["asserted", "supported", "corroborated"].map((g) => el("option", { value: g, selected: g === declaredGrade ? "" : undefined }, g)))),
+    gradeLabel,
     el("button", { type: "submit" }, "Check with the gate")
   );
   container.appendChild(form);

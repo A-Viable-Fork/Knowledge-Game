@@ -8,7 +8,7 @@
     "https://a-viable-fork.github.io/Knowledge-Game/app/fixtures/lhc.snapshot.json"
   ],
   "pinned_type_hashes": {},
-  "contribution_target": "https://github.com/A-Viable-Fork/epistack/tree/6b3cbfcd5a63b126a5ac6740a1feb2f9e92d80f4/corpora/lhc (a contest or correction on a room claim is a pull request there, re-run through epistack's own gate)",
+  "contribution_target": "https://github.com/A-Viable-Fork/epistack/tree/a34c82862ddd114a2fb07d61db28dec51af54abc/corpora/lhc (a contest or correction on a room claim is a pull request there, re-run through epistack's own gate)",
   "protocol_identity": "epistack-v3",
   "domain": "The LHC Room (black holes, the clean resolvable case)",
   "identity_thresholds": {},

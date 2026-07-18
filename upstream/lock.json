@@ -5,8 +5,8 @@
     "repo": "epistack",
     "url": "https://github.com/A-Viable-Fork/epistack.git"
   },
-  "commit_hash": "6b3cbfcd5a63b126a5ac6740a1feb2f9e92d80f4",
-  "acquisition_date": "2026-07-16",
+  "commit_hash": "a34c82862ddd114a2fb07d61db28dec51af54abc",
+  "acquisition_date": "2026-07-18",
   "provisional": true,
   "repin_obligation": "Re-pin at the upstream freeze, 2026-07-19, is a standing obligation. This flag and this note must both be updated together: provisional becomes false only once the commit above is the frozen commit and every hash below has been recomputed against it.",
   "extraction": {
@@ -17,8 +17,8 @@
     "vendor_root": "vendor/"
   },
   "extracted_files": {
-    "kernel/README.md": "da153537c3883bf87191c2c8924c0121bdae1cd645bd810d713d6c4c4d4dc1c3",
-    "kernel/_nodes.js": "5f7f0b0da47f18990f37e0a7050ae81d5aec11feae8a989006954c269a0f7719",
+    "kernel/README.md": "0a4cbcf60f5ecddfb56a93592059865e705cb80654a705d299270dd1d8463d62",
+    "kernel/_nodes.js": "14ca5376966d7f8ddf992cf09354e62b7dbe7196583b45d0fd06b0be09b33344",
     "kernel/analysis/characterized-gaps.mjs": "8a4c87e3a28014e463dfcbe5bb5a625b09ed8fdccc996355b731a6766fc92db2",
     "kernel/analysis/gaps.js": "fff2452abca17addb3920bac95fd9a3b89ac72853860145d150463342d695b37",
     "kernel/analysis/reconciliation.mjs": "c5b92515a20e5cc4fabdf1b555c118defc123da7da7b4ede24bda5b7f1dd9cbd",
@@ -57,7 +57,12 @@
     "kernel/store/graph.js": "1ee325e342339bf3ebaa3c6590528a88388f4c79f15183e2a9fe12cc672c943a",
     "kernel/store/patch-ledger.js": "c59ba0597441dc4a2f4b14487f288ade482e960b33024b8f3fb3286d1f86b6fa",
     "kernel/store/state.mjs": "6bcaa779ffdc676385ed658fc2fa9b65eb06b3972d0fc4b922731ce51da5a505",
-    "api/client-api.mjs": "79756dba3de8de064cf6ce133755311d121a27cf0aca46938388b50e9966238b",
+    "kernel/schema/glossary.mjs": "507671fe04adf9f536a6c79ff6c7793ef2b0b87007cd29ce41110190c1726360",
+    "kernel/compute/transforms.mjs": "3ebdd6d20960d337219cec555a3f6cedd7e1ea9369b98c5c51d738b03034eeb1",
+    "kernel/compute/canonical-packs.mjs": "0ea21550b52cdf47ca8c8986fe903ee2e4dbff6340166a41affb6d0da4e36af6",
+    "kernel/compute/registry.mjs": "8e9ec97f68e2bc986e5fcd36f48245243c14c7872b216c1ce8cb146d100afe91",
+    "kernel/composition/algebra.mjs": "57a38d30d356c2d5ee3605c8621b927131843ac2e05100816cab010340a88bd9",
+    "api/client-api.mjs": "8dfd7650a582b24d217e719e2d9b4562ce4edcf9712be0a8833cf6a50448386f",
     "api/contribution.js": "d961a4482a293796be45dd1ee4e3423e723094b422246855bc5fe0f0bae64984",
     "api/credential.js": "6e5e15d8bd717d017748bc378e1cad011a327f7cad40c3108bf92b010ee6cedc",
     "api/fork.js": "e7017ad8eecc8ee33c7e8a5950d98ae6e75e5c6a9a205117ac73deaaefa561d2",
