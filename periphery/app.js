@@ -33,6 +33,9 @@ import { renderVaultScreen, downloadJSON } from "./vault-screen.js";
 import { renderOutboxScreen } from "./outbox-screen.js";
 import { renderContributeScreen } from "./contribute-screen.js";
 import { renderExtensionScreen, renderDashboardScreen } from "./extension-screen.js";
+import { renderComputeScreen } from "./compute-screen.js";
+import { renderGraphScreen } from "./graph-screen.js";
+import { kernelViewOf } from "../api/compute/kernel-view.js";
 import { renderOnboardingScreen } from "./onboarding-screen.js";
 import { renderMenuScreen } from "./menu-screen.js";
 import { renderCommunitiesScreen } from "./communities-screen.js";
@@ -116,6 +119,7 @@ function setHash(next) {
   if (merged.view && merged.view !== "feed") params.set("view", merged.view);
   if (merged.view === "contribute" && merged.action) params.set("action", merged.action);
   if (merged.view === "contribute" && merged.target) params.set("target", merged.target);
+  if (merged.view === "graph" && merged.target) params.set("target", merged.target);
   location.hash = params.toString();
 }
 
@@ -527,6 +531,7 @@ async function loadCommunity(id, deepLinkClaim) {
         isDeepLinkTarget: (identity) => identity === deepLinkClaim,
         onContribute: (action, targetRow) => setHash({ view: "contribute", action, target: targetRow.identity, community: meta.id }),
         onToggleWatch: (targetRow) => toggleWatch(targetRow),
+        onViewGraph: (targetRow) => setHash({ view: "graph", target: targetRow.identity, community: meta.id }),
         roomWalks: meta.id === "epistack-competition" ? ROOM_WALKS : undefined,
         onWalkToRoom: (roomId) => setHash({ community: roomId, view: "feed", claim: null }),
       });
@@ -722,6 +727,65 @@ async function loadExtensionScreen(id) {
     });
   }
   draw();
+}
+
+// the compute picker (KG-COMPUTE): loads the active community exactly as any other per-community
+// screen does, then renders its compute surface (community.api.transforms/describeTransform/
+// runTransform, which api/community.js already serves as KG's own registry, canonical packs plus
+// KG's statistics pack).
+async function loadComputeScreen(id) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  feedEl.setAttribute("aria-busy", "false");
+  renderComputeScreen(feedEl, {
+    transforms: (pack) => community.api.transforms(pack),
+    describeTransform: (transformId) => community.api.describeTransform(transformId),
+    runTransform: (transformId, input) => community.api.runTransform(transformId, input),
+  });
+}
+
+// the graph object (KG-GRAPH): loads the active community exactly as any other per-community screen
+// does, then renders it as the argument structure, either a claim's support cone (target set, "view
+// graph" from a claim row) or the community's conclusions and their cones (no target, the overview
+// reached from the community or menu).
+async function loadGraphScreen(id, target) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  feedEl.setAttribute("aria-busy", "false");
+  renderGraphScreen(feedEl, {
+    graph: { entries: community.raw.state.entries || [], links: community.raw.state.links || [] },
+    focus: target || null,
+    read: (query) => community.api.read(query),
+    gaps: (query) => community.api.gaps(query),
+    characterizedGaps: (query) => community.api.characterizedGaps(query),
+    reconciliations: (query) => community.api.reconciliations(query),
+    glossary: () => community.api.glossary(),
+    transforms: (pack) => community.api.transforms(pack),
+    runTransform: (transformId, input) => community.api.runTransform(transformId, input),
+    kernelView: () => kernelViewOf(community.raw),
+  });
 }
 
 async function loadDashboardScreen(id) {
@@ -1306,6 +1370,10 @@ function route({ community, claim, view, action, target }) {
     loadAssistantScreen(activeId);
   } else if (view === "dashboard") {
     loadDashboardScreen(activeId);
+  } else if (view === "compute") {
+    loadComputeScreen(activeId);
+  } else if (view === "graph") {
+    loadGraphScreen(activeId, target);
   } else if (view === "designer") {
     loadDesignerScreen();
   } else if (view === "submission") {

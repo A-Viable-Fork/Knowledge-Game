@@ -19,7 +19,9 @@
 //   and "reply", target the row a new comment attaches to or replies to; "promote", target the
 //   comment being lifted into a claim draft), and (Phase KG-6b, virtual rows only)
 //   `onDiscardVirtual(row)` and `lensImpact` (a Map from api/virtual.js's computeLensImpact,
-//   identity -> {from, to}, rendered only when the lens is on). Phase KG-13: `roomWalks` (a Map,
+//   identity -> {from, to}, rendered only when the lens is on). KG-GRAPH (optional): `onViewGraph
+//   (row)` renders a "View graph" button, this claim's own support cone drawn as the argument
+//   structure; omitted entirely when the caller does not supply it. Phase KG-13: `roomWalks` (a Map,
 //   identity -> [{roomId, roomLabel}], present only for a community that carries case-claims about
 //   the three rooms) and `onWalkToRoom(roomId)`; a claim named in the map renders one button per
 //   target, always visible (not gated behind the Level 2 disclosure), walking the reader into that
@@ -174,6 +176,12 @@ function levelThree(row, ctx) {
   const watchBtn = ctx.onToggleWatch
     ? el("button", { class: "contribute-action watch-action", type: "button", "aria-pressed": watched ? "true" : "false", onclick: () => ctx.onToggleWatch(row) }, watched ? "Unwatch" : "Watch")
     : null;
+  // the graph object's other entry point (KG-GRAPH): "view graph" renders this claim's own support
+  // cone. Gated behind ctx.onViewGraph so a caller that does not supply it (unchanged) renders nothing
+  // new; read-only, the same as every other level-3 action here proposes nothing itself.
+  const viewGraphBtn = ctx.onViewGraph
+    ? el("button", { class: "contribute-action", type: "button", onclick: () => ctx.onViewGraph(row) }, "View graph")
+    : null;
   return el(
     "div",
     { class: "level-3-actions" },
@@ -181,7 +189,8 @@ function levelThree(row, ctx) {
       el("button", { class: "contribute-action", type: "button", onclick: () => ctx.onContribute(a.action, row) }, a.label)
     ),
     ...extra,
-    watchBtn
+    watchBtn,
+    viewGraphBtn
   );
 }
 
