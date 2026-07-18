@@ -13,7 +13,7 @@
     },
     {
       "path": "fixtures/knowledge-game.snapshot.json",
-      "snapshot_hash": "81f80dc0a083fe0dac714875afee765f607deca532eafe57995df5a32d4b513a",
+      "snapshot_hash": "fbae806fb11cf5f1767ba8c97b4022d5c1538d0d71523c3d573d3e8886377792",
       "description": "The mirror (Phase KG-12 Step 5): this deployment's own governance kernel, joined as an ordinary browsable community, snapshot by hash like any other. 48 claims: the original 20 (all checked, grounding complete as of Phase KG-4), the 7-claim entrance listing, and the 21-claim front-page decomposition (Phase KG-front-page-claims), the same claims the front page's own claim lens (periphery/root-lens.js) reads from this identical snapshot. Its own repository (https://github.com/A-Viable-Fork/Knowledge-Game) is the contribution target for any claim about it."
     },
     {

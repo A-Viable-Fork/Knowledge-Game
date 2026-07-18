@@ -715,6 +715,33 @@ migrated lens end to end: span resolution, the follow trail's new "already groun
 deployment's own governance kernel" label, a real fork through the app's own compose surface
 producing a real receipt, and the JS-disabled static page unchanged.
 
+**Phase KG-front-page-sync, completed (steps 1-4; step 5 deferred): sync two front-page claim
+statements.** Pairs with a companion prompt (AVF-3, not run in this session) that edits the front
+page's own visible sentences; this phase updates only the two governance-kernel claims those
+sentences carry. Editing path: direct corpus source edit and rebuild, the only convention this
+repository's own corpus-editing history has ever used (no prior phase, including the 27 hand-added
+governance and entrance-listing claims, ever reached for a supersession record; that mechanism is
+Section 14's live-store withdrawal path, not a pre-deploy source edit within the same authoring
+phase). `fp.goal-attenuation`'s statement changes to carry the definitional content the old
+`fp.knowledge-definition` held ("a claim counts as knowledge when..."), so its kind is reclassified
+from `forum` to `declaration` (ceiling constitutive), matching the kind that content already earned
+under the old split. `fp.knowledge-definition`'s statement narrows to the composition-and-authority
+half alone, staying `declaration` (still a definitional stipulation about how compounding is
+defined for this submission, not an interpretive weighing). Neither claim carried a restatement or
+grounding link to move; both keep their existing `url` provenance (the-minimum-constitution.md, the
+same document covering both new statements). The gate accepts the rebuild cleanly, both claims price
+at `constitutive`, matching their declared grade exactly. Because `periphery/root-lens.js` was
+already migrated (KG-front-page-claims) to match spans by `span_ref` rather than exact statement
+text, this phase required no change to `index.html` or `root-lens.js` at all: the two claims' `ref`
+and `span_ref` values are unchanged, so the existing `data-ref` attributes keep resolving correctly
+regardless of the statement text change, and no "no matching statement" warning is structurally
+possible under this design (the concern the governing prompt raised no longer applies once binding
+moved off text equality). A live local smoke test confirmed exactly this: the span (still showing
+its pre-AVF-3 prose) opens the lens and the panel displays the new claim text and its new
+`declaration`/`constitutive` kind, with zero console errors. Step 5 of the governing prompt (a live
+production check after AVF-3 also deploys) is deferred: AVF-3 has not landed on `main` as of this
+phase's own merge, tracked as open rather than silently skipped.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is

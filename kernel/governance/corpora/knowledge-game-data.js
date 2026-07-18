@@ -542,11 +542,11 @@ const STORE = {
     },
     {
       ref: "fp.goal-attenuation",
-      kind: "forum",
-      statement: "This submission reads all of that as one goal: knowledge that survives attenuation.",
+      kind: "declaration",
+      statement: "This submission reads all of that as one requirement: a claim counts as knowledge when it still stands after trust in whoever produced it is turned down toward zero.",
       source_id: "S-fp-epistack-submission",
       contributor_id: "P-front-page",
-      declared_grade: "asserted",
+      declared_grade: "constitutive",
       role: "front-page",
       entrance_surfaced: true,
       span_ref: "fp.goal-attenuation",
@@ -555,7 +555,7 @@ const STORE = {
     {
       ref: "fp.knowledge-definition",
       kind: "declaration",
-      statement: "A claim counts as knowledge when it still stands after trust in whoever produced it is dialed down toward zero, and work compounds exactly when communities' claims compose without importing each other's authority.",
+      statement: "Work compounds exactly when communities' claims compose without importing each other's authority.",
       source_id: "S-fp-epistack-submission",
       contributor_id: "P-front-page",
       declared_grade: "constitutive",
