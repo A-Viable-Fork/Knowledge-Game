@@ -705,3 +705,30 @@ body { padding-bottom: calc(3.4rem + env(safe-area-inset-bottom, 0)); }
 .submission-walk-button { display: block; margin: 0.4rem 0; font: inherit; font-size: 0.85rem; }
 .submission-threshold { max-width: 68ch; margin: 2.5rem auto 0; border-top: 1px solid var(--line); padding-top: 1.5rem; }
 .submission-enter-button { font: inherit; padding: 0.6rem 1.2rem; border-radius: 999px; border: 1px solid var(--focus); background: var(--focus); color: var(--on-accent); cursor: pointer; }
+
+/* The graph object (KG-GRAPH): a deterministic layered layout drawn in SVG, never force-directed. */
+.graph-screen { max-width: 100%; padding: 0.4rem 1.1rem 3rem; }
+.graph-legend { margin: 0.6rem 0 1rem; font-size: 0.82rem; }
+.graph-legend-links, .graph-legend-grades { display: block; margin: 0.3rem 0; }
+.graph-legend-entry { margin-right: 0.9rem; white-space: nowrap; }
+.graph-canvas-mount { border: 1px solid var(--line); border-radius: var(--radius); overflow: auto; max-height: 70vh; background: var(--card-bg); }
+.graph-canvas { display: block; }
+.graph-node rect { fill: var(--card-bg); stroke: var(--line); stroke-width: 1.5; cursor: pointer; }
+.graph-node:focus rect, .graph-node:hover rect { stroke: var(--focus); }
+.graph-node text { fill: var(--ink); font-size: 10px; font-family: inherit; pointer-events: none; }
+.graph-node-kind { font-weight: 600; }
+.graph-node-declared, .graph-node-earned { fill: var(--ink-muted); }
+.graph-node-divergence-flag { fill: var(--grade-asserted); font-weight: 600; }
+.graph-node-terminal rect { stroke-dasharray: 4 3; }
+.graph-node-terminal-flag { fill: var(--grade-asserted); }
+.graph-node-crux rect { stroke: var(--grade-asserted); stroke-width: 2; }
+.graph-node-crux-flag { fill: var(--grade-asserted); font-weight: 700; }
+.graph-node-collapse-toggle { fill: var(--ink-muted); cursor: pointer; font-weight: 700; }
+.graph-edge { stroke: var(--ink-muted); stroke-width: 1; }
+.graph-edge-supports { stroke: var(--focus); }
+.graph-edge-contradicts { stroke: var(--grade-asserted); stroke-width: 1.5; }
+.graph-edge-contested { stroke-dasharray: 5 3; }
+.graph-edge-depends-on { stroke-dasharray: 2 2; }
+.graph-inspect-mount { margin-top: 1rem; }
+.graph-inspect-panel { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.7rem 0.8rem; }
+.graph-inspect-id { font-size: 0.75rem; color: var(--ink-muted); word-break: break-all; }
