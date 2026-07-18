@@ -33,6 +33,7 @@ import { renderVaultScreen, downloadJSON } from "./vault-screen.js";
 import { renderOutboxScreen } from "./outbox-screen.js";
 import { renderContributeScreen } from "./contribute-screen.js";
 import { renderExtensionScreen, renderDashboardScreen } from "./extension-screen.js";
+import { renderComputeScreen } from "./compute-screen.js";
 import { renderOnboardingScreen } from "./onboarding-screen.js";
 import { renderMenuScreen } from "./menu-screen.js";
 import { renderCommunitiesScreen } from "./communities-screen.js";
@@ -724,6 +725,32 @@ async function loadExtensionScreen(id) {
   draw();
 }
 
+// the compute picker (KG-COMPUTE): loads the active community exactly as any other per-community
+// screen does, then renders its compute surface (community.api.transforms/describeTransform/
+// runTransform, which api/community.js already serves as KG's own registry, canonical packs plus
+// KG's statistics pack).
+async function loadComputeScreen(id) {
+  const feedEl = clearChrome();
+  feedEl.setAttribute("aria-busy", "true");
+  renderChrome({ view: "menu" });
+
+  const meta = COMMUNITIES.find((c) => c.id === id) || COMMUNITIES[0];
+  let community;
+  try {
+    community = await fetchCommunity(meta.path);
+  } catch (e) {
+    feedEl.textContent = `Refused to load ${meta.path}: ${e.message}`;
+    feedEl.setAttribute("aria-busy", "false");
+    return;
+  }
+  feedEl.setAttribute("aria-busy", "false");
+  renderComputeScreen(feedEl, {
+    transforms: (pack) => community.api.transforms(pack),
+    describeTransform: (transformId) => community.api.describeTransform(transformId),
+    runTransform: (transformId, input) => community.api.runTransform(transformId, input),
+  });
+}
+
 async function loadDashboardScreen(id) {
   const feedEl = clearChrome();
   feedEl.setAttribute("aria-busy", "true");
@@ -1306,6 +1333,8 @@ function route({ community, claim, view, action, target }) {
     loadAssistantScreen(activeId);
   } else if (view === "dashboard") {
     loadDashboardScreen(activeId);
+  } else if (view === "compute") {
+    loadComputeScreen(activeId);
   } else if (view === "designer") {
     loadDesignerScreen();
   } else if (view === "submission") {
