@@ -1,14 +1,14 @@
 {
-  "_comment_provisional": "PROVISIONAL PIN. This lock names a snapshot of upstream main taken before the competition freeze. Re-pinning at the upstream freeze (2026-07-19) is a standing obligation: re-clone upstream/epistack at the frozen commit, re-run build/vendor-extract.mjs, recompute every hash below, and update commit_hash, acquisition_date, and provisional to false. Do not treat this lock as final until that re-pin has happened.",
+  "_comment_provisional": "FROZEN PIN. This lock names epistack's canonical main at the competition freeze (2026-07-19), confirmed against the real remote (git ls-remote) rather than assumed. provisional is false: this is not a snapshot awaiting a later re-pin.",
   "upstream": {
     "owner": "A-Viable-Fork",
     "repo": "epistack",
     "url": "https://github.com/A-Viable-Fork/epistack.git"
   },
-  "commit_hash": "a34c82862ddd114a2fb07d61db28dec51af54abc",
-  "acquisition_date": "2026-07-18",
-  "provisional": true,
-  "repin_obligation": "Re-pin at the upstream freeze, 2026-07-19, is a standing obligation. This flag and this note must both be updated together: provisional becomes false only once the commit above is the frozen commit and every hash below has been recomputed against it.",
+  "commit_hash": "b778f3525d4b3a801eaf067205a45d7697887d38",
+  "acquisition_date": "2026-07-19",
+  "provisional": false,
+  "repin_obligation": "None standing. The prior provisional pin's freeze re-pin obligation (dated 2026-07-19) is fulfilled by this pin.",
   "extraction": {
     "method": "pinned submodule plus deterministic extraction",
     "submodule_path": "upstream/epistack",
