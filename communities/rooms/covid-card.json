@@ -8,7 +8,7 @@
     "https://a-viable-fork.github.io/Knowledge-Game/app/fixtures/covid.snapshot.json"
   ],
   "pinned_type_hashes": {},
-  "contribution_target": "https://github.com/A-Viable-Fork/epistack/tree/a34c82862ddd114a2fb07d61db28dec51af54abc/corpora/covid (a contest or correction on a room claim is a pull request there, re-run through epistack's own gate)",
+  "contribution_target": "https://github.com/A-Viable-Fork/epistack/tree/b778f3525d4b3a801eaf067205a45d7697887d38/corpora/covid (a contest or correction on a room claim is a pull request there, re-run through epistack's own gate)",
   "protocol_identity": "epistack-v3",
   "domain": "The Covid Room (pandemic origins, the adversarial case)",
   "identity_thresholds": {},

@@ -67,11 +67,16 @@ console.log("\n[3] every vendored file's hash matches upstream/lock.json");
   }
 }
 
-// --- 4. the lock states it is provisional and carries the re-pin obligation ---
-console.log("\n[4] the lock is honestly marked provisional with a dated re-pin obligation");
+// --- 4. the lock honestly states its provisional status and repin obligation, whichever it is ---
+console.log("\n[4] the lock honestly states its provisional status and repin obligation");
 {
-  ok(lock.provisional === true, "lock.provisional is true (this pin has not yet been re-pinned at the freeze)");
-  ok(typeof lock.repin_obligation === "string" && lock.repin_obligation.length > 0, "lock.repin_obligation names the standing obligation");
+  ok(typeof lock.provisional === "boolean", "lock.provisional is a boolean, not left unstated");
+  ok(typeof lock.repin_obligation === "string" && lock.repin_obligation.length > 0, "lock.repin_obligation is a non-empty string, naming either the standing obligation or that none stands");
+  if (lock.provisional) {
+    ok(!/none standing/i.test(lock.repin_obligation), "provisional: true does not claim no obligation stands");
+  } else {
+    ok(!/^re-pin at the upstream freeze.*is a standing obligation/i.test(lock.repin_obligation), "provisional: false does not still claim the freeze re-pin is a standing obligation (this pin IS that re-pin)");
+  }
   ok(Array.isArray(lock.local_patches) && lock.local_patches.length === 0, "lock.local_patches is empty (no local departure from upstream)");
 }
 
