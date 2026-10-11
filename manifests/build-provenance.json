@@ -1,13 +1,13 @@
 {
   "_purpose": "Build provenance. source_commit and artifact_hash are populated by a future build step, not by hand; they are null until that step exists.",
-  "source_commit": "719a435433701b0a73a0f5245f0ef651922b37b7",
+  "source_commit": "6726401e93a130efd2d06c70bccd63d000a1b78b",
   "upstream_pin": {
     "repo": "A-Viable-Fork/epistack",
     "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
     "provisional": true
   },
   "build_command": ".github/workflows/ci.yml: no build tooling exists (no bundler, no transpiler); the deployed artifact is the checked-out working tree itself, served as vanilla ESM static files, after every build/check-*.mjs passes and app/fixtures/ is confirmed reproducible by regenerating and diffing against the committed content.",
-  "artifact_hash": "8eea7cc583c558186aa9415640ce117c69543df007c4734af1c178ce7f5fad5d",
+  "artifact_hash": "a915fd5886c72cdd18068c1252c04a6cd28b2a3f03b62fb36ab834e2d2435547",
   "artifact_hash_note": "artifact_hash is a sha256 over the sorted JSON of file_hashes, itself a sha256 per file over every file `git ls-files --cached --others --exclude-standard` lists (the deployed tree, since no build step compiles source into output), excluding this manifest itself. Recomputed and compared by build/check-release.mjs.",
   "protocol_identity": "v3",
   "provider_contract": "vendor/api/client-api.mjs",
@@ -16,6 +16,8 @@
     ".github/workflows/android-release.yml": "35dd69277baf3ad851f309e77391185df054609af08e03d26f3d62268a3d4219",
     ".github/workflows/ci.yml": "3772d008539c5ef2fb511a2c96eb8d0c3070b766d12ea92a15948f7d3fd7914a",
     ".gitmodules": "48df8791f20d30fdb7fd035f96b674945364d08001f1383f0ca5f997e92227a2",
+    "AGENTS.md": "86ef71861006de4bfba80ad0d70a671198075d775cec7c116a05a056d5f5a0ec",
+    "CLAUDE.md": "4b0ca23812f5365840c08d421b3991d274b38af797ce2ddad645376a8f990f5b",
     "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
     "README.md": "4cb88693cba9ab421c335c51c97c8052dfa09781fc0edd887c16c9078441a302",
     "android/.gitignore": "0174d1f8f41f3789606773629d3998dca2c14bb8dd3db80864f8ce646ca0cfcf",
