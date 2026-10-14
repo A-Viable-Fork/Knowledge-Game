@@ -742,6 +742,14 @@ its pre-AVF-3 prose) opens the lens and the panel displays the new claim text an
 production check after AVF-3 also deploys) is deferred: AVF-3 has not landed on `main` as of this
 phase's own merge, tracked as open rather than silently skipped.
 
+## Where it runs and what is founded, as of 2026-10-14 (read at commit c67c7ad)
+
+Moved here from the README, which now describes the design only.
+
+- **Served.** The app is served at https://a-viable-fork.github.io/Knowledge-Game/ (answered 200 on 2026-10-14) and installs from the browser menu; the Android wrapper wraps that same deployment (Phase KG-6a above).
+- **Founded communities.** `communities/epistack-competition/` (the EpiStack Competition Community, the first founded: claims about the protocol itself, mechanical ones grounded by upstream's own checks, evaluative ones at their honest floor) and `communities/the-registry/`, each checked by its own `build/check.mjs` in CI. `communities/rooms/` carries room cards.
+- **Seams awaiting upstream.** Four seams stand with null implementations: credentials and identity presentation, durable patch history, live remote providers, and the standing economy (`docs/specification.md` Section 5); the first three are checked by `build/check-seams.mjs`, and their real evaluators are listed under "Specified, not built" below.
+
 ## Specified, not built
 
 Everything else in this repository is specified and not yet built, named here so the scope is
