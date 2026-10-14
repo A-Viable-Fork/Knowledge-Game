@@ -1,13 +1,13 @@
 {
   "_purpose": "Build provenance. source_commit and artifact_hash are populated by a future build step, not by hand; they are null until that step exists.",
-  "source_commit": "6726401e93a130efd2d06c70bccd63d000a1b78b",
+  "source_commit": "c67c7ad87184cd695d17198fbb5ab90a2e663446",
   "upstream_pin": {
     "repo": "A-Viable-Fork/epistack",
     "commit_hash": "674e7b6220db50552c8e817f06c0f433def9c095",
     "provisional": true
   },
   "build_command": ".github/workflows/ci.yml: no build tooling exists (no bundler, no transpiler); the deployed artifact is the checked-out working tree itself, served as vanilla ESM static files, after every build/check-*.mjs passes and app/fixtures/ is confirmed reproducible by regenerating and diffing against the committed content.",
-  "artifact_hash": "a915fd5886c72cdd18068c1252c04a6cd28b2a3f03b62fb36ab834e2d2435547",
+  "artifact_hash": "b476cadf62c9a58299c32f5500b8238ccd6e0ad73401b770cba16f3fb8a57618",
   "artifact_hash_note": "artifact_hash is a sha256 over the sorted JSON of file_hashes, itself a sha256 per file over every file `git ls-files --cached --others --exclude-standard` lists (the deployed tree, since no build step compiles source into output), excluding this manifest itself. Recomputed and compared by build/check-release.mjs.",
   "protocol_identity": "v3",
   "provider_contract": "vendor/api/client-api.mjs",
@@ -19,7 +19,7 @@
     "AGENTS.md": "86ef71861006de4bfba80ad0d70a671198075d775cec7c116a05a056d5f5a0ec",
     "CLAUDE.md": "4b0ca23812f5365840c08d421b3991d274b38af797ce2ddad645376a8f990f5b",
     "LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
-    "README.md": "4cb88693cba9ab421c335c51c97c8052dfa09781fc0edd887c16c9078441a302",
+    "README.md": "1cb6da4e0122a0e472016c51efc47f41b5ca238a55ce9d98383b8577ce35c10d",
     "android/.gitignore": "0174d1f8f41f3789606773629d3998dca2c14bb8dd3db80864f8ce646ca0cfcf",
     "android/README.md": "5fc1d5209d392d24c6b44a19adbde53726a27b963bf00103921335d6be17e76c",
     "android/assetlinks.json": "3f5cb5e961561bec64595a3b2e3ba59604fd6ae69d0f17d40009f95b1a123799",
@@ -354,7 +354,7 @@
     "trellis/parameters-register.md": "d1d785ecc5c9751e68131ca59f26ec1d2f2e1dbd3c22f89aa437dcad9331967b",
     "trellis/sorry-ledger.md": "f2242ec8a430eabbf5493c1d970799d2208994d2bc9e7f2b52f997493ddbdb19",
     "trellis/stage-manifest.json": "beadc0a1c30b02d712979408cdcb042714ad3d65a26ad3211d6dde15d3354bf9",
-    "trellis/status-ledger.md": "db9f898b175f9aa7aa885ffe043ec5e55d9a3187ba554cda2ddee9cc512bf3f3",
+    "trellis/status-ledger.md": "b2ad396c4fc4f106a45e072c2185394a33af6a189e2caebcb00fd98803f8e1c9",
     "upstream/lock.json": "dae6c1c28086dc6961f6d5d9d2a887f4f0f79d801e3af7fa54da123f8e0b9de0",
     "vault/README.md": "4fecc95e8001c0b201e44021e1ea668e6df9d429147903d3eaab5638d9e3f7c9",
     "vault/vault.js": "ee8a37af7bfbeac3ff690baa3c59827d2b5b64d4f970b0492e9f289b07a53c44",
